@@ -1,0 +1,37 @@
+.home {
+  /* position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  height: 100vh;*/
+  background-image: url('../../images/home.jpg');
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+}
+.logo {
+  width: 100%; 
+  max-height: 400px;
+}
+
+#logo {
+  width: 100%;
+  vertical-align: middle;
+  margin-top: 50px
+}
+
+.ant-layout {
+  height: 100%;
+}
+
+.ant-layout-footer {
+  padding: 0 !important;
+  z-index: 2;
+}
+
+.title-login {
+  text-align: center;
+  color: #40A9FF
+}

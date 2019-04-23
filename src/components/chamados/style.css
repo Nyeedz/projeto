@@ -1,0 +1,17 @@
+.steps-content {
+  width: 100%;
+  margin-top: 10px;
+}
+.ant-steps-item {
+  padding: 20px;
+  margin-top: 1rem
+}
+.steps-action {
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+.content {
+  padding: 0 50px;
+  margin-top: 2rem
+}

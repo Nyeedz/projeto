@@ -1,0 +1,15 @@
+{
+  "name": "custom-antd",
+  "version": "1.0.0",
+  "description": "custom theme for antd",
+  "main": "build/index.css",
+  "scripts": {
+    "build": "lessc index.less build/index.css"
+  },
+  "author": "Christian Fernandes",
+  "license": "ISC",
+  "dependencies": {
+    "antd": "^3.2.0",
+    "less": "^2.7.3"
+  }
+}
