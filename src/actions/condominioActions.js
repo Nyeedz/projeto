@@ -13,7 +13,7 @@ export function fetchCondominios() {
       headers: { Authorization: `Bearer ${auth}` }
     };
     axios
-      .get(`${url}/condominios`, config)
+      .get(`${url}/condominios?ativo=true`, config)
       .then(res => {
         dispatch({
           type: 'GET_CONDOMINIOS_SUCCESS',

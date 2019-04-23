@@ -5,3 +5,47 @@
   background-size: cover;
   height: auto;
 }
+
+.main-title {
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid rgba(0, 0, 0, .1);
+  padding: 5px
+}
+
+.centralizado {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center
+}
+
+.esquerda {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.radio {
+  display: block;
+  height: 10px;
+  line-height: 10px;
+  margin-top: 1rem
+}
+
+.cadastrar-button {
+  float: right;
+  margin-bottom: 2rem
+}
+
+.cancel-button {
+  float: right;
+  margin-bottom: 2rem;
+  margin-left: 1rem
+}
+
+.table-divider {
+  color: #757575;
+  font-weight: bold;
+  margin-left: 1rem
+}

@@ -12,7 +12,7 @@ import axios from 'axios';
 import React from 'react';
 import { url, CODE_EDITAR } from '../../../utilities/constants';
 import Permissao from '../permissoes/permissoes';
-import './style.css';
+import '../style.css';
 
 class TableCondominios extends React.Component {
   state = {
@@ -24,9 +24,12 @@ class TableCondominios extends React.Component {
     filterDropdownVisible: false
   };
 
+  componentDidMount = () => {
+    this.fetch();
+  };
+
   componentWillReceiveProps = nextProps => {
     if (nextProps.condominios) {
-      this.fetch();
       this.setState({ data: nextProps.condominios });
     }
   };

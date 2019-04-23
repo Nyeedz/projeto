@@ -25,27 +25,13 @@ import ModalAvatar from './avatar';
 import TableCondominios from './table';
 import { getCodePath } from '../../../utilities/functions';
 import Permissao from '../permissoes/permissoes';
-import style from './style.css';
-import cep from 'cep-promise'
+import '../style.css';
+import cep from 'cep-promise';
 
 const { Content } = Layout;
 const Option = Select.Option;
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
-
-const styles = {
-  centralizado: {
-    display: 'inline-flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  esquerda: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center'
-  }
-};
 
 function hasErrors(fieldsError) {
   return Object.keys(fieldsError).some(field => fieldsError[field]);
@@ -304,55 +290,34 @@ class CondominiosForm extends React.Component {
           .post(
             `${url}/condominios`,
             {
-              logo: this.state.imagem,
-              construtoras: values.construtoras,
               nome: values.nome,
-              ativo: this.state.ativo,
-              validade: values.validade,
+              logo: this.state.imagem,
               cep: values.cep,
-              bairro: values.bairro,
               estado: values.estado,
               cidade: values.cidade,
               endereco: values.endereco,
               numero: values.numero,
               complemento: values.complemento,
-              email: values.email,
               telefone: values.telefone,
-              deleted: false
+              email: values.email,
+              validade: values.validade,
+              bairro: values.bairro,
+              construtoras: values.construtoras,
+              ativo: this.state.ativo
             },
             config
           )
           .then(res => {
             let contrato = new FormData();
             contrato.append('ref', 'condominios');
-            contrato.append('refId', res.data.id);
-            contrato.append('field', 'file');
+            contrato.append('refId', res.data._id);
+            contrato.append('field', 'contrato');
             contrato.append('files', this.state.file);
 
             axios
               .post(`${url}/upload`, contrato, config)
               .then(res => {
-                this.props.dispatch(
-                  fetchCondominios({
-                    logo: this.state.imagem,
-                    construtoras: values.construtoras,
-                    nome: values.nome,
-                    ativo: this.state.ativo,
-                    validade: values.validade,
-                    cep: values.cep,
-                    bairro: values.bairro,
-                    estado: values.estado,
-                    cidade: values.cidade,
-                    endereco: values.endereco,
-                    contrato: contrato,
-                    numero: values.numero,
-                    complemento: values.complemento,
-                    email: values.email,
-                    telefone: values.telefone,
-                    deleted: false
-                  })
-                );
-                this.dispatchDados();
+                this.props.dispatch(fetchCondominios());
                 notification.open({
                   message: 'Ok',
                   description: 'Condomínio cadastrado com sucesso!',
@@ -443,13 +408,6 @@ class CondominiosForm extends React.Component {
       isFieldTouched
     } = this.props.form;
 
-    const radioStyle = {
-      display: 'block',
-      height: '10px',
-      lineHeight: '10px',
-      marginTop: '1rem'
-    };
-
     const construtorasError =
       isFieldTouched('construtoras') && getFieldError('construtoras');
     const nomeError = isFieldTouched('nome') && getFieldError('nome');
@@ -477,14 +435,7 @@ class CondominiosForm extends React.Component {
             codTela={this.state.codTela}
             permissaoNecessaria={CODE_EDITAR}
           >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                borderBottom: '1px solid rgba(0, 0, 0, .1)',
-                padding: 5
-              }}
-            >
+            <div className="main-title">
               <h2>
                 <span>Novo Condominio</span>
               </h2>
@@ -498,16 +449,16 @@ class CondominiosForm extends React.Component {
               style={{ width: '90%' }}
             >
               <Row gutter={16} style={{ marginTop: '1rem' }}>
-                <Col span={8} style={styles.centralizado}>
+                <Col span={8} className="centralizado">
                   <ModalAvatar
                     imagem={this.state.imagem}
                     saveImage={this.saveImage}
                   />
                   <RadioGroup onChange={this.onChange} value={this.state.ativo}>
-                    <Radio style={radioStyle} value={1}>
+                    <Radio className="radio" value={1}>
                       Ativo
                     </Radio>
-                    <Radio style={radioStyle} value={0}>
+                    <Radio className="radio" value={0}>
                       Inativo
                     </Radio>
                   </RadioGroup>
@@ -668,7 +619,7 @@ class CondominiosForm extends React.Component {
                     </Row>
                   ) : null}
                   <Row gutter={16}>
-                    <Col span={8} style={styles.esquerda}>
+                    <Col span={8} className="esquerda">
                       <Spin
                         spinning={this.state.loading || this.state.enviando}
                       >
@@ -693,7 +644,7 @@ class CondominiosForm extends React.Component {
                         </FormItem>
                       </Spin>
                     </Col>
-                    <Col span={12} style={styles.esquerda}>
+                    <Col span={12} className="esquerda">
                       <Spin
                         spinning={this.state.loading || this.state.enviando}
                       >
@@ -713,7 +664,7 @@ class CondominiosForm extends React.Component {
                         </FormItem>
                       </Spin>
                     </Col>
-                    <Col span={4} style={styles.esquerda}>
+                    <Col span={4} className="esquerda">
                       <Spin
                         spinning={this.state.loading || this.state.enviando}
                       >
@@ -735,7 +686,7 @@ class CondominiosForm extends React.Component {
                     </Col>
                   </Row>
                   <Row gutter={16}>
-                    <Col span={7} style={styles.esquerda}>
+                    <Col span={7} className="esquerda">
                       <Spin
                         spinning={this.state.loading || this.state.enviando}
                       >
@@ -755,7 +706,7 @@ class CondominiosForm extends React.Component {
                         </FormItem>
                       </Spin>
                     </Col>
-                    <Col span={4} style={styles.esquerda}>
+                    <Col span={4} className="esquerda">
                       <Spin spinning={this.state.enviando}>
                         <FormItem
                           validateStatus={numeroError ? 'error' : ''}
@@ -773,7 +724,7 @@ class CondominiosForm extends React.Component {
                         </FormItem>
                       </Spin>
                     </Col>
-                    <Col span={7} style={styles.esquerda}>
+                    <Col span={7} className="esquerda">
                       <Spin
                         spinning={this.state.loading || this.state.enviando}
                       >
@@ -794,7 +745,7 @@ class CondominiosForm extends React.Component {
                       </Spin>
                     </Col>
 
-                    <Col span={6} style={styles.esquerda}>
+                    <Col span={6} className="esquerda">
                       <Spin
                         spinning={this.state.loading || this.state.enviando}
                       >
@@ -815,7 +766,7 @@ class CondominiosForm extends React.Component {
                     </Col>
                   </Row>
                   <Row gutter={16}>
-                    <Col span={12} style={styles.esquerda}>
+                    <Col span={12} className="esquerda">
                       <Spin spinning={this.state.enviando}>
                         <FormItem
                           validateStatus={emailError ? 'error' : ''}
@@ -837,7 +788,7 @@ class CondominiosForm extends React.Component {
                         </FormItem>
                       </Spin>
                     </Col>
-                    <Col span={12} style={styles.esquerda}>
+                    <Col span={12} className="esquerda">
                       <Spin spinning={this.state.enviando}>
                         <FormItem
                           validateStatus={telefoneError ? 'error' : ''}
@@ -864,11 +815,7 @@ class CondominiosForm extends React.Component {
                 </Col>
                 {this.state.editar && (
                   <Button
-                    style={{
-                      float: 'right',
-                      marginBottom: '2rem',
-                      marginLeft: '1rem'
-                    }}
+                    className="cancel-button"
                     onClick={this.cancelarEdicao}
                   >
                     Cancelar
@@ -877,7 +824,7 @@ class CondominiosForm extends React.Component {
                 <Button
                   type="primary"
                   htmlType="submit"
-                  style={{ float: 'right', marginBottom: '2rem' }}
+                  className="cadastrar-button"
                   loading={this.state.enviando}
                   disabled={hasErrors(getFieldsError()) || this.state.enviando}
                 >
@@ -888,15 +835,7 @@ class CondominiosForm extends React.Component {
           </Permissao>
 
           <Permissao codTela={this.state.codTela} permissaoNecessaria={[1, 2]}>
-            <span
-              style={{
-                color: '#757575',
-                fontWeight: 'bold',
-                marginLeft: '1rem'
-              }}
-            >
-              Condomínios cadastrados
-            </span>
+            <span className="table-divider">Condomínios cadastrados</span>
             <Divider />
             <Row>
               <Col span={24}>

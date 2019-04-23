@@ -22,22 +22,9 @@ import ModalAvatar from './avatar';
 import { getCodePath } from '../../../utilities/functions';
 import Permissao from '../permissoes/permissoes';
 import cep from 'cep-promise';
+import '../style.css';
 
 const { Content } = Layout;
-
-const styles = {
-  centralizado: {
-    display: 'inline-flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  esquerda: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center'
-  }
-};
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -218,44 +205,25 @@ class ConstrutoraForm extends React.Component {
           .post(
             `${url}/construtoras`,
             {
-              logo: this.state.imagem,
               nome: values.nome,
-              ativo: this.state.ativo,
+              logo: this.state.imagem,
               razao_social: values.razao_social,
               cnpj: values.cnpj,
               cep: values.cep,
               estado: values.estado,
-              cidade: values.cidade,
               endereco: values.endereco,
               bairro: values.bairro,
-              numero: values.numero,
               complemento: values.complemento,
-              email: values.email,
+              cidade: values.cidade,
               telefone: values.telefone,
-              deleted: 0
+              ativo: this.state.ativo,
+              numero: values.numero,
+              email: values.email
             },
             config
           )
           .then(res => {
-            this.props.dispatch(
-              fetchConstrutoras({
-                logo: this.state.imagem,
-                nome: values.nome,
-                ativo: this.state.ativo,
-                razao_social: values.razao_social,
-                cnpj: values.cnpj,
-                cep: values.cep,
-                estado: values.estado,
-                cidade: values.cidade,
-                endereco: values.endereco,
-                bairro: values.bairro,
-                numero: values.numero,
-                complemento: values.complemento,
-                email: values.email,
-                telefone: values.telefone,
-                deleted: 0
-              })
-            );
+            this.props.dispatch(fetchConstrutoras());
             notification.open({
               message: 'Ok',
               description: 'Construtora cadastrada com sucesso!',
@@ -306,7 +274,7 @@ class ConstrutoraForm extends React.Component {
       );
     }
   };
-  
+
   phoneMask = e => {
     let x = e.target.value
       .replace(/\D/g, '')
@@ -320,8 +288,22 @@ class ConstrutoraForm extends React.Component {
     let cnpj = e.target.value
       .replace(/\D/g, '')
       .replace(/^(\d{2})(\d{3})?(\d{3})?(\d{4})?(\d{2})?/, '$1 $2 $3/$4-$5');
-    console.log(cnpj);
-    return cnpj;
+
+    if (
+      e.target.value == '00 000 000/0000-00' ||
+      e.target.value == '11 111 111/1111-11' ||
+      e.target.value == '22 222 222/2222-22' ||
+      e.target.value == '33 333 333/3333-33' ||
+      e.target.value == '44 444 444/4444-44' ||
+      e.target.value == '55 555 555/5555-55' ||
+      e.target.value == '66 666 666/6666-66' ||
+      e.target.value == '77 777 777/7777-77' ||
+      e.target.value == '88 888 888/8888-88' ||
+      e.target.value == '99 999 999/9999-99'
+    )
+      return message.error('Cnpj inválido');
+
+    e.target.value = cnpj;
   };
 
   render() {
@@ -331,13 +313,6 @@ class ConstrutoraForm extends React.Component {
       getFieldError,
       isFieldTouched
     } = this.props.form;
-
-    const radioStyle = {
-      display: 'block',
-      height: '10px',
-      lineHeight: '10px',
-      marginTop: '1rem'
-    };
 
     const nomeError = isFieldTouched('nome') && getFieldError('nome');
     const razaoError =
@@ -363,14 +338,7 @@ class ConstrutoraForm extends React.Component {
             codTela={this.state.codTela}
             permissaoNecessaria={CODE_EDITAR}
           >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                borderBottom: '1px solid rgba(0, 0, 0, .1)',
-                padding: 5
-              }}
-            >
+            <div className="main-title">
               <h2>
                 <span>Nova Construtora</span>
               </h2>
@@ -385,7 +353,7 @@ class ConstrutoraForm extends React.Component {
                 style={{ width: '90%' }}
               >
                 <Row gutter={16} style={{ marginTop: '1rem' }}>
-                  <Col span={8} style={styles.centralizado}>
+                  <Col span={8} className="centralizado">
                     <ModalAvatar
                       imagem={this.state.imagem}
                       saveImage={this.saveImage}
@@ -394,10 +362,10 @@ class ConstrutoraForm extends React.Component {
                       onChange={this.onChange}
                       value={this.state.ativo}
                     >
-                      <Radio style={radioStyle} value={1}>
+                      <Radio className="radio" value={1}>
                         Ativo
                       </Radio>
-                      <Radio style={radioStyle} value={0}>
+                      <Radio className="radio" value={0}>
                         Inativo
                       </Radio>
                     </RadioGroup>
@@ -436,7 +404,7 @@ class ConstrutoraForm extends React.Component {
                           })(<Input placeholder="Razão Social" />)}
                         </FormItem>
                       </Col>
-                      <Col span={12} style={styles.esquerda}>
+                      <Col span={12} className="esquerda">
                         <FormItem
                           validateStatus={cnpjError ? 'error' : ''}
                           help={cnpjError || ''}
@@ -453,13 +421,14 @@ class ConstrutoraForm extends React.Component {
                             <Input
                               placeholder="Cnpj"
                               onChange={this.cnpjMask}
+                              maxLength="18"
                             />
                           )}
                         </FormItem>
                       </Col>
                     </Row>
                     <Row gutter={16}>
-                      <Col span={8} style={styles.esquerda}>
+                      <Col span={8} className="esquerda">
                         <Spin
                           spinning={this.state.loading || this.state.enviando}
                         >
@@ -484,7 +453,7 @@ class ConstrutoraForm extends React.Component {
                           </FormItem>
                         </Spin>
                       </Col>
-                      <Col span={12} style={styles.esquerda}>
+                      <Col span={12} className="esquerda">
                         <Spin
                           spinning={this.state.loading || this.state.enviando}
                         >
@@ -504,7 +473,7 @@ class ConstrutoraForm extends React.Component {
                           </FormItem>
                         </Spin>
                       </Col>
-                      <Col span={4} style={styles.esquerda}>
+                      <Col span={4} className="esquerda">
                         <Spin
                           spinning={this.state.loading || this.state.enviando}
                         >
@@ -526,7 +495,7 @@ class ConstrutoraForm extends React.Component {
                       </Col>
                     </Row>
                     <Row gutter={16}>
-                      <Col span={7} style={styles.esquerda}>
+                      <Col span={7} className="esquerda">
                         <Spin
                           spinning={this.state.loading || this.state.enviando}
                         >
@@ -546,7 +515,7 @@ class ConstrutoraForm extends React.Component {
                           </FormItem>
                         </Spin>
                       </Col>
-                      <Col span={4} style={styles.esquerda}>
+                      <Col span={4} className="esquerda">
                         <Spin spinning={this.state.enviando}>
                           <FormItem
                             validateStatus={numeroError ? 'error' : ''}
@@ -564,7 +533,7 @@ class ConstrutoraForm extends React.Component {
                           </FormItem>
                         </Spin>
                       </Col>
-                      <Col span={7} style={styles.esquerda}>
+                      <Col span={7} className="esquerda">
                         <Spin
                           spinning={this.state.loading || this.state.enviando}
                         >
@@ -585,7 +554,7 @@ class ConstrutoraForm extends React.Component {
                         </Spin>
                       </Col>
 
-                      <Col span={6} style={styles.esquerda}>
+                      <Col span={6} className="esquerda">
                         <Spin
                           spinning={this.state.loading || this.state.enviando}
                         >
@@ -606,7 +575,7 @@ class ConstrutoraForm extends React.Component {
                       </Col>
                     </Row>
                     <Row gutter={16}>
-                      <Col span={12} style={styles.esquerda}>
+                      <Col span={12} className="esquerda">
                         <FormItem
                           validateStatus={emailError ? 'error' : ''}
                           help={emailError || ''}
@@ -626,7 +595,7 @@ class ConstrutoraForm extends React.Component {
                           })(<Input type="email" placeholder="E-mail" />)}
                         </FormItem>
                       </Col>
-                      <Col span={12} style={styles.esquerda}>
+                      <Col span={12} className="esquerda">
                         <FormItem
                           validateStatus={telefoneError ? 'error' : ''}
                           help={telefoneError || ''}
@@ -651,11 +620,7 @@ class ConstrutoraForm extends React.Component {
                   </Col>
                   {this.state.editar && (
                     <Button
-                      style={{
-                        float: 'right',
-                        marginBottom: '2rem',
-                        marginLeft: '1rem'
-                      }}
+                      className="cancel-button"
                       onClick={this.cancelarEdicao}
                     >
                       Cancelar
@@ -665,7 +630,7 @@ class ConstrutoraForm extends React.Component {
                     type="primary"
                     htmlType="submit"
                     disabled={this.state.enviando}
-                    style={{ float: 'right', marginBottom: '2rem' }}
+                    className="cadastrar-button"
                     disabled={
                       hasErrors(getFieldsError()) || this.state.enviando
                     }
@@ -678,15 +643,7 @@ class ConstrutoraForm extends React.Component {
           </Permissao>
 
           <Permissao codTela={this.state.codTela} permissaoNecessaria={[1, 2]}>
-            <span
-              style={{
-                color: '#757575',
-                fontWeight: 'bold',
-                marginLeft: '1rem'
-              }}
-            >
-              Construtoras cadastradas
-            </span>
+            <span className="table-divider">Construtoras cadastradas</span>
             <Divider />
             <Row>
               <Col span={24}>
@@ -701,7 +658,7 @@ class ConstrutoraForm extends React.Component {
             </Row>
           </Permissao>
         </div>
-        <div
+        {/* <div
           style={{
             position: 'absolute',
             zIndex: '-1',
@@ -714,7 +671,7 @@ class ConstrutoraForm extends React.Component {
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}
-        />
+        /> */}
       </Content>
     );
   }
