@@ -103,11 +103,10 @@ class CondominiosForm extends React.Component {
       .get(`${url}/condominios/${dados._id}`, config)
       .then(res => {
         this.setState({
-          contratoUrl: `${url}${res.data.file.url}`.toString(),
-          contrato: res.data.file,
-          fileName: res.data.file.name
+          contrato: res.data.contrato,
+          fileName: res.data.contrato.name
         });
-        this.props.form.setFieldsValue({ contrato: res.data.file });
+        this.props.form.setFieldsValue({ contrato: res.data.contrato });
       })
       .catch(error => {
         console.log(error);
@@ -188,61 +187,61 @@ class CondominiosForm extends React.Component {
             config
           )
           .then(res => {
-            let contrato = new FormData();
-            contrato.append('ref', 'condominios');
-            contrato.append('refId', res.data.id);
-            contrato.append('field', 'file');
-            contrato.append('files', this.state.file);
-
-            axios
-              .post(`${url}/upload`, contrato, config)
-              .then(res => {
-                this.props.dispatch(
-                  fetchCondominios({
-                    logo: this.state.imagem,
-                    construtoras: values.construtoras,
-                    nome: values.nome,
-                    ativo: this.state.ativo,
-                    validade: values.validade,
-                    cep: values.cep,
-                    bairro: values.bairro,
-                    estado: values.estado,
-                    cidade: values.cidade,
-                    contrato: contrato,
-                    endereco: values.endereco,
-                    numero: values.numero,
-                    complemento: values.complemento,
-                    email: values.email,
-                    telefone: values.telefone,
-                    deleted: false
-                  })
-                );
-                this.dispatchDados();
-                notification.open({
-                  message: 'Ok',
-                  description: 'Condomínio cadastrado com sucesso!',
-                  icon: <Icon type="check" style={{ color: 'green' }} />
-                });
-                this.props.form.resetFields();
-                this.setState({
-                  enviando: false,
-                  imagem: null,
-                  editar: false,
-                  id: null,
-                  download: true,
-                  enviandoContrato: false
-                });
-              })
-              .catch(error => {
-                console.log(error);
-                notification.open({
-                  message: 'Oppss!',
-                  description: 'Erro ao enviar o contrato',
-                  icon: <Icon type="check" style={{ color: 'red' }} />
-                });
+            if (this.state.file === null) {
+              this.dispatchDados();
+              notification.open({
+                message: 'Ok',
+                description: 'Condomínio cadastrado com sucesso!',
+                icon: <Icon type="check" style={{ color: 'green' }} />
               });
+              this.props.form.resetFields();
+              this.setState({
+                enviando: false,
+                imagem: null,
+                contrato: null,
+                editar: false,
+                fileName: 'Selecione o contrato',
+                id: null,
+                download: true,
+                enviandoContrato: false
+              });
+              return false;
+            } else {
+              let contrato = new FormData();
+              contrato.append('ref', 'condominios');
+              contrato.append('refId', res.data.id);
+              contrato.append('field', 'contrato');
+              contrato.append('files', this.state.file);
+
+              axios
+                .post(`${url}/upload`, contrato, config)
+                .then(() => {
+                  this.dispatchDados();
+                  notification.open({
+                    message: 'Ok',
+                    description: 'Condomínio cadastrado com sucesso!',
+                    icon: <Icon type="check" style={{ color: 'green' }} />
+                  });
+                  this.props.form.resetFields();
+                  this.setState({
+                    enviando: false,
+                    imagem: null,
+                    editar: false,
+                    id: null,
+                    download: true,
+                    enviandoContrato: false
+                  });
+                })
+                .catch(error => {
+                  notification.open({
+                    message: 'Oppss!',
+                    description: 'Erro ao enviar o contrato',
+                    icon: <Icon type="check" style={{ color: 'red' }} />
+                  });
+                });
+            }
           })
-          .catch(error => {
+          .catch(() => {
             notification.open({
               message: 'Opps!',
               description: 'Erro ao cadastrar o condomínio!',
@@ -610,7 +609,10 @@ class CondominiosForm extends React.Component {
                       <Col span={12}>
                         <Spin spinning={this.state.enviandoContrato}>
                           <FormItem>
-                            <a href={this.state.contratoUrl} target="_blank">
+                            <a
+                              href={this.state.contrato.url.toString()}
+                              target="_blank"
+                            >
                               Baixar Contrato
                             </a>
                           </FormItem>

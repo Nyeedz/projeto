@@ -55,7 +55,7 @@ class TableTipologia extends React.Component {
       headers: { Authorization: `Bearer ${auth}` }
     };
     axios
-      .get(`${url}/torre`, config)
+      .get(`${url}/tipologias`, config)
       .then(res => {
         const pagination = { ...this.state.pagination };
         // Read total count from server
@@ -121,7 +121,7 @@ class TableTipologia extends React.Component {
       headers: { Authorization: `Bearer ${auth}` }
     };
     axios
-      .delete(`${url}/torre/${id}`, config)
+      .delete(`${url}/tipologias/${id}`, config)
       .then(res => {
         notification.open({
           message: 'Ok!',

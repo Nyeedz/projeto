@@ -13,7 +13,7 @@ export function fetchTorre() {
       headers: { Authorization: `Bearer ${auth}` }
     };
     axios
-      .get(`${url}/torre`, config)
+      .get(`${url}/tipologias`, config)
       .then(res => {
         dispatch({
           type: 'GET_TORRE_SUCCESS',

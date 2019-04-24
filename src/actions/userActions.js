@@ -14,32 +14,3 @@ export function logout() {
     payload: {}
   };
 }
-
-export function getMe() {
-  return function(dispatch) {
-    dispatch({
-      type: 'GET_ME',
-      payload: {}
-    });
-
-    let auth = localStorage.getItem('jwt') || this.props.user.jwt;
-    const config = {
-      headers: { Authorization: `Bearer ${auth}` }
-    };
-
-    axios
-      .get(`${url}/users/me`, config)
-      .then(res => {
-        dispatch({
-          type: 'GET_ME',
-          payload: res.data
-        });
-      })
-      .catch(err => {
-        dispatch({
-          type: 'GET_ME',
-          payload: err
-        });
-      });
-  };
-}

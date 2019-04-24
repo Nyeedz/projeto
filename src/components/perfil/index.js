@@ -8,13 +8,13 @@ import {
   Input,
   Icon,
   Button,
-  Breadcrumb,
+  notification,
   Divider,
   message
 } from 'antd';
 import * as axios from 'axios';
 import { url } from '../../utilities/constants';
-import { saveUser, getMe } from '../../actions/userActions';
+import { saveUser } from '../../actions/userActions';
 import DadosCondominios from './table';
 import ModalAvatar from './avatar';
 
@@ -44,7 +44,8 @@ class Perfil extends React.Component {
   state = {
     enviando: false,
     imagem: null,
-    tipo_morador: 1
+    tipo_morador: 1,
+    ativo: 1
   };
 
   saveImage = img => {
@@ -53,38 +54,12 @@ class Perfil extends React.Component {
 
   componentDidMount = () => {
     this.props.form.validateFields();
-    this.props.dispatch(getMe());
-  };
-
-  componentWillReceiveProps = nextProps => {
-    if (nextProps.user !== this.props.user && !nextProps.user) {
-      this.setState({ user: nextProps.user });
-    }
   };
 
   tipoChange = e => {
     this.setState({
       tipo_morador: e.target.value
     });
-  };
-
-  componentDidUpdate = () => {
-    let auth = localStorage.getItem('jwt') || this.props.user.jwt;
-
-    const config = {
-      headers: { Authorization: `Bearer ${auth}` }
-    };
-    axios.get(`${url}/user/me`, config).then(
-      res => {
-        this.setState({ user: res.data, enviando: true });
-        this.props.dispatch(getMe());
-      },
-      error => {
-        message.error('Erro ao buscar seus dados');
-        this.setState({ enviando: false });
-      }
-    );
-    this.setState({ enviando: false });
   };
 
   onChange = e => {
@@ -120,7 +95,7 @@ class Perfil extends React.Component {
           )
           .then(res => {
             this.props.dispatch(
-              getMe({
+              saveUser({
                 logo: this.state.imagem,
                 nome: values.nome,
                 sobrenome: values.sobrenome,
@@ -167,12 +142,6 @@ class Perfil extends React.Component {
       <Content style={{ padding: '0 50px', marginTop: '2rem' }}>
         <div style={{ background: '#fff' }}>
           <Row>
-            <Breadcrumb style={{ margin: '1em' }}>
-              <Breadcrumb.Item href="/admin">Home</Breadcrumb.Item>
-              <Breadcrumb.Item>
-                Perfil {this.props.user.username}
-              </Breadcrumb.Item>
-            </Breadcrumb>
             <Col span={8} style={styles.centralizado}>
               <ModalAvatar
                 imagem={this.state.imagem}

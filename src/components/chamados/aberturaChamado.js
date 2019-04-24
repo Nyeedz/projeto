@@ -208,7 +208,7 @@ class AberturaChamadoForm extends React.Component {
     };
     this.state.tipologia.map(value => {
       return axios
-        .get(`${url}/torre/${value._id}`, config)
+        .get(`${url}/tipologias/${value._id}`, config)
         .then(res => {
           this.setState({
             unidades_condominios: res.data.unidadeAutonoma,
