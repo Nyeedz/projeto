@@ -46,7 +46,7 @@ export default function(
         chamado: action.payload.chamado || state.chamado,
         username: action.payload.username || state.username,
         permissoes: action.payload.permissoes || state.permissoes,
-        jwt: action.payload.jwt
+        jwt: action.payload.jwt || state.jwt
       };
     case 'USER_LOGGEDOUT':
       return {

@@ -108,6 +108,7 @@ class Perfil extends React.Component {
               this.props.form.resetFields();
               this.props.form.validateFields();
               this.setState({ enviando: false, imagem: null });
+              message.success('Dados atualizados!');
             })
             .catch(error => {
               message.error('Erro ao tentar atualizar seus dados !');
@@ -143,6 +144,7 @@ class Perfil extends React.Component {
               this.props.form.resetFields();
               this.props.form.validateFields();
               this.setState({ enviando: false, imagem: null });
+              message.success('Dados atualizados!');
             })
             .catch(error => {
               message.error('Erro ao tentar atualizar seus dados !');
