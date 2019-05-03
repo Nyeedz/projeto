@@ -13,7 +13,7 @@ class TableFuncionarios extends React.Component {
       this.setState({
         loading: false
       });
-    }, 1000)
+    }, 1000);
   };
 
   updateFuncionario = id => {
@@ -30,13 +30,7 @@ class TableFuncionarios extends React.Component {
       headers: { Authorization: 'bearer ' + localStorage.getItem('jwt') }
     };
     axios
-      .put(
-        `${url}/users/${id}`,
-        {
-          deleted: 1
-        },
-        config
-      )
+      .delete(`${url}/users/${id}`, config)
       .then(res => {
         notification.open({
           message: 'Ok!',
@@ -84,7 +78,8 @@ class TableFuncionarios extends React.Component {
               type="default"
               onClick={() => this.updateFuncionario(record.id)}
             >
-              Editar<Icon type="edit" />
+              Editar
+              <Icon type="edit" />
             </Button>
             <Divider type="vertical" />
             <Popconfirm

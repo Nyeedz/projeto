@@ -93,7 +93,7 @@ class AberturaChamadoForm extends React.Component {
               data_visita: values.validade,
               garantia: values.nome_item,
               problema_repetido: this.state.problema_repetido,
-              deleted: false,
+
               // unidade: unidade[1],
               status: VISITA_ANALISE_TECNICA
             },

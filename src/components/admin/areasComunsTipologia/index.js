@@ -45,6 +45,8 @@ class AreasComunsForm extends React.Component {
 
   componentDidMount = () => {
     this.dispatchAreasComuns();
+    this.props.dispatch(fetchCondominios());
+    this.props.dispatch(fetchConstrutoras());
     this.props.form.validateFields();
     const path = this.props.history.location.pathname;
     this.setState({
@@ -56,8 +58,6 @@ class AreasComunsForm extends React.Component {
 
   dispatchAreasComuns = () => {
     this.props.dispatch(fetchAreasComuns());
-    this.props.dispatch(fetchCondominios());
-    this.props.dispatch(fetchConstrutoras());
   };
 
   remove = k => {
@@ -91,38 +91,34 @@ class AreasComunsForm extends React.Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
+        let areasTipologias = {};
         this.setState({ enviando: true });
         let auth = localStorage.getItem('jwt');
         const config = {
           headers: { Authorization: `Bearer ${auth}` }
         };
+        values.names.map((areaTipologia, i) => {
+          return JSON.stringify((areasTipologias[i] = areaTipologia));
+        });
+
         axios
           .put(
             `${url}/areascomuns/${this.state.id}`,
             {
-              nome: values.nome,
+              areas_tipologias: areasTipologias,
               condominio: values.condominio,
-              construtoras: values.construtoras,
-              torre: values.torre,
-              deleted: false
+              construtora: values.construtoras,
+              tipologia: values.torre
             },
             config
           )
-          .then(res => {
+          .then(() => {
             notification.open({
               message: 'Ok',
               description: 'Área comum da tipologia editada com sucesso!',
               icon: <Icon type="check" style={{ color: 'green' }} />
             });
-            this.props.dispatch(
-              fetchAreasComuns({
-                nome: values.nome,
-                condominio: values.condominio,
-                construtoras: values.construtoras,
-                torre: values.torre,
-                deleted: false
-              })
-            );
+            this.dispatchAreasComuns();
             this.props.form.resetFields();
             uuid = 0;
             this.setState({
@@ -131,7 +127,7 @@ class AreasComunsForm extends React.Component {
               id: null
             });
           })
-          .catch(error => {
+          .catch(() => {
             notification.open({
               message: 'Opps!',
               description: 'Erro ao editar a área comum da tipologia!',
@@ -158,8 +154,8 @@ class AreasComunsForm extends React.Component {
     e.preventDefault();
 
     this.props.form.validateFields((err, values) => {
-      let areasTipologias = {};
       if (!err) {
+        let areasTipologias = {}; 
         this.setState({ enviando: true });
         values.names.map((areaTipologia, i) => {
           return JSON.stringify((areasTipologias[i] = areaTipologia));
@@ -176,32 +172,23 @@ class AreasComunsForm extends React.Component {
             {
               areas_tipologias: areasTipologias,
               condominio: values.condominios,
-              construtoras: values.construtoras,
-              torre: values.torre,
-              deleted: false
+              construtora: values.construtoras,
+              tipologia: values.torre
             },
             config
           )
-          .then(res => {
+          .then(() => {
             notification.open({
               message: 'Ok!',
               description: 'Área comum da tipologia cadastrada com sucesso!',
               icon: <Icon type="check" style={{ color: 'green' }} />
             });
-            this.props.dispatch(
-              fetchAreasComuns({
-                areas_tipologias: areasTipologias,
-                condominio: values.condominios,
-                construtoras: values.construtoras,
-                torre: values.torre,
-                deleted: false
-              })
-            );
+            this.dispatchAreasComuns();
             this.props.form.resetFields();
             uuid = 0;
             this.setState({ enviando: false });
           })
-          .catch(error => {
+          .catch(() => {
             notification.open({
               message: 'Erro!',
               description: 'Erro ao cadastrar a área comum da tipologia',
@@ -231,19 +218,19 @@ class AreasComunsForm extends React.Component {
     });
 
     setTimeout(() => {
+      this.selectInfoCond(dados.construtora._id);
       this.props.form.setFieldsValue({
-        condominios: dados.condominio.nome,
-        construtoras: dados.construtoras.id,
-        torre: dados.torre.nome
+        construtoras: dados.construtora._id
       });
 
-      Object.keys(dados.areas_tipologias).forEach((area_tipologia, i) => {
-        this.add();
-        areasGeraisArray[i] = dados.areas_tipologias[area_tipologia];
+      this.selectInfoTipo(dados.condominio._id);
+      this.props.form.setFieldsValue({
+        condominios: dados.condominio._id
       });
 
       this.props.form.setFieldsValue({
-        names: areasGeraisArray
+        names: areasGeraisArray,
+        torre: dados.tipologia._id
       });
 
       this.setState({
@@ -253,6 +240,16 @@ class AreasComunsForm extends React.Component {
         disabledTipo: false,
         disabledCond: false,
         enviando: false
+      });
+
+      Object.keys(dados.areas_tipologias).forEach((area_tipologia, i) => {
+        this.add();
+        areasGeraisArray[i] = dados.areas_tipologias[area_tipologia];
+      });
+
+      this.props.form.setFieldsValue({
+        names: areasGeraisArray,
+        torre: dados.tipologia._id
       });
     }, 1500);
   };
@@ -522,7 +519,7 @@ class AreasComunsForm extends React.Component {
                         >
                           {this.state.tipologia.map((value, index) => {
                             return (
-                              <Option value={value.id} key={index}>
+                              <Option value={value.id} key={index + value.id}>
                                 {value.nome}
                               </Option>
                             );

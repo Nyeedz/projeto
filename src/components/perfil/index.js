@@ -52,10 +52,6 @@ class Perfil extends React.Component {
     this.setState({ imagem: img });
   };
 
-  componentDidMount = () => {
-    this.props.form.validateFields();
-  };
-
   tipoChange = e => {
     this.setState({
       tipo_morador: e.target.value
@@ -79,39 +75,81 @@ class Perfil extends React.Component {
           headers: { Authorization: `Bearer ${auth}` }
         };
 
-        axios
-          .put(
-            `${url}/users/${localStorage.getItem('id') ||
-              this.props.user._id ||
-              this.props.user.id}`,
-            {
-              logo: this.state.imagem,
-              nome: values.nome,
-              sobrenome: values.sobrenome,
-              username: values.username,
-              telefone: values.telefone
-            },
-            config
-          )
-          .then(res => {
-            this.props.dispatch(
-              saveUser({
-                logo: this.state.imagem,
+        if (this.state.imagem !== null) {
+          axios
+            .put(
+              `${url}/users/${localStorage.getItem('id') ||
+                this.props.user._id ||
+                this.props.user.id}`,
+              {
+                logo:
+                  this.state.imagem ||
+                  this.props.imagem ||
+                  this.props.user.logo,
                 nome: values.nome,
                 sobrenome: values.sobrenome,
                 username: values.username,
                 telefone: values.telefone
-              })
-            );
-            this.props.form.resetFields();
-            this.props.form.validateFields();
-            this.setState({ enviando: false, imagem: null });
-          })
-          .catch(error => {
-            message.error('Erro ao tentar atualizar seus dados !');
-            console.log(error);
-            this.setState({ enviando: false, imagem: null });
-          });
+              },
+              config
+            )
+            .then(res => {
+              this.props.dispatch(
+                saveUser({
+                  logo: res.data.logo,
+                  email: res.data.email,
+                  jwt: res.data.jwt,
+                  nome: res.data.nome,
+                  sobrenome: res.data.sobrenome,
+                  username: res.data.username,
+                  telefone: res.data.telefone
+                })
+              );
+              this.props.form.resetFields();
+              this.props.form.validateFields();
+              this.setState({ enviando: false, imagem: null });
+            })
+            .catch(error => {
+              message.error('Erro ao tentar atualizar seus dados !');
+              console.log(error);
+              this.setState({ enviando: false, imagem: null });
+            });
+        } else {
+          axios
+            .put(
+              `${url}/users/${localStorage.getItem('id') ||
+                this.props.user._id ||
+                this.props.user.id}`,
+              {
+                nome: values.nome,
+                sobrenome: values.sobrenome,
+                username: values.username,
+                telefone: values.telefone
+              },
+              config
+            )
+            .then(res => {
+              this.props.dispatch(
+                saveUser({
+                  logo: res.data.logo,
+                  email: res.data.email,
+                  jwt: res.data.jwt,
+                  nome: res.data.nome,
+                  sobrenome: res.data.sobrenome,
+                  username: res.data.username,
+                  telefone: res.data.telefone
+                })
+              );
+              this.props.form.resetFields();
+              this.props.form.validateFields();
+              this.setState({ enviando: false, imagem: null });
+            })
+            .catch(error => {
+              message.error('Erro ao tentar atualizar seus dados !');
+              console.log(error);
+              this.setState({ enviando: false, imagem: null });
+            });
+        }
       } else {
         message.warning('Por favor, preencha todos os campos !');
         this.setState({ enviando: false });

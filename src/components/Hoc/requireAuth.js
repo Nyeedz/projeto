@@ -12,10 +12,9 @@ export default WrappedComponent => {
     };
 
     componentDidMount() {
-      const jwt = localStorage.getItem('jwt');
-      const id = localStorage.getItem('id');
+      const jwt = localStorage.getItem('jwt') || this.props.user.jwt;
+      const id = localStorage.getItem('id') || this.props.user.id;
       if (!jwt && this.props.user.jwt == null) {
-        console.log('nao tem jwt');
         this.context.router.history.push('/');
       }
 
@@ -47,7 +46,9 @@ export default WrappedComponent => {
                 permissoes: res.data.permissoes
               })
             );
-            this.context.router.history.push('/');
+            this.context.router.history.push(
+              this.context.router.route.location.pathname
+            );
           })
           .catch(error => {
             localStorage.clear();

@@ -123,13 +123,7 @@ class TableAreaComum extends React.Component {
     };
 
     axios
-      .put(
-        `${url}/areascomuns/${id}`,
-        {
-          deleted: true
-        },
-        config
-      )
+      .delete(`${url}/areascomuns/${id}`, config)
       .then(res => {
         notification.open({
           message: 'Ok!',
@@ -204,14 +198,14 @@ class TableAreaComum extends React.Component {
       },
       {
         title: 'Construtora',
-        dataIndex: 'construtoras',
-        key: 'construtoras.id',
+        dataIndex: 'construtora',
+        key: 'construtora.id',
         render: text => <p key={text.id}>{text.nome}</p>
       },
       {
         title: 'Tipologia',
-        dataIndex: 'torre',
-        key: 'torre.id',
+        dataIndex: 'tipologia',
+        key: 'tipologia.id',
         render: text => <p key={text.id}>{text.nome}</p>
       },
       {

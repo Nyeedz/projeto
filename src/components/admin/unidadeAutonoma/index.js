@@ -57,7 +57,6 @@ class UnidadeForm extends React.Component {
 
   dispatchUnidades = () => {
     this.props.dispatch(fetchUnidades());
-    this.props.dispatch(fetchTorre());
     this.props.dispatch(fetchCondominios());
     this.props.dispatch(fetchConstrutoras());
   };
@@ -110,8 +109,7 @@ class UnidadeForm extends React.Component {
               unidades: unidades,
               construtoras: values.construtoras,
               condominios: values.condominios,
-              unidade_torres: values.torre,
-              deleted: false
+              unidade_torres: values.torre
             },
             config
           )
@@ -126,8 +124,7 @@ class UnidadeForm extends React.Component {
                 unidades: unidades,
                 construtoras: values.construtoras,
                 condominios: values.condominios,
-                unidade_torres: values.torre,
-                deleted: false
+                unidade_torres: values.torre
               })
             );
             this.props.form.resetFields();
@@ -184,33 +181,24 @@ class UnidadeForm extends React.Component {
             `${url}/unidadesautonomas`,
             {
               unidades: unidades,
-              construtoras: values.construtoras,
-              condominios: values.condominios,
-              unidade_torres: values.torre,
-              deleted: false
+              construtora: values.construtoras,
+              condominio: values.condominios,
+              tipologia: values.torre
             },
             config
           )
-          .then(res => {
+          .then(() => {
             notification.open({
               message: 'Ok!',
               description: 'Unidade autônoma cadastrada com sucesso!',
               icon: <Icon type="check" style={{ color: 'green' }} />
             });
-            this.props.dispatch(
-              fetchUnidades({
-                unidades: unidades,
-                construtoras: values.construtoras,
-                condominios: values.condominios,
-                unidade_torres: values.torre,
-                deleted: false
-              })
-            );
+            this.dispatchUnidades();
             this.props.form.resetFields();
             uuid = 0;
             this.setState({ enviando: false });
           })
-          .catch(error => {
+          .catch(() => {
             notification.open({
               message: 'Erro!',
               description: 'Erro ao cadastrar a unidade autônoma',
@@ -227,7 +215,6 @@ class UnidadeForm extends React.Component {
         this.setState({ enviando: false });
       }
     });
-    this.dispatchUnidades();
   };
 
   setFieldValue = dados => {
@@ -241,19 +228,19 @@ class UnidadeForm extends React.Component {
     });
 
     setTimeout(() => {
-      this.selectInfoCond(dados.construtoras.id);
+      this.selectInfoCond(dados.construtora._id);
       this.props.form.setFieldsValue({
-        construtoras: dados.construtoras.id
+        construtoras: dados.construtora._id
       });
 
-      this.selectInfoTipo(dados.condominios.id);
+      this.selectInfoTipo(dados.condominio._id);
       this.props.form.setFieldsValue({
-        condominios: dados.condominios.id
+        condominios: dados.condominio._id
       });
 
       this.props.form.setFieldsValue({
         names: unidadeArray,
-        torre: dados.unidade_torres.id
+        torre: dados.tipologia._id
       });
       this.setState({
         editar: true,
@@ -270,7 +257,7 @@ class UnidadeForm extends React.Component {
 
       this.props.form.setFieldsValue({
         names: unidadeArray,
-        torre: dados.unidade_torres.id
+        torre: dados.tipologia._id
       });
     }, 1500);
   };

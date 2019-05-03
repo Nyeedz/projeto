@@ -124,7 +124,7 @@ class TableAreaGeral extends React.Component {
       .then(res => {
         notification.open({
           message: 'Ok!',
-          description: 'Áreas gerais deletada com sucesso!',
+          description: 'Área comum geral deletada com sucesso!',
           icon: <icon type="check" style={{ color: 'green' }} />
         });
         this.props.dispatchAreasGerais();
@@ -132,7 +132,7 @@ class TableAreaGeral extends React.Component {
       .catch(error => {
         notification.open({
           message: 'Erro!',
-          description: 'Erro ao deletar a áreas gerais!',
+          description: 'Erro ao deletar a área comum geral!',
           icon: <Icon type="close" style={{ color: 'red' }} />
         });
         console.log(error);
@@ -192,8 +192,8 @@ class TableAreaGeral extends React.Component {
       },
       {
         title: 'Construtora',
-        dataIndex: 'construtoras',
-        key: 'construtoras.id',
+        dataIndex: 'construtora',
+        key: 'construtora.id',
         render: text => <p key={text.id}>{text.nome}</p>
       },
       {

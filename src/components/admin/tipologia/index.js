@@ -72,26 +72,16 @@ class TipologiaForm extends React.Component {
         };
         axios
           .put(
-            `${url}/torre/${this.state.id}`,
+            `${url}/tipologias/${this.state.id}`,
             {
               nome: values.nome,
               validade: values.validade,
               condominio: values.condominio,
-              construtoras: values.construtoras,
-              deleted: false
+              construtoras: values.construtoras
             },
             config
           )
-          .then(res => {
-            this.props.dispatch(
-              fetchTorre({
-                nome: values.nome,
-                validade: values.validade,
-                condominio: values.condominio,
-                construtoras: values.construtoras,
-                deleted: false
-              })
-            );
+          .then(() => {
             this.dispatchTipologia();
             notification.open({
               message: 'Ok',
@@ -105,7 +95,7 @@ class TipologiaForm extends React.Component {
               id: null
             });
           })
-          .catch(error => {
+          .catch(() => {
             notification.open({
               message: 'Opps!',
               description: 'Erro ao editar a tipologia!',
@@ -165,36 +155,26 @@ class TipologiaForm extends React.Component {
         ) {
           axios
             .post(
-              `${url}/torre`,
+              `${url}/tipologias`,
               {
                 nome: values.nome,
                 validade: values.validade,
                 condominio: values.condominio,
-                construtoras: values.construtoras,
-                deleted: false
+                construtoras: values.construtoras
               },
               config
             )
-            .then(res => {
+            .then(() => {
               notification.open({
                 message: 'Ok!',
                 description: 'Tipologia cadastrada com sucesso!',
                 icon: <Icon type="check" style={{ color: 'green' }} />
               });
-              this.props.dispatch(
-                fetchTorre({
-                  nome: values.nome,
-                  validade: values.validade,
-                  condominio: values.condominio,
-                  construtoras: values.construtoras,
-                  deleted: false
-                })
-              );
-              this.props.form.resetFields();
               this.dispatchTipologia();
+              this.props.form.resetFields();
               this.setState({ enviando: false });
             })
-            .catch(error => {
+            .catch(() => {
               notification.open({
                 message: 'Erro!',
                 description: 'Erro ao cadastrar a tipologia',
@@ -218,13 +198,13 @@ class TipologiaForm extends React.Component {
     this.setState({ enviando: true });
 
     setTimeout(() => {
-      this.selectInfo(dados.construtoras.id);
+      this.selectInfo(dados.construtora._id);
       this.props.form.setFieldsValue({
-        construtoras: dados.construtoras.id
+        construtoras: dados.construtora._id
       });
 
       this.props.form.setFieldsValue({
-        condominio: dados.condominio.id
+        condominio: dados.condominios._id
       });
 
       this.props.form.setFieldsValue({

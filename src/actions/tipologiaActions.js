@@ -1,28 +1,29 @@
 import axios from 'axios';
 import { url } from '../utilities/constants';
 
-export function fetchGarantias() {
+export function fetchTipologia() {
   return function(dispatch) {
     dispatch({
-      type: 'GET_GARANTIAS',
+      type: 'GET_TIPOLOGIA',
       payload: {}
     });
     let auth = localStorage.getItem('jwt');
+
     const config = {
       headers: { Authorization: `Bearer ${auth}` }
     };
     axios
-      .get(`${url}/garantias`, config)
+      .get(`${url}/tipologias`, config)
       .then(res => {
         dispatch({
-          type: 'GET_GARANTIAS_SUCCESS',
+          type: 'GET_TIPOLOGIA_SUCCESS',
           payload: res.data
         });
       })
       .catch(err => {
         dispatch({
-          type: 'GET_GARANTIAS_ERROR',
-          payload: 'deu erro'
+          type: 'GET_TIPOLOGIA_ERROR',
+          payload: `Deu erro ${err}`
         });
       });
   };

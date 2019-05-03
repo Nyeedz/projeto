@@ -146,11 +146,10 @@ class PesquisaForm extends React.Component {
         };
         axios
           .post(
-            `${url}/pesquisasatisfacao`,
+            `${url}/pesquisasatisfacaos`,
             {
               construtoras: values.construtoras,
-              perguntas: p,
-              deleted: false
+              perguntas: p
             },
             config
           )
@@ -204,7 +203,7 @@ class PesquisaForm extends React.Component {
 
         axios
           .put(
-            `${url}/pesquisasatisfacao/${this.state.id}`,
+            `${url}/pesquisasatisfacaos/${this.state.id}`,
             {
               construtoras: null,
               perguntas: {}
@@ -214,11 +213,10 @@ class PesquisaForm extends React.Component {
           .then(res => {
             axios
               .put(
-                `${url}/pesquisasatisfacao/${this.state.id}`,
+                `${url}/pesquisasatisfacaos/${this.state.id}`,
                 {
                   construtoras: values.construtoras,
-                  perguntas: p,
-                  deleted: false
+                  perguntas: p
                 },
                 config
               )

@@ -27,7 +27,7 @@ class Navbar extends React.Component {
   render() {
     const { user } = this.props;
 
-    return (
+    return localStorage.getItem('jwt') || this.props.user.jwt ? (
       <Layout>
         <Header className="header" style={{ zIndex: 2 }}>
           <img
@@ -116,7 +116,7 @@ class Navbar extends React.Component {
           </Menu>
         </Header>
       </Layout>
-    );
+    ) : null;
   }
 }
 

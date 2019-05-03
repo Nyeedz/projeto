@@ -43,6 +43,7 @@ class AreasGeraisForm extends React.Component {
 
   componentDidMount = () => {
     this.dispatchAreasGerais();
+    this.props.dispatch(fetchConstrutoras());
     this.props.form.validateFields();
     const path = this.props.history.location.pathname;
     this.setState({
@@ -53,10 +54,7 @@ class AreasGeraisForm extends React.Component {
   };
 
   dispatchAreasGerais = () => {
-    this.setState({ enviando: true });
     this.props.dispatch(fetchAreasGerais());
-    this.props.dispatch(fetchCondominios());
-    this.props.dispatch(fetchConstrutoras());
   };
 
   remove = k => {
@@ -105,8 +103,7 @@ class AreasGeraisForm extends React.Component {
             {
               areas_gerais: areasGerais,
               condominio: values.condominio,
-              construtoras: values.construtoras,
-              deleted: false
+              construtora: values.construtoras
             },
             config
           )
@@ -116,14 +113,7 @@ class AreasGeraisForm extends React.Component {
               description: 'Área comum geral editada com sucesso!',
               icon: <Icon type="check" style={{ color: 'green' }} />
             });
-            this.props.dispatch(
-              fetchAreasGerais({
-                areas_gerais: areasGerais,
-                condominio: values.condominio,
-                construtoras: values.construtoras,
-                deleted: false
-              })
-            );
+            this.dispatchAreasGerais();
             this.props.form.resetFields();
             uuid = 0;
             this.setState({
@@ -183,30 +173,22 @@ class AreasGeraisForm extends React.Component {
             {
               areas_gerais: areasGerais,
               condominio: values.condominio,
-              construtoras: values.construtoras,
-              deleted: false
+              construtora: values.construtoras
             },
             config
           )
-          .then(res => {
+          .then(() => {
             notification.open({
               message: 'Ok!',
               description: 'Área comum geral cadastrada com sucesso!',
               icon: <Icon type="check" style={{ color: 'green' }} />
             });
             this.setState({ enviando: false });
-            this.props.dispatch(
-              fetchAreasGerais({
-                areas_gerais: areasGerais,
-                condominio: values.condominio,
-                construtoras: values.construtoras,
-                deleted: false
-              })
-            );
+            this.dispatchAreasGerais();
             this.props.form.resetFields();
             uuid = 0;
           })
-          .catch(error => {
+          .catch(() => {
             notification.open({
               message: 'Erro!',
               description: 'Erro ao cadastrar a área comum geral',
@@ -236,9 +218,9 @@ class AreasGeraisForm extends React.Component {
     });
 
     setTimeout(() => {
-      this.selectInfo(dados.construtoras.id);
+      this.selectInfo(dados.construtora._id);
       this.props.form.setFieldsValue({
-        construtoras: dados.construtoras.id
+        construtoras: dados.construtora._id
       });
 
       Object.keys(dados.areas_gerais).forEach((area_geral, i) => {
@@ -248,7 +230,7 @@ class AreasGeraisForm extends React.Component {
 
       this.props.form.setFieldsValue({
         names: areaGeralArray,
-        condominio: dados.condominio.id
+        condominio: dados.condominio._id
       });
       this.setState({
         enviando: false,

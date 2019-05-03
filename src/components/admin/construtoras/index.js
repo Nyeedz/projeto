@@ -128,8 +128,7 @@ class ConstrutoraForm extends React.Component {
               numero: values.numero,
               complemento: values.complemento,
               email: values.email,
-              telefone: values.telefone,
-              deleted: 0
+              telefone: values.telefone
             },
             config
           )
@@ -149,8 +148,7 @@ class ConstrutoraForm extends React.Component {
                 numero: values.numero,
                 complemento: values.complemento,
                 email: values.email,
-                telefone: values.telefone,
-                deleted: 0
+                telefone: values.telefone
               })
             );
             notification.open({

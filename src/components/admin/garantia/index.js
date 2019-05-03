@@ -87,14 +87,13 @@ class GarantiaForm extends React.Component {
         torre: dados.torre.id
       });
 
-      
       Object.keys(dados.subitem).forEach((value, i) => {
         this.add();
         subitemArray[i] = dados.subitem[value];
       });
 
-      console.log(subitemArray)
-      
+      console.log(subitemArray);
+
       this.props.form.setFieldsValue({
         secondary: subitemArray.map(x => x.subitem),
         tempo: subitemArray.map(x => x.tempo_garantia),
@@ -141,14 +140,13 @@ class GarantiaForm extends React.Component {
         };
         axios
           .post(
-            `${url}/garantia`,
+            `${url}/garantias`,
             {
               nome: values.nome,
               construtoras: values.construtoras,
               condominios: values.condominios,
               torre: values.torre,
-              subitem: itens,
-              deleted: false
+              subitem: itens
             },
             config
           )
@@ -199,14 +197,13 @@ class GarantiaForm extends React.Component {
         };
         axios
           .put(
-            `${url}/garantia/${this.state.id}`,
+            `${url}/garantias/${this.state.id}`,
             {
               nome: values.nome,
               construtoras: values.construtoras,
               condominios: values.condominios,
               torre: values.torre,
-              subitem: itens,
-              deleted: false
+              subitem: itens
             },
             config
           )

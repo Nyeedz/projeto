@@ -109,7 +109,7 @@ class ClientesForm extends React.Component {
       return unidade.push(x.unidades[i]);
     });
 
-    console.log(dados)
+    console.log(dados);
 
     this.props.form.setFieldsValue({
       nome: dados.nome,
@@ -236,7 +236,7 @@ class ClientesForm extends React.Component {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         this.setState({ enviando: true });
-        console.log(values)
+        console.log(values);
         return;
         let constru = [];
         let cond = [];
@@ -277,7 +277,7 @@ class ClientesForm extends React.Component {
               logo: this.state.imagem,
               ativo: this.state.ativo,
               tipo_morador: this.state.tipo_morador,
-              deleted: false,
+
               cliente: true,
               funcionario: false,
               admin: false
@@ -301,7 +301,7 @@ class ClientesForm extends React.Component {
                 construtoras: constru,
                 condominios: cond,
                 unidadesAutonomas: unidade[0],
-                deleted: false,
+
                 client: true,
                 funcionario: false,
                 admin: false

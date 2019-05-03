@@ -28,9 +28,7 @@ class TableUnidade extends React.Component {
   };
 
   componentWillReceiveProps = nextProps => {
-    if (nextProps.unidade) {
-      this.setState({ data: nextProps.unidade });
-    }
+    if (nextProps.unidade) this.setState({ data: nextProps.unidade });
   };
 
   handleTableChange = (pagination, filters, sorter) => {
@@ -130,6 +128,7 @@ class TableUnidade extends React.Component {
           description: 'Unidade deletada com sucesso!',
           icon: <Icon type="check" style={{ color: 'green' }} />
         });
+        this.props.dispatchUnidades();
         this.props.resetFields();
         this.fetch();
       })
@@ -189,26 +188,26 @@ class TableUnidade extends React.Component {
       },
       {
         title: 'Tipologia',
-        dataIndex: 'unidade_torres',
-        key: 'unidade_torres.id',
-        render: text => <p>{text.nome}</p>
+        dataIndex: 'tipologia',
+        key: 'tipologia.id',
+        render: (text, i) => <p key={text + i}>{text.nome}</p>
       },
       {
         title: 'Condomínio',
-        dataIndex: 'condominios',
-        key: 'condominios.id',
-        render: text => <p>{text.nome}</p>
+        dataIndex: 'condominio',
+        key: 'condominio.id',
+        render: (text, i) => <p key={text + i}>{text.nome}</p>
       },
       {
         title: 'Construtoras',
-        dataIndex: 'construtoras',
-        key: 'construtoras.id',
-        render: text => <p>{text.nome}</p>
+        dataIndex: 'construtora',
+        key: 'construtora.id',
+        render: (text, i) => <p key={text + i}>{text.nome}</p>
       },
       {
         title: 'Opções',
         key: 'id',
-        render: (text, record) => (
+        render: record => (
           <span>
             <Permissao
               codTela={this.props.codTela}

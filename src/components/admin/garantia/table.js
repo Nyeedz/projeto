@@ -59,7 +59,7 @@ class TableGarantia extends React.Component {
       headers: { Authorization: `Bearer ${auth}` }
     };
     axios
-      .get(`${url}/garantia`, config)
+      .get(`${url}/garantias`, config)
       .then(res => {
         const pagination = { ...this.state.pagination };
         // Read total count from server
@@ -126,7 +126,7 @@ class TableGarantia extends React.Component {
     };
 
     axios
-      .delete(`${url}/garantia/${id}`, config)
+      .delete(`${url}/garantias/${id}`, config)
       .then(res => {
         notification.open({
           message: 'Ok!',

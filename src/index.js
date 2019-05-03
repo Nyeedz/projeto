@@ -23,7 +23,6 @@ import Sobre from './components/sobre';
 import Chamados from './components/chamados';
 import ListaChamados from './components/chamados/listaChamados';
 import Perfil from './components/perfil';
-import axios from 'axios';
 
 class App extends React.Component {
   render() {
@@ -31,9 +30,7 @@ class App extends React.Component {
       <Provider store={store}>
         <BrowserRouter>
           <Layout style={{ minHeight: '100vh' }}>
-            {localStorage.getItem('jwt') ? (
-              <Navbar />
-            ) : null}
+            <Navbar />
             <Switch>
               <Route exact path="/" component={Login} />
               <Route path="/admin" component={requireAuth(Admin)} />

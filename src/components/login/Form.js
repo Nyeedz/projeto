@@ -5,7 +5,7 @@ import {
   Icon,
   Input,
   Button,
-  Col,
+  Card,
   notification,
   message,
   Layout
@@ -44,7 +44,6 @@ class NormalLoginForm extends React.Component {
             localStorage.setItem('id', res.data.user._id);
             localStorage.setItem('jwt', res.data.jwt);
             localStorage.setItem('tipo_morador', res.data.user.tipo_morador);
-            console.log(res.data);
             objUser = {
               logo: res.data.user.logo,
               jwt: res.data.jwt || localStorage.getItem('jwt'),
@@ -118,71 +117,75 @@ class NormalLoginForm extends React.Component {
       isFieldTouched('password') && getFieldError('password');
 
     return (
-      <Col>
-        <Content
-          style={{
-            display: 'flex',
-            justifyContent: 'center'
-          }}
+      <Card title="Card title" bordered={false} style={{ width: 300 }}>
+        <Form
+          onSubmit={this.handleSubmit}
+          style={{ width: '50%', marginTop: '30vh' }}
         >
-          <Form
-            onSubmit={this.handleSubmit}
-            style={{ width: '50%', marginTop: '30vh' }}
+          {/* <h1 className="title-login">Login</h1> */}
+          <FormItem
+            validateStatus={userNameError ? 'error' : ''}
+            help={userNameError || ''}
           >
-            <h1 className="title-login">Login</h1>
-            <FormItem
-              validateStatus={userNameError ? 'error' : ''}
-              help={userNameError || ''}
+            {getFieldDecorator('email', {
+              rules: [
+                {
+                  required: true,
+                  message: 'Por favor entre com seu email!'
+                }
+              ]
+            })(
+              <Input
+                prefix={<Icon type="mail" />}
+                placeholder="Email ou username"
+              />
+            )}
+          </FormItem>
+          <FormItem
+            validateStatus={passwordError ? 'error' : ''}
+            help={passwordError || ''}
+          >
+            {getFieldDecorator('password', {
+              rules: [
+                {
+                  required: true,
+                  message: 'Por favor entre com sua senha!'
+                }
+              ]
+            })(
+              <Input
+                prefix={<Icon type="lock" />}
+                type="password"
+                placeholder="Password"
+              />
+            )}
+          </FormItem>
+          <FormItem style={{ marginTop: 0 }}>
+            <a className="login-form-forgot" href="">
+              Esqueci minha senha
+            </a>
+          </FormItem>
+          <FormItem>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="login-form-button"
+              style={{ width: '100%' }}
+              loading={this.state.loading}
+              disabled={hasErrors(getFieldsError())}
             >
-              {getFieldDecorator('email', {
-                rules: [
-                  { required: true, message: 'Por favor entre com seu email!' }
-                ]
-              })(<Input prefix={<Icon type="mail" />} placeholder="Email ou username" />)}
-            </FormItem>
-            <FormItem
-              validateStatus={passwordError ? 'error' : ''}
-              help={passwordError || ''}
-            >
-              {getFieldDecorator('password', {
-                rules: [
-                  { required: true, message: 'Por favor entre com sua senha!' }
-                ]
-              })(
-                <Input
-                  prefix={<Icon type="lock" />}
-                  type="password"
-                  placeholder="Password"
-                />
-              )}
-            </FormItem>
-            <FormItem style={{ marginTop: 0 }}>
-              <a className="login-form-forgot" href="">
-                Esqueci minha senha
-              </a>
-            </FormItem>
-            <FormItem>
-              <Button
-                type="primary"
-                htmlType="submit"
-                className="login-form-button"
-                style={{ width: '100%' }}
-                loading={this.state.loading}
-                disabled={hasErrors(getFieldsError())}
-              >
-                Entrar
-              </Button>
-            </FormItem>
-          </Form>
-        </Content>
-      </Col>
+              Entrar
+            </Button>
+          </FormItem>
+        </Form>
+      </Card>
     );
   }
 }
 
-let LoginForm = Form.create()(NormalLoginForm);
-export default (LoginForm = connect(store => {
+let FormLogin = Form.create()(NormalLoginForm);
+export default (FormLogin = connect(store => {
   return {
     user: store.user
   };
-})(LoginForm));
+})(FormLogin));

@@ -13,7 +13,7 @@ export function fetchPerguntas() {
       headers: { Authorization: `Bearer ${auth}` }
     };
     axios
-      .get(`${url}/pesquisasatisfacao`, config)
+      .get(`${url}/pesquisasatisfacaos`, config)
       .then(res => {
         dispatch({
           type: 'GET_PERGUNTAS_SUCCESS',

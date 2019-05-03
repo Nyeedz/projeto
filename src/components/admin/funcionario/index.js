@@ -256,8 +256,7 @@ class FuncionarioForm extends React.Component {
               telefone: values.telefone,
               funcao: values.funcao,
               logo: this.state.imagem,
-              tipo_morador: this.state.tipo_morador,
-              deleted: false
+              tipo_morador: this.state.tipo_morador
             },
             config
           )

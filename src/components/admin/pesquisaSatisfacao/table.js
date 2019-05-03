@@ -55,7 +55,7 @@ class TablePesquisa extends React.Component {
     };
 
     axios
-      .get(`${url}/pesquisasatisfacao`, config)
+      .get(`${url}/pesquisasatisfacaos`, config)
       .then(res => {
         const pagination = { ...this.state.pagination };
         // Read total count from server
@@ -123,7 +123,7 @@ class TablePesquisa extends React.Component {
     };
 
     axios
-      .delete(`${url}/pesquisasatisfacao/${id}`, config)
+      .delete(`${url}/pesquisasatisfacaos/${id}`, config)
       .then(res => {
         notification.open({
           message: 'Ok!',

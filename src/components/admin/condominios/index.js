@@ -181,8 +181,7 @@ class CondominiosForm extends React.Component {
               numero: values.numero,
               complemento: values.complemento,
               email: values.email,
-              telefone: values.telefone,
-              deleted: false
+              telefone: values.telefone
             },
             config
           )

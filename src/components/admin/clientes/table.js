@@ -130,13 +130,7 @@ class TableClientes extends React.Component {
     };
 
     axios
-      .put(
-        `${url}/users/${id}`,
-        {
-          deleted: true
-        },
-        config
-      )
+      .delete(`${url}/users/${id}`, config)
       .then(res => {
         notification.open({
           message: 'Ok!',
