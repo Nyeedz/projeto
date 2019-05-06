@@ -88,59 +88,59 @@ class Admin extends React.Component {
                   </Menu.Item>
                 ) : null}
 
-                {this.isPermitido(4) ? (
+                {/* {this.isPermitido(4) ? (
                   <Menu.Item key="5">
                     <Link to="/admin/areas-gerais">Área comum geral</Link>
                   </Menu.Item>
-                ) : null}
+                ) : null} */}
 
-                {this.isPermitido(5) ? (
+                {/* {this.isPermitido(5) ? (
                   <Menu.Item key="6">
                     <Link to="/admin/areas-comuns">
                       Área comum da tipologia
                     </Link>
                   </Menu.Item>
-                ) : null}
+                ) : null} */}
 
-                {this.isPermitido(6) ? (
+                {/* {this.isPermitido(6) ? (
                   <Menu.Item key="7">
                     <Link to="/admin/parametrizacao">
                       Visualizar Parametrização
                     </Link>
                   </Menu.Item>
-                ) : null}
+                ) : null} */}
 
-                {this.isPermitido(7) ? (
+                {/* {this.isPermitido(7) ? (
                   <Menu.Item key="8">
                     <Link to="/admin/garantia">Itens de garantia</Link>
                   </Menu.Item>
-                ) : null}
+                ) : null} */}
 
-                {this.isPermitido(8) ? (
+                {/* {this.isPermitido(8) ? (
                   <Menu.Item key="9">
                     <Link to="/admin/pesquisa">Pesquisa de satisfação</Link>
                   </Menu.Item>
-                ) : null}
+                ) : null} */}
 
-                {this.isPermitido(9) ? (
+                {/* {this.isPermitido(9) ? (
                   <Menu.Item key="10">
                     <Link to="/admin/clientes">Clientes</Link>
                   </Menu.Item>
-                ) : null}
+                ) : null} */}
 
-                <Menu.Item key="12">
+                {/* <Menu.Item key="12">
                   <Link to="/admin/funcionario">Funcionário</Link>
-                </Menu.Item>
+                </Menu.Item> */}
               </MenuItemGroup>
             </SubMenu>
 
-            {this.isPermitido(10) ? (
+            {/* {this.isPermitido(10) ? (
               <Menu.Item key="11">
                 <Link to="/admin/chamados">Chamados</Link>
               </Menu.Item>
-            ) : null}
+            ) : null} */}
 
-            <Menu.Item key="13">
+            {/* <Menu.Item key="13">
               <Link to="/admin/teste">Custos</Link>
             </Menu.Item>
             <Menu.Item key="14">
@@ -148,7 +148,7 @@ class Admin extends React.Component {
             </Menu.Item>
             <Menu.Item key="15">
               <Link to="/admin/biblioteca">biblioteca</Link>
-            </Menu.Item>
+            </Menu.Item> */}
           </Menu>
         </Sider>
         <Layout className="fundo">

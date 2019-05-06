@@ -205,20 +205,20 @@ class TableGarantia extends React.Component {
       },
       {
         title: 'Construtora',
-        dataIndex: 'construtoras',
-        key: 'construtoras.id',
+        dataIndex: 'construtora',
+        key: 'construtora.id',
         render: text => <p key={text.id}>{text.nome}</p>
       },
       {
         title: 'Condomínio',
-        dataIndex: 'condominios',
-        key: 'condominios.id',
+        dataIndex: 'condominio',
+        key: 'condominio.id',
         render: text => <p key={text.id}>{text.nome}</p>
       },
       {
         title: 'Tipologia',
-        dataIndex: 'torre',
-        key: 'torre.id',
+        dataIndex: 'tipologia',
+        key: 'tipologia.id',
         render: text => <p key={text.id}>{text.nome}</p>
       },
       {

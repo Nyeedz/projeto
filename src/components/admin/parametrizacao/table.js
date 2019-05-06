@@ -55,8 +55,8 @@ class TableParametrizacao extends React.Component {
       },
       {
         title: 'Unidades autônomas',
-        dataIndex: 'unidades',
-        key: 'unidades.id',
+        dataIndex: 'unidadesautonomas',
+        key: 'unidadesautonomas.id',
         render: text => (
           <div>
             {text.map ((value, i) => {
@@ -77,8 +77,8 @@ class TableParametrizacao extends React.Component {
       },
       {
         title: 'Áreas comum da tipologia',
-        dataIndex: 'areaGeral',
-        key: 'areaGeral.id',
+        dataIndex: 'areasgerais',
+        key: 'areasgerais.id',
         render: text => (
           <div>
             {text.map ((area_geral, i) => {
@@ -91,8 +91,8 @@ class TableParametrizacao extends React.Component {
       },
       {
         title: 'Área comum geral',
-        dataIndex: 'areaComum',
-        key: 'areaComum.id',
+        dataIndex: 'areascomuns',
+        key: 'areascomuns.id',
         render: text => (
           <div>
             {text.map ((area_comum, i) => {

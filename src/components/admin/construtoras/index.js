@@ -419,7 +419,7 @@ class ConstrutoraForm extends React.Component {
                             <Input
                               placeholder="Cnpj"
                               onChange={this.cnpjMask}
-                              maxLength="18"
+                              maxLength={18}
                             />
                           )}
                         </FormItem>

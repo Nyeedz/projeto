@@ -143,9 +143,9 @@ class GarantiaForm extends React.Component {
             `${url}/garantias`,
             {
               nome: values.nome,
-              construtoras: values.construtoras,
-              condominios: values.condominios,
-              torre: values.torre,
+              construtora: values.construtoras,
+              condominio: values.condominios,
+              tipologia: values.torre,
               subitem: itens
             },
             config
@@ -200,9 +200,9 @@ class GarantiaForm extends React.Component {
             `${url}/garantias/${this.state.id}`,
             {
               nome: values.nome,
-              construtoras: values.construtoras,
-              condominios: values.condominios,
-              torre: values.torre,
+              construtora: values.construtoras,
+              condominio: values.condominios,
+              tipologia: values.torre,
               subitem: itens
             },
             config
