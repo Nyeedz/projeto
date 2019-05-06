@@ -1,5 +1,5 @@
-export const url = 'https://assistenciatecnica.herokuapp.com';
-// export const url = 'http://181.215.89.98:9997';
+// export const url = 'https://assistenciatecnica.herokuapp.com';
+export const url = 'http://localhost:1337';
 
 export const CODE_NENHUMA = 0;
 export const CODE_VISUALIZAR = 1;

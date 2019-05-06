@@ -108,7 +108,7 @@ class LoginForm extends React.Component {
     if ((user.jwt && user.role === 'root') || user.role === 'funcionario') {
       message.success(
         'Escolha uma das opções do menu ao lado para navegação',
-        5
+        3
       );
       return <Redirect to="/admin" />;
     }
@@ -129,7 +129,7 @@ class LoginForm extends React.Component {
               className="title-login"
               title="Login"
               bordered={false}
-              style={{ width: '50%' }}
+              style={{ width: '50%', marginTop: '10rem' }}
             >
               <Form onSubmit={this.handleSubmit}>
                 {/* <h1 className="title-login">Login</h1> */}

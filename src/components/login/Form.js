@@ -103,7 +103,7 @@ class NormalLoginForm extends React.Component {
     if ((user.jwt && user.role === 'root') || user.role === 'funcionario') {
       message.success(
         'Escolha uma das opções do menu ao lado para navegação',
-        5
+        3
       );
       return <Redirect to="/admin" />;
     }
