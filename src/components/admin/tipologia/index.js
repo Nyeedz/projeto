@@ -129,15 +129,11 @@ class TipologiaForm extends React.Component {
         const config = {
           headers: { Authorization: `Bearer ${auth}` }
         };
-
+        
         if (
-          moment(values.validade).format('DD/MM/YYYY') <
-            this.state.validadeCondominio ||
-          moment(values.validade).format('DD/MM/YYYY') <=
-            this.state.validadeCondominio
+          moment(values.validade).startOf('day') <=
+          moment(this.state.validadeCondominio, 'DD/MM/YYYY')
         ) {
-          console.log(moment(this.state.validadeCondominio));
-
           notification.open({
             message: 'Opps',
             description: `Validade não pode ser menor ou igual a ${
@@ -147,20 +143,15 @@ class TipologiaForm extends React.Component {
           });
           this.setState({ enviando: false });
           return;
-        } else if (
-          moment(values.validade).format('DD/MM/YYY') ===
-            this.state.validadeCondominio ||
-          moment(values.validade).format('DD/MM/YYY') >=
-            this.state.validadeCondominio
-        ) {
+        } else {
           axios
             .post(
               `${url}/tipologias`,
               {
                 nome: values.nome,
                 validade: values.validade,
-                condominio: values.condominio,
-                construtoras: values.construtoras
+                condominios: values.condominio,
+                construtora: values.construtoras
               },
               config
             )

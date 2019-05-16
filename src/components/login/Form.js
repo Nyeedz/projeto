@@ -131,7 +131,7 @@ class NormalLoginForm extends React.Component {
               rules: [
                 {
                   required: true,
-                  message: 'Por favor entre com seu email!'
+                  message: 'Por favor entre com seu email ou username!'
                 }
               ]
             })(

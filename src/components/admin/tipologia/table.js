@@ -199,13 +199,13 @@ class TableTipologia extends React.Component {
         title: 'Condomínio',
         dataIndex: 'condominios',
         key: 'condominios.id',
-        render: (text, i) => <p key={text + i}>{text.nome}</p>
+        render: (text, i) => <p key={text + i}>{text ? text.nome : null}</p>
       },
       {
         title: 'Construtora',
         dataIndex: 'construtora',
         key: 'construtora.id',
-        render: (text, i) => <p key={text + i}>{text.nome}</p>
+        render: (text, i) => <p key={text + i}>{text ? text.nome : null}</p>
       },
       {
         title: 'Opções',

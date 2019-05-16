@@ -119,25 +119,92 @@ class TableConstrutoras extends React.Component {
     const config = {
       headers: { Authorization: `Bearer ${auth}` }
     };
-    axios
-      .delete(`${url}/construtoras/${id}`, config)
-      .then(res => {
-        notification.open({
-          message: 'Ok!',
-          description: 'Construtora deletada com sucesso!',
-          icon: <Icon type="check" style={{ color: 'green' }} />
-        });
-        this.props.dispatchConstrutoras();
-        this.props.resetFields();
-        this.fetch();
-      })
-      .catch(error => {
-        notification.open({
-          message: 'Opss!',
-          description: 'Algo deu errado ao deletar a construtora desejada!',
-          icon: <Icon type="close" style={{ color: 'red' }} />
-        });
+
+    axios.get(`${url}/construtoras/${id}`, config).then(res => {
+      res.data.condominios.map(condominio => {
+        axios
+          .delete(`${url}/condominios/${condominio._id}`, config)
+          .then(() => {})
+          .catch(error => {
+            console.log(error);
+          });
       });
+
+      res.data.areascomuns.map(areacomun => {
+        axios
+          .delete(`${url}/areascomuns/${areacomun._id}`, config)
+          .then()
+          .catch(error => {
+            console.log(error);
+          });
+      });
+
+      res.data.areasgerais.map(areageral => {
+        axios
+          .delete(`${url}/areasgerais/${areageral._id}`, config)
+          .then()
+          .catch(error => {
+            console.log(error);
+          });
+      });
+
+      res.data.garantias.map(garantia => {
+        axios
+          .delete(`${url}/garantias/${garantia._id}`, config)
+          .then()
+          .catch(error => {
+            console.log(error);
+          });
+      });
+
+      res.data.pesquisasatisfacaos.map(pesquisa => {
+        axios
+          .delete(`${url}/pesquisasatisfacaos/${pesquisa._id}`, config)
+          .then()
+          .catch(error => {
+            console.log(error);
+          });
+      });
+
+      res.data.tipologias.map(tipologia => {
+        axios
+          .delete(`${url}/tipologias/${tipologia._id}`, config)
+          .then()
+          .catch(error => {
+            console.log(error);
+          });
+      });
+
+      res.data.unidadesautonomas.map(unidade => {
+        axios
+          .delete(`${url}/unidadesautonomas/${unidade._id}`, config)
+          .then()
+          .catch(error => {
+            console.log(error);
+          });
+      });
+
+      axios
+        .delete(`${url}/construtoras/${id}`, config)
+        .then(() => {
+          notification.open({
+            message: 'Ok!',
+            description: 'Construtora deletada com sucesso!',
+            icon: <Icon type="check" style={{ color: 'green' }} />
+          });
+          this.props.dispatchConstrutoras();
+          this.props.resetFields();
+          this.fetch();
+        })
+        .catch(error => {
+          console.log(error);
+          notification.open({
+            message: 'Opss!',
+            description: 'Algo deu errado ao deletar a construtora desejada!',
+            icon: <Icon type="close" style={{ color: 'red' }} />
+          });
+        });
+    });
   };
 
   onInputChange = e => {
@@ -215,7 +282,7 @@ class TableConstrutoras extends React.Component {
               permissaoNecessaria={CODE_EDITAR}
             >
               <Popconfirm
-                title="Tem certeza que deseja excluir esta construtora ?"
+                title="Está ação irá excluir todos os dados conectados a esta construtora, tem certeza que deseja excluir esta construtora ?"
                 onConfirm={() => this.deleteConstrutora(record.id)}
               >
                 <Tooltip title="Deletar">

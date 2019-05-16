@@ -123,13 +123,13 @@ class LoginForm extends React.Component {
     return (
       <Content>
         <Row>
-          <Col span={14} />
-          <Col span={10}>
+          <Col span={8} />
+          <Col span={8}>
             <Card
               className="title-login"
               title="Login"
               bordered={false}
-              style={{ width: '50%', marginTop: '10rem' }}
+              style={{ width: '80%', marginTop: '10rem' }}
             >
               <Form onSubmit={this.handleSubmit}>
                 {/* <h1 className="title-login">Login</h1> */}
@@ -141,7 +141,7 @@ class LoginForm extends React.Component {
                     rules: [
                       {
                         required: true,
-                        message: 'Por favor entre com seu email!'
+                        message: 'Por favor entre com seu email ou username!'
                       }
                     ]
                   })(
@@ -190,6 +190,7 @@ class LoginForm extends React.Component {
               </Form>
             </Card>
           </Col>
+          <Col span={8} />
         </Row>
       </Content>
     );
