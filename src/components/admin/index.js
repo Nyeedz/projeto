@@ -153,31 +153,25 @@ class Admin extends React.Component {
         </Sider>
         <Layout className="fundo">
           <Content style={{ margin: '24px 16px 0' }}>
-            <div
-              style={{
-                padding: 24
-              }}
-            >
-              <Route exact path="/admin/construtora" component={Construtora} />
-              <Route exact path="/admin/condominio" component={Condominios} />
-              <Route exact path="/admin/tipologia" component={Tipologia} />
-              <Route exact path="/admin/unidade-autonoma" component={Unidade} />
-              <Route exact path="/admin/areas-comuns" component={AreasComuns} />
-              <Route exact path="/admin/areas-gerais" component={AreasGerais} />
-              <Route exact path="/admin/garantia" component={Garantia} />
-              <Route
-                exact
-                path="/admin/parametrizacao"
-                component={Parametrização}
-              />
-              {/* <Route exact path="/admin/funcionario" component={Funcionarios} />
-              <Route exact path="/admin/permissoes" component={Permissoes} />
-              <Route exact path="/admin/clientes" component={Clientes} />
-              <Route exact path="/admin/chamados" component={Chamados} />
-              <Route exact path="/admin/pesquisa" component={Pesquisa} />
+            <Route exact path="/admin/construtora" component={Construtora} />
+            <Route exact path="/admin/condominio" component={Condominios} />
+            <Route exact path="/admin/tipologia" component={Tipologia} />
+            <Route exact path="/admin/unidade-autonoma" component={Unidade} />
+            <Route exact path="/admin/areas-comuns" component={AreasComuns} />
+            <Route exact path="/admin/areas-gerais" component={AreasGerais} />
+            <Route exact path="/admin/garantia" component={Garantia} />
+            <Route
+              exact
+              path="/admin/parametrizacao"
+              component={Parametrização}
+            />
+            <Route exact path="/admin/funcionario" component={Funcionarios} />
+            <Route exact path="/admin/permissoes" component={Permissoes} />
+            <Route exact path="/admin/clientes" component={Clientes} />
+            <Route exact path="/admin/chamados" component={Chamados} />
+            {/*<Route exact path="/admin/pesquisa" component={Pesquisa} />
               <Route exact path="/admin/graficos" component={GraficosTotal} />
               <Route exact path="/admin/teste" component={Teste} /> */}
-            </div>
           </Content>
         </Layout>
       </Layout>

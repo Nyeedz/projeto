@@ -59,7 +59,7 @@ class TableClientes extends React.Component {
     };
 
     axios
-      .get(`${url}/users?cliente=true&deleted=0`, config)
+      .get(`${url}/users?cliente=true`, config)
       .then(res => {
         const pagination = { ...this.state.pagination };
         pagination.total = res.data.length;

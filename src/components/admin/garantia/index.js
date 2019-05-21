@@ -273,14 +273,11 @@ class GarantiaForm extends React.Component {
 
   remove = k => {
     const { form } = this.props;
-    // can use data-binding to get
     const keys = form.getFieldValue('keys');
-    // We need at least one passenger
     if (keys.length === 1) {
       return;
     }
 
-    // can use data-binding to set
     form.setFieldsValue({
       keys: keys.filter(key => key !== k)
     });
@@ -288,12 +285,9 @@ class GarantiaForm extends React.Component {
 
   add = () => {
     const { form } = this.props;
-    // can use data-binding to get
     const keys = form.getFieldValue('keys');
     const nextKeys = keys.concat(uuid);
     uuid++;
-    // can use data-binding to set
-    // important! notify form to detect changes
     form.setFieldsValue({
       keys: nextKeys
     });

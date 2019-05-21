@@ -22,22 +22,9 @@ import TableClientes from './table';
 import ModalAvatar from './avatar';
 import { getCodePath } from '../../../utilities/functions';
 import Permissao from '../permissoes/permissoes';
+import '../style.css';
 
 const { Content } = Layout;
-
-const styles = {
-  centralizado: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  esquerda: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center'
-  }
-};
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -379,7 +366,7 @@ class ClientesForm extends React.Component {
 
     id.map((value, i) => {
       let cond = this.props.condominios.filter(x => x.id === value);
-      cond[0].unidades_condominios.map((value, i) => {
+      cond[0].unidadesautonomas.map((value, i) => {
         return c.push(value);
       });
     });
@@ -449,7 +436,7 @@ class ClientesForm extends React.Component {
               style={{ width: '90%', marginTop: '1rem' }}
             >
               <Row gutter={16}>
-                <Col span={8} style={styles.centralizado}>
+                <Col span={8} className="centralizado">
                   <ModalAvatar
                     imagem={this.state.imagem}
                     saveImage={this.saveImage}
@@ -533,7 +520,7 @@ class ClientesForm extends React.Component {
                     </Col>
                   </Row>
                   <Row gutter={16}>
-                    <Col span={12} style={styles.esquerda}>
+                    <Col span={12} className="esquerda">
                       <FormItem
                         validateStatus={emailError ? 'error' : ''}
                         help={emailError || ''}
@@ -549,7 +536,7 @@ class ClientesForm extends React.Component {
                         })(<Input type="email" placeholder="E-mail" />)}
                       </FormItem>
                     </Col>
-                    <Col span={12} style={styles.esquerda}>
+                    <Col span={12} className="esquerda">
                       <FormItem
                         validateStatus={telefoneError ? 'error' : ''}
                         help={telefoneError || ''}
@@ -723,7 +710,7 @@ class ClientesForm extends React.Component {
                     </Col>
                   </Row>
                   <Row gutter={16}>
-                    <Col span={12} style={styles.esquerda}>
+                    <Col span={12} className="esquerda">
                       <RadioGroup
                         onChange={this.tipoChange}
                         value={this.state.tipo_morador}
