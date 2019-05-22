@@ -152,8 +152,8 @@ class TableUnidade extends React.Component {
         dataIndex: 'unidades',
         key: 'unidades',
         render: text =>
-          Object.keys(text).map((unidade, i) => {
-            return <p key={text[unidade] + i}>{text[unidade]}</p>;
+          text.map(unidade => {
+            return <p key={unidade._id}>{unidade.nome}</p>;
           }),
         onFilter: (value, record) => record.unidades.indexOf(value) === 0,
         filterDropdown: (

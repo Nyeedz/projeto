@@ -92,12 +92,13 @@ class UnidadeForm extends React.Component {
     e.preventDefault();
 
     this.props.form.validateFields((err, values) => {
-      let unidades = {};
+      let unidades = [];
       if (!err) {
         this.setState({ enviando: true });
         values.names.map((unidade, i) => {
           return JSON.stringify((unidades[i] = unidade));
         });
+
         let auth = localStorage.getItem('jwt');
         const config = {
           headers: { Authorization: `Bearer ${auth}` }
@@ -106,14 +107,17 @@ class UnidadeForm extends React.Component {
           .put(
             `${url}/unidadesautonomas/${this.state.id}`,
             {
-              unidades: unidades,
               construtoras: values.construtoras,
               condominios: values.condominios,
-              unidade_torres: values.torre
+              tipologia: values.torre
             },
             config
           )
           .then(res => {
+            const fila = unidades.map(unidade => {
+              
+            })
+
             notification.open({
               message: 'Ok',
               description: 'Unidade autônoma editada com sucesso!',
@@ -163,12 +167,9 @@ class UnidadeForm extends React.Component {
     e.preventDefault();
 
     this.props.form.validateFields((err, values) => {
-      let unidades = {};
       this.setState({ enviando: true });
       if (!err) {
-        values.names.map((unidade, i) => {
-          return JSON.stringify((unidades[i] = unidade));
-        });
+        const unidades = values.names.map(unidade => unidade);
 
         let auth = localStorage.getItem('jwt');
 
@@ -180,23 +181,41 @@ class UnidadeForm extends React.Component {
           .post(
             `${url}/unidadesautonomas`,
             {
-              unidades: unidades,
               construtora: values.construtoras,
               condominio: values.condominios,
               tipologia: values.torre
             },
             config
           )
-          .then(() => {
-            notification.open({
-              message: 'Ok!',
-              description: 'Unidade autônoma cadastrada com sucesso!',
-              icon: <Icon type="check" style={{ color: 'green' }} />
+          .then(res => {
+            const fila = unidades.map(unidade => {
+              return axios.post(
+                `${url}/unidades`,
+                {
+                  nome: unidade,
+                  unidadesautonoma: {
+                    _id: res.data._id
+                  }
+                },
+                config
+              );
             });
-            this.dispatchUnidades();
-            this.props.form.resetFields();
-            uuid = 0;
-            this.setState({ enviando: false });
+
+            Promise.all(fila)
+              .then(values => {
+                notification.open({
+                  message: 'Ok!',
+                  description: 'Unidade autônoma cadastrada com sucesso!',
+                  icon: <Icon type="check" style={{ color: 'green' }} />
+                });
+                this.dispatchUnidades();
+                this.props.form.resetFields();
+                uuid = 0;
+                this.setState({ enviando: false });
+              })
+              .catch(error => {
+                console.log(error);
+              });
           })
           .catch(() => {
             notification.open({
@@ -221,6 +240,7 @@ class UnidadeForm extends React.Component {
     this.setState({ enviando: true });
 
     let unidadeArray = [];
+    let unidadeIdsArray = [];
     uuid = 0;
 
     this.props.form.setFieldsValue({
@@ -250,13 +270,14 @@ class UnidadeForm extends React.Component {
         id: dados.id
       });
 
-      Object.keys(dados.unidades).forEach((value, i) => {
+      dados.unidades.map(unidade => {
         this.add();
-        unidadeArray[i] = dados.unidades[value];
+        unidadeArray.push(unidade.nome);
+        unidadeIdsArray.push(unidade._id);
       });
-
       this.props.form.setFieldsValue({
         names: unidadeArray,
+        ids: unidadeIdsArray,
         torre: dados.tipologia._id
       });
     }, 1500);
@@ -336,35 +357,38 @@ class UnidadeForm extends React.Component {
 
     const unidadesAutonomas = keys.map((k, index) => {
       return (
-        <FormItem
-          label={index === 0 ? `Unidades` : ''}
-          required={false}
-          key={`nome${k + index}`}
-        >
-          {getFieldDecorator(`names[${k}]`, {
-            validateTrigger: ['onChange', 'onBlur'],
-            rules: [
-              {
-                required: true,
-                whitespace: true,
-                message: `Por favor insira a unidade autônoma ${k + 1}`
-              }
-            ]
-          })(
-            <Input
-              placeholder={`Unidade autonôma ${k + 1}`}
-              style={{ width: '90%', marginRight: 8 }}
-            />
-          )}
-          {keys.length > 1 ? (
-            <Icon
-              className="dynamic-delete-button"
-              type="minus-circle-o"
-              disabled={keys.length === 1}
-              onClick={() => this.remove(k)}
-            />
-          ) : null}
-        </FormItem>
+        <React.Fragment>
+          {getFieldDecorator(`ids[${k}]`)(<div key={`ids${k + index}`}></div>)}
+          <FormItem
+            label={index === 0 ? `Unidades` : ''}
+            required={false}
+            key={`nome${k + index}`}
+          >
+            {getFieldDecorator(`names[${k}]`, {
+              validateTrigger: ['onChange', 'onBlur'],
+              rules: [
+                {
+                  required: true,
+                  whitespace: true,
+                  message: `Por favor insira a unidade autônoma ${k + 1}`
+                }
+              ]
+            })(
+              <Input
+                placeholder={`Unidade autonôma ${k + 1}`}
+                style={{ width: '90%', marginRight: 8 }}
+              />
+            )}
+            {keys.length > 1 ? (
+              <Icon
+                className="dynamic-delete-button"
+                type="minus-circle-o"
+                disabled={keys.length === 1}
+                onClick={() => this.remove(k)}
+              />
+            ) : null}
+          </FormItem>
+        </React.Fragment>
       );
     });
 
