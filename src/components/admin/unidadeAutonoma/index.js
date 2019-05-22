@@ -42,7 +42,8 @@ class UnidadeForm extends React.Component {
     disabledCond: true,
     disabledTipo: true,
     codTela: null,
-    loadingUnidades: false
+    loadingUnidades: false,
+    unidades: []
   };
 
   componentDidMount = () => {
@@ -94,9 +95,23 @@ class UnidadeForm extends React.Component {
     this.props.form.validateFields((err, values) => {
       let unidades = [];
       if (!err) {
-        this.setState({ enviando: true });
-        values.names.map((unidade, i) => {
-          return JSON.stringify((unidades[i] = unidade));
+        const unidadesCriar = [];
+
+        const unidadesEditar = values.ids
+          .map((id, i) => {
+            if (!id) {
+              unidadesCriar.push(values.names[i]);
+              return null;
+            }
+
+            return { _id: id, name: values.names[i] };
+          })
+          .filter(value => value);
+
+        const unidadesExcluir = this.state.unidades.filter(unidade => {
+          return !unidadesEditar.find(
+            unidadeEditar => unidadeEditar._id === unidade._id
+          );
         });
 
         let auth = localStorage.getItem('jwt');
@@ -114,29 +129,59 @@ class UnidadeForm extends React.Component {
             config
           )
           .then(res => {
-            const fila = unidades.map(unidade => {
-              
-            })
-
-            notification.open({
-              message: 'Ok',
-              description: 'Unidade autônoma editada com sucesso!',
-              icon: <Icon type="check" style={{ color: 'green' }} />
+            const filaEditar = unidadesEditar.map(unidade => {
+              return axios.put(
+                `${url}/unidades/${unidade._id}`,
+                {
+                  nome: unidade.name
+                },
+                config
+              );
             });
-            this.props.dispatch(
-              fetchUnidades({
-                unidades: unidades,
-                construtoras: values.construtoras,
-                condominios: values.condominios,
-                unidade_torres: values.torre
-              })
-            );
-            this.props.form.resetFields();
-            uuid = 0;
-            this.setState({
-              enviando: false,
-              editar: false,
-              id: null
+
+            const filaCriar = unidadesCriar.map(unidade => {
+              return axios.post(
+                `${url}/unidades`,
+                {
+                  nome: unidade,
+                  unidadesautonoma: {
+                    _id: res.data._id
+                  }
+                },
+                config
+              );
+            });
+
+            const filaExcluir = unidadesExcluir.map(unidade => {
+              return axios.delete(`${url}/unidades/${unidade._id}`, config);
+            });
+
+            Promise.all([...filaEditar, ...filaCriar, ...filaExcluir]).then(
+              values => {
+                notification.open({
+                  message: 'Ok',
+                  description: 'Unidade autônoma editada com sucesso!',
+                  icon: <Icon type="check" style={{ color: 'green' }} />
+                });
+                this.props.dispatch(
+                  fetchUnidades({
+                    unidades: unidades,
+                    construtoras: values.construtoras,
+                    condominios: values.condominios,
+                    unidade_torres: values.torre
+                  })
+                );
+                this.props.form.resetFields();
+                uuid = 0;
+                this.setState({
+                  enviando: false,
+                  editar: false,
+                  id: null,
+                  unidades: []
+                });
+              }
+            ).catch(err => {
+              console.log('erro aqui men')
             });
           })
           .catch(error => {
@@ -270,6 +315,8 @@ class UnidadeForm extends React.Component {
         id: dados.id
       });
 
+      this.setState({ unidades: dados.unidades });
+
       dados.unidades.map(unidade => {
         this.add();
         unidadeArray.push(unidade.nome);
@@ -358,7 +405,7 @@ class UnidadeForm extends React.Component {
     const unidadesAutonomas = keys.map((k, index) => {
       return (
         <React.Fragment>
-          {getFieldDecorator(`ids[${k}]`)(<div key={`ids${k + index}`}></div>)}
+          {getFieldDecorator(`ids[${k}]`)(<div key={`ids${k + index}`} />)}
           <FormItem
             label={index === 0 ? `Unidades` : ''}
             required={false}
