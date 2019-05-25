@@ -14,7 +14,7 @@ import {
   Divider
 } from 'antd';
 import * as axios from 'axios';
-import { url } from '../../../utilities/constants';
+import { url, funcionarioId } from '../../../utilities/constants';
 import { fetchCondominios } from '../../../actions/condominioActions';
 import { fetchConstrutoras } from '../../../actions/construtoraActions';
 import { saveUser } from '../../../actions/userActions';
@@ -50,7 +50,6 @@ class FuncionarioForm extends React.Component {
     enviando: false,
     imagem: null,
     ativo: 1,
-    // tipo_morador: 1,
     condominios: [],
     file: null,
     fileName: '',
@@ -135,7 +134,6 @@ class FuncionarioForm extends React.Component {
     this.setState({
       imagem: dados.logo,
       ativo: dados.ativo ? 1 : 0,
-      tipo_morador: dados.tipo_morador ? 1 : 0,
       editar: true,
       id: dados.id
     });
@@ -191,7 +189,6 @@ class FuncionarioForm extends React.Component {
                   celular: values.telefone,
                   logo: this.state.imagem,
                   ativo: this.state.ativo,
-                  // tipo_morador: this.state.tipo_morador,
                   condominios: c,
                   parametrizacao: p
                 },
@@ -255,89 +252,70 @@ class FuncionarioForm extends React.Component {
               sobrenome: values.sobrenome,
               telefone: values.telefone,
               funcao: values.funcao,
-              logo: this.state.imagem,
-              tipo_morador: this.state.tipo_morador
+              logo: this.state.imagem
             },
             config
           )
           .then(res => {
-            localStorage.setItem('id', res.data.user.id);
-            this.props.dispatch(
-              saveUser({
-                logo: res.data.user.logo,
-                jwt: res.data.jwt,
-                id: res.data.user.id,
-                email: res.data.user.email,
-                role: res.data.user.role.type,
-                ativo: res.data.ativo,
-                tipo_morador: res.data.tipo_morador,
-                username: res.data.user.username,
-                nome: res.data.user.nome,
-                sobrenome: res.data.user.sobrenome,
-                telefone: res.data.user.telefone,
-                assinatura: res.data.user.id,
-                funcao: res.data.user.funcao,
-                deleted: false,
-                permissoes: this.state.statusPermissoes
-              })
-            );
-            localStorage.setItem('jwt', res.data.jwt);
+            // this.props.dispatch(
+            //   saveUser({
+            //     logo: res.data.user.logo,
+            //     jwt: res.data.jwt,
+            //     id: res.data.user.id,
+            //     email: res.data.user.email,
+            //     role: res.data.user.role.type,
+            //     ativo: res.data.ativo,
+            //     username: res.data.user.username,
+            //     nome: res.data.user.nome,
+            //     sobrenome: res.data.user.sobrenome,
+            //     telefone: res.data.user.telefone,
+            //     assinatura: res.data.user.id,
+            //     funcao: res.data.user.funcao,
+            //     deleted: false,
+            //     permissoes: this.state.statusPermissoes
+            //   })
+            // );
             axios
               .put(
                 `${url}/users/${res.data.user.id}`,
                 {
                   assinatura: res.data.user.id,
                   role: {
-                    _id: '5b28f6734032b82af00e5d9f'
+                    _id: funcionarioId
                   },
+                  condominios: values.condominios,
+                  construtoras: values.construtoras,
                   permissoes: this.state.statusPermissoes
                 },
                 config
               )
-              .then(res => console.log(res.data))
-              .catch(error => console.log(error));
-
-            let users = [];
-            let constru = [];
-            let responsavel = [];
-
-            if (values.construtoras) {
-              values.construtoras.map((x, i) => {
-                return constru.push({ _id: x });
-              });
-            }
-
-            if (values.responsavelCondominios) {
-              values.responsavelCondominios.map((x, i) => {
-                return responsavel.push({ _id: x });
-              });
-            }
-            users.push({ _id: res.data.user.id });
-
-            axios
-              .post(
-                `${url}/funcionario`,
-                {
-                  users: res.data.user.id,
-                  construtoras: constru,
-                  condominiosResponsavel: responsavel,
-                  deleted: false
-                },
-                config
-              )
               .then(res => {
-                let contrato = new FormData();
-                contrato.append('ref', 'condominios');
-                contrato.append('refId', res.data.id);
-                contrato.append('field', 'file');
-                contrato.append('files', this.state.file);
-
                 axios
-                  .post(`${url}/upload`, contrato, config)
-                  .then(res => console.log('enviou o contrato'))
+                  .post(
+                    `${url}/funcionarios`,
+                    {
+                      users: res.data._id,
+                      construtoras: values.construtoras,
+                      condominios: values.condominios
+                    },
+                    config
+                  )
+                  .then(res => {
+                    let contrato = new FormData();
+                    contrato.append('ref', 'funcionarios');
+                    contrato.append('refId', res.data._id);
+                    contrato.append('field', 'file');
+                    contrato.append('files', this.state.file);
+
+                    axios
+                      .post(`${url}/upload`, contrato, config)
+                      .then(() => console.log('enviou o contrato'))
+                      .catch(error => console.log(error));
+                  })
                   .catch(error => console.log(error));
               })
               .catch(error => console.log(error));
+
             notification.open({
               message: 'Ok',
               description: 'Cliente cadastrado com sucesso!',
@@ -421,20 +399,20 @@ class FuncionarioForm extends React.Component {
     });
   };
 
-  selectInfoTipo = id => {
-    let c = [];
+  // selectInfoTipo = id => {
+  //   let c = [];
 
-    id.map((value, i) => {
-      let cond = this.props.condominios.filter(x => x.id === value);
-      cond[0].unidades_condominios.map((value, i) => {
-        return c.push(value);
-      });
-    });
-    this.setState({
-      tipologias: c,
-      disabledTipo: false
-    });
-  };
+  //   id.map((value, i) => {
+  //     let cond = this.props.condominios.filter(x => x.id === value);
+  //     cond[0].unidades_condominios.map((value, i) => {
+  //       return c.push(value);
+  //     });
+  //   });
+  //   this.setState({
+  //     tipologias: c,
+  //     disabledTipo: false
+  //   });
+  // };
 
   render() {
     const {
@@ -697,6 +675,10 @@ class FuncionarioForm extends React.Component {
                           {
                             required: true,
                             message: 'Entre com o e-mail'
+                          },
+                          {
+                            type: 'email',
+                            message: 'Formato de e-mail inválido'
                           }
                         ]
                       })(<Input type="email" placeholder="E-mail" />)}
@@ -773,7 +755,7 @@ class FuncionarioForm extends React.Component {
                       label={
                         this.state.disabledCond
                           ? 'Escolha a construtora para habilitar esta opção'
-                          : 'Escolha os condomínios'
+                          : 'Escolha os condomínios no qual o funcionário será responsável'
                       }
                     >
                       {getFieldDecorator('condominios', {
@@ -817,7 +799,7 @@ class FuncionarioForm extends React.Component {
                     </FormItem>
                   </Col>
                 </Row>
-                <Row>
+                {/* <Row>
                   <Col span={12}>
                     <FormItem
                       validateStatus={
@@ -870,7 +852,7 @@ class FuncionarioForm extends React.Component {
                       )}
                     </FormItem>
                   </Col>
-                </Row>
+                </Row> */}
                 <Row gutter={16} style={{ marginTop: '1rem' }}>
                   <Col span={24}>
                     <FormItem>

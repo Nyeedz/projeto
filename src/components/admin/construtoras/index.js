@@ -587,7 +587,7 @@ class ConstrutoraForm extends React.Component {
                               },
                               {
                                 type: 'email',
-                                message: 'Entre com email valido!'
+                                message: 'formato de e-mail invalido!'
                               }
                             ]
                           })(<Input type="email" placeholder="E-mail" />)}

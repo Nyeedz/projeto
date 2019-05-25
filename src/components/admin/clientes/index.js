@@ -363,6 +363,10 @@ class ClientesForm extends React.Component {
 
   selectInfoTipo = id => {
     let c = [];
+    let auth = localStorage.getItem('jwt');
+    const config = {
+      headers: { Authorization: `Bearer ${auth}` }
+    };
 
     id.map((value, i) => {
       let cond = this.props.condominios.filter(x => x.id === value);
@@ -370,9 +374,17 @@ class ClientesForm extends React.Component {
         return c.push(value);
       });
     });
-    this.setState({
-      tipologias: c,
-      disabledTipo: false
+
+    c.map(unidades => {
+      axios
+        .get(`${url}/unidadesautonomas/${unidades._id}`, config)
+        .then(res => {
+          this.setState({
+            tipologias: res.data.unidades,
+            disabledTipo: false
+          });
+        })
+        .catch(error => console.log(error));
     });
   };
 
@@ -691,17 +703,13 @@ class ClientesForm extends React.Component {
                             }
                           >
                             {this.state.tipologias.map((unidade, i) => {
-                              return Object.keys(unidade.unidades).map(
-                                (key, index) => {
-                                  return (
-                                    <Option
-                                      value={unidade._id + '_' + index}
-                                      key={unidade._id + unidade.unidades[key]}
-                                    >
-                                      {unidade.unidades[key]}
-                                    </Option>
-                                  );
-                                }
+                              return (
+                                <Option
+                                  value={unidade._id + i}
+                                  key={unidade._id}
+                                >
+                                  {unidade.nome}
+                                </Option>
                               );
                             })}
                           </Select>
