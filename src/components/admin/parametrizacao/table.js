@@ -66,21 +66,14 @@ class TableParametrizacao extends React.Component {
         key: 'unidadesautonomas.id',
         render: text => (
           <div>
-            {text.map(unidades => {
-              axios
-                .get(`${url}/unidadesautonomas/${unidades._id}`, config)
-                .then(res => {
-                  res.data.unidades.map(unidade => {
-                    return( <p key={unidade._id}>{unidade.nome}</p>);
-                  });
-                });
-              // <div key={value.id}>
-              //   {value.unidades.map((key, i) => {
-              //     return (
-              //       <p key={value.name + i + key}>{value.unidades[key]}</p>
-              //     );
-              //   })}
-              // </div>
+            {text.map(unidadeAutonoma => {
+              if (unidadeAutonoma.unidades) {
+                return unidadeAutonoma.unidades.map((unidade, i) => {
+                  return <p key={unidade._id + i}>{unidade.nome}</p>;
+                })
+              } else {
+                return <p key="placeholder">...</p>;
+              }
             })}
           </div>
         )
