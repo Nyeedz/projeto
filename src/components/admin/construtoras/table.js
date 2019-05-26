@@ -105,9 +105,9 @@ class TableConstrutoras extends React.Component {
   };
 
   updateConstrutora = id => {
-    this.props.construtoras.map((construtora, i) => {
+    this.props.construtoras.map(construtora => {
       if (construtora.id === id) {
-        this.props.setFieldValue(construtora);
+        return this.props.setFieldValue(construtora);
       }
     });
     this.fetch();
@@ -122,7 +122,7 @@ class TableConstrutoras extends React.Component {
 
     axios.get(`${url}/construtoras/${id}`, config).then(res => {
       res.data.condominios.map(condominio => {
-        axios
+        return axios
           .delete(`${url}/condominios/${condominio._id}`, config)
           .then(() => {})
           .catch(error => {
@@ -131,7 +131,7 @@ class TableConstrutoras extends React.Component {
       });
 
       res.data.areascomuns.map(areacomun => {
-        axios
+        return axios
           .delete(`${url}/areascomuns/${areacomun._id}`, config)
           .then()
           .catch(error => {
@@ -140,7 +140,7 @@ class TableConstrutoras extends React.Component {
       });
 
       res.data.areasgerais.map(areageral => {
-        axios
+        return axios
           .delete(`${url}/areasgerais/${areageral._id}`, config)
           .then()
           .catch(error => {
@@ -149,7 +149,7 @@ class TableConstrutoras extends React.Component {
       });
 
       res.data.garantias.map(garantia => {
-        axios
+        return axios
           .delete(`${url}/garantias/${garantia._id}`, config)
           .then()
           .catch(error => {
@@ -158,7 +158,7 @@ class TableConstrutoras extends React.Component {
       });
 
       res.data.pesquisasatisfacaos.map(pesquisa => {
-        axios
+        return axios
           .delete(`${url}/pesquisasatisfacaos/${pesquisa._id}`, config)
           .then()
           .catch(error => {
@@ -167,7 +167,7 @@ class TableConstrutoras extends React.Component {
       });
 
       res.data.tipologias.map(tipologia => {
-        axios
+        return axios
           .delete(`${url}/tipologias/${tipologia._id}`, config)
           .then()
           .catch(error => {
@@ -176,7 +176,7 @@ class TableConstrutoras extends React.Component {
       });
 
       res.data.unidadesautonomas.map(unidade => {
-        axios
+        return axios
           .delete(`${url}/unidadesautonomas/${unidade._id}`, config)
           .then()
           .catch(error => {
@@ -259,7 +259,7 @@ class TableConstrutoras extends React.Component {
       {
         title: 'Opções',
         key: 'id',
-        render: (text, record) => (
+        render: record => (
           <span>
             <Permissao
               codTela={this.props.codTela}

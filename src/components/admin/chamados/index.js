@@ -39,7 +39,8 @@ class ChamadosList extends Component {
         url:
           'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png'
       }
-    ]
+    ],
+    fotosChamados: []
   };
 
   handleCancel = () => this.setState({ previewVisible: false });
@@ -70,14 +71,16 @@ class ChamadosList extends Component {
     };
 
     axios
-      .get(`${url}/chamado`, config)
+      .get(`${url}/chamados`, config)
       .then(res => {
         this.setState({
           chamados: res.data,
           enviando: false
         });
         res.data.map(value => {
-          return this.setState({ chamadosId: value.condominios._id });
+          return this.setState({
+            chamadosId: value.condominio._id
+          });
         });
       })
       .catch(error => {
@@ -103,11 +106,13 @@ class ChamadosList extends Component {
           return (funcionarioId = value._id);
         });
         axios
-          .get(`${url}/funcionario/${funcionarioId}`, config)
+          .get(`${url}/funcionarios/${funcionarioId}`, config)
           .then(res => {
-            res.data.condominiosResponsavel.map(value => {
-              return this.setState({
-                condominios_funcionario: value.id
+            res.data.map(condominios => {
+              condominios.condominios.map(condominio => {
+                return this.setState({
+                  condominios_funcionario: condominio._id
+                });
               });
             });
           })
@@ -120,51 +125,42 @@ class ChamadosList extends Component {
   };
 
   chamadoChange = id => {
+    console.log(this.state.chamados, 'chamado');
     let chamado = this.state.chamados.filter(x => x.id === id);
     let userId = '';
     chamado.map(value => {
-      console.log(value);
       this.setState({
-        condominios: value.condominios,
+        condominios: value.condominio,
         comentario: value.comentario,
         data_visita: value.data_visita,
-        // garantia: value.garantia,
+        garantia: value.garantia,
         // data_abertura: value.garantia.data_inicio,
         problema_repetido: value.problema_repetido,
-        torre: value.torre,
-        unidades: value.unidades,
-        user: value.users,
+        torre: value.tipologia,
+        unidades: value.unidade,
+        user: value.user,
         showContent: true
       });
 
-      userId = value.users.id;
+      userId = value.user.id;
     });
     let auth = localStorage.getItem('jwt');
     const config = {
       headers: { Authorization: `Bearer ${auth}` }
     };
-    axios
-      .get(`${url}/users/${userId}`, config)
-      .then(res => {
-        this.setState({
-          fotosChamado: res.data.fotosChamado
-        });
-        this.state.fotosChamado.map(value => {
-          return this.setState({
-            fileList: [
-              {
-                uid: -1,
-                name: value.name,
-                status: 'done',
-                url: `${url}${value.url}`
-              }
-            ]
-          });
-        });
-      })
-      .catch(error => {
-        console.log(error);
+    chamado.map(chamado => {
+      const fotosChamados = chamado.files.map(file => {
+        return {
+          uid: file._id,
+          name: file.name,
+          status: 'done',
+          url: `${url}${file.url}`
+        };
       });
+      this.setState({
+        fotosChamados
+      });
+    });
   };
 
   render() {
@@ -244,13 +240,10 @@ class ChamadosList extends Component {
                               .indexOf(input.toLowerCase()) >= 0
                           }
                         >
-                          {this.state.chamados.map((chamado, index) => {
+                          {this.state.chamados.map((chamado, i) => {
                             return (
-                              <Option
-                                value={chamado.id}
-                                key={chamado.id + index}
-                              >
-                                {chamado.users.username}
+                              <Option value={chamado.id} key={chamado.id + i}>
+                                {chamado.user.username}
                               </Option>
                             );
                           })}
@@ -305,7 +298,7 @@ class ChamadosList extends Component {
                         >
                           {getFieldDecorator('garantia')(
                             <strong>
-                              {/* <label>{this.state.garantia.nome_item}</label> */}
+                              <label>{this.state.garantia.nome}</label>
                             </strong>
                           )}
                         </FormItem>
@@ -388,11 +381,10 @@ class ChamadosList extends Component {
                             <Upload
                               action="//jsonplaceholder.typicode.com/posts/"
                               listType="picture-card"
-                              fileList={fileList}
+                              fileList={this.state.fotosChamados}
                               onPreview={this.handlePreview}
                               onChange={this.handleChange}
                             >
-                              {fileList.length >= 4 ? null : uploadButton}
                             </Upload>
                             <Modal
                               visible={previewVisible}

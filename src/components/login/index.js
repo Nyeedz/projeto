@@ -69,7 +69,7 @@ class LoginForm extends React.Component {
               headers: { Authorization: 'Bearer ' + res.data.jwt }
             };
             axios
-              .get(`${url}/users/${res.data.user._id}`, config)
+              .get(`${url}/users/me`, config)
               .then(res => {
                 this.props.dispatch(
                   saveUser({

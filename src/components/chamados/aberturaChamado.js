@@ -48,6 +48,7 @@ class AberturaChamadoForm extends React.Component {
     horarioDisabled: true,
     mostrarDados: false,
     idUser: null,
+    problema_repetido: 0,
     garantia: {}
   };
 
@@ -76,25 +77,26 @@ class AberturaChamadoForm extends React.Component {
           headers: { Authorization: `Bearer ${auth}` }
         };
 
-        // let unidade = values.unidade.split('_');
-        // let novaUnidade = values.unidade.split('_');
+        let unidades = values.unidade.split('_');
 
         axios
           .post(
-            `${url}/chamado`,
+            `${url}/chamados`,
             {
-              condominios: values.condominios,
-              areas_comuns: values.areas_comuns,
-              areas_gerais: values.areas_gerais,
-              torre: values.tipologia,
-              // unidades: novaUnidade[0],
+              condominio: values.condominios,
+              areascomuns: values.areas_comuns,
+              areasgerais: values.areas_gerais,
+              tipologia: values.tipologia,
+              unidade: unidades,
               comentario: values.comentario,
-              users: this.state.idUser,
+              contato: values.contato,
+              user:
+                this.state.idUser ||
+                this.props.user.id ||
+                localStorage.getItem('id'),
               data_visita: values.validade,
               garantia: values.nome_item,
               problema_repetido: this.state.problema_repetido,
-
-              // unidade: unidade[1],
               status: VISITA_ANALISE_TECNICA
             },
             config
@@ -102,7 +104,7 @@ class AberturaChamadoForm extends React.Component {
           .then(res => {
             const { fileList } = this.state;
             const fotosChamado = new FormData();
-            fotosChamado.append('ref', 'chamado');
+            fotosChamado.append('ref', 'chamados');
             fotosChamado.append('refId', res.data.id);
             fotosChamado.append('field', 'files');
             fileList.forEach(file => {
@@ -167,18 +169,12 @@ class AberturaChamadoForm extends React.Component {
         axios
           .get(`${url}/condominios/${this.state.idCond}`, config)
           .then(res => {
-            res.data.garantia.map(garantia => {
-              return this.setState({
-                garantia: garantia,
-                subitemArray: garantia.subitem
-              });
-            });
             this.setState({
               condominios: res.data,
-              garantiaArray: res.data.garantia,
+              garantiaArray: res.data.garantias,
               tipologia: res.data.torres,
-              areas_gerais: res.data.areas_gerais,
-              areas_comuns: res.data.areas_comuns,
+              areas_gerais: res.data.areasgerais,
+              areas_comuns: res.data.areascomuns,
               disabledTipologia: false,
               enviando: false,
               mostrarDados: true
@@ -210,12 +206,18 @@ class AberturaChamadoForm extends React.Component {
       return axios
         .get(`${url}/tipologias/${value._id}`, config)
         .then(res => {
-          this.setState({
-            unidades_condominios: res.data.unidadeAutonoma,
-            disabledUnidade: false,
-            disabledAreaComum: false,
-            disabledAreaGeral: false,
-            enviando: false
+          res.data.unidadesautonomas.map(unidade => {
+            return axios
+              .get(`${url}/unidadesautonomas/${unidade._id}`, config)
+              .then(res => {
+                this.setState({
+                  unidades_condominios: res.data.unidades,
+                  disabledUnidade: false,
+                  disabledAreaComum: false,
+                  disabledAreaGeral: false,
+                  enviando: false
+                });
+              });
           });
         })
         .catch(error => console.log(error));
@@ -469,20 +471,18 @@ class AberturaChamadoForm extends React.Component {
                             }
                             disabled={this.state.disabledUnidade}
                           >
-                            {this.state.unidades_condominios.map(unidade => {
-                              return Object.keys(unidade.unidades).map(
-                                (key, index) => {
-                                  return (
-                                    <Option
-                                      value={unidade._id + '_' + index}
-                                      key={unidade._id + unidade.unidades[key]}
-                                    >
-                                      {unidade.unidades[key]}
-                                    </Option>
-                                  );
-                                }
-                              );
-                            })}
+                            {this.state.unidades_condominios.map(
+                              (unidade, i) => {
+                                return (
+                                  <Option
+                                    value={unidade._id}
+                                    key={unidade._id + i}
+                                  >
+                                    {unidade.nome}
+                                  </Option>
+                                );
+                              }
+                            )}
                           </Select>
                         )}
                       </FormItem>
@@ -752,7 +752,7 @@ class AberturaChamadoForm extends React.Component {
                   ) : null}
                 </Row>
                 {this.state.garantia.subitem &&
-                  this.state.garantia.subitem.map((garantia, index) => {
+                  this.state.garantia.subitem.map(garantia => {
                     if (moment().format('DD/MM/YYYY') > garantia.data_inicio) {
                       console.log('maior');
                     } else {

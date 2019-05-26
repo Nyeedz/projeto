@@ -249,7 +249,7 @@ class AreasGeraisForm extends React.Component {
 
   selectInfo = id => {
     let constru = this.props.construtoras.filter(x => x.id === id);
-    constru.map((info, i) => {
+    constru.map(info => {
       return this.setState({
         condominios: info.condominios,
         disabled: false

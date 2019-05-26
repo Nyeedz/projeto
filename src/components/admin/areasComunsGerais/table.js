@@ -106,7 +106,7 @@ class TableAreaGeral extends React.Component {
   updateAreasGerais = id => {
     this.props.areasGerais.map(areasGerais => {
       if (areasGerais.id === id) {
-        this.props.setFieldValue(areasGerais);
+        return this.props.setFieldValue(areasGerais);
       }
     });
     this.fetch();

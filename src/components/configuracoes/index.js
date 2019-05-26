@@ -51,10 +51,6 @@ class Configuracao extends React.Component {
     this.setState({ imagem: img });
   };
 
-  componentDidMount = () => {
-    this.props.form.validateFields();
-  };
-
   tipoChange = e => {
     this.setState({
       tipo_morador: e.target.value
