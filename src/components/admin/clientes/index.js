@@ -80,33 +80,35 @@ class ClientesForm extends React.Component {
   };
 
   setFieldValue = dados => {
+    this.setState({ enviando: true });
     let constru = [];
     let condo = [];
     let unidade = [];
 
-    dados.construtoras.map(x => {
-      return constru.push(x.id);
-    });
+    setTimeout(() => {
+      dados.construtoras.map(x => {
+        return constru.push(x.id);
+      });
+      dados.condominios.map(x => {
+        return condo.push(x.id);
+      });
+      dados.unidades.map(x => {
+        return unidade.push(x.id);
+      });
 
-    dados.condominios.map(x => {
-      return condo.push(x.nome);
-    });
-
-    dados.unidadesAutonomas.map((x, i) => {
-      return unidade.push(x.unidades[i]);
-    });
-
-    console.log(dados);
+      this.props.form.setFieldsValue({
+        construtoras: constru,
+        condominios: condo,
+        unidadesAutonomas: unidade
+      });
+    }, 1500);
 
     this.props.form.setFieldsValue({
       nome: dados.nome,
       sobrenome: dados.sobrenome,
       username: dados.username,
       email: dados.email,
-      telefone: dados.telefone,
-      condominios: condo,
-      construtoras: constru,
-      unidadesAutonomas: unidade
+      telefone: dados.telefone
     });
 
     this.setState({
@@ -137,6 +139,8 @@ class ClientesForm extends React.Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
+        console.log(values);
+        return;
         this.setState({ enviando: true });
         const config = {
           headers: { Authorization: 'bearer ' + localStorage.getItem('jwt') }
@@ -223,29 +227,6 @@ class ClientesForm extends React.Component {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         this.setState({ enviando: true });
-        console.log(values);
-        return;
-        let constru = [];
-        let cond = [];
-        let unidade = [];
-
-        if (values.construtoras) {
-          values.construtoras.map((x, i) => {
-            return constru.push({ id: x });
-          });
-        }
-        if (values.condominios) {
-          values.condominios.map((x, i) => {
-            return cond.push({ id: x });
-          });
-        }
-
-        if (values.unidadesAutonomas) {
-          values.unidadesAutonomas.map(x => {
-            unidade = x.split('_');
-            return unidade.push({ id: x });
-          });
-        }
 
         let auth = localStorage.getItem('jwt');
         const config = {
@@ -264,7 +245,6 @@ class ClientesForm extends React.Component {
               logo: this.state.imagem,
               ativo: this.state.ativo,
               tipo_morador: this.state.tipo_morador,
-
               cliente: true,
               funcionario: false,
               admin: false
@@ -272,47 +252,32 @@ class ClientesForm extends React.Component {
             config
           )
           .then(res => {
-            this.props.dispatch(
-              fetchClientes({
-                logo: res.data.user.logo,
-                jwt: res.data.jwt,
-                id: res.data.user.id,
-                email: res.data.user.email,
-                role: res.data.user.role.type,
-                ativo: res.data.ativo,
-                tipo_morador: res.data.tipo_morador,
-                username: res.data.user.username,
-                nome: res.data.user.nome,
-                sobrenome: res.data.user.sobrenome,
-                telefone: res.data.user.telefone,
-                construtoras: constru,
-                condominios: cond,
-                unidadesAutonomas: unidade[0],
-
-                client: true,
-                funcionario: false,
-                admin: false
-              })
-            );
             axios
               .put(
                 `${url}/users/${res.data.user.id}`,
                 {
-                  construtoras: constru,
-                  condominios: cond,
-                  unidadesAutonomas: unidade
+                  construtoras: values.construtoras,
+                  condominios: values.condominios,
+                  unidades: values.unidadesAutonomas
                 },
                 config
               )
-              .then(res => this.props.form.resetFields())
+              .then(res => {
+                this.props.form.resetFields();
+                notification.open({
+                  message: 'Ok',
+                  description: 'Cliente cadastrado com sucesso!',
+                  icon: <Icon type="check" style={{ color: 'green' }} />
+                });
+                this.props.form.resetFields();
+                this.setState({
+                  enviando: false,
+                  imagem: null,
+                  disabledTipo: true,
+                  disabledCond: true
+                });
+              })
               .catch(error => console.log(error));
-            notification.open({
-              message: 'Ok',
-              description: 'Cliente cadastrado com sucesso!',
-              icon: <Icon type="check" style={{ color: 'green' }} />
-            });
-            this.props.form.resetFields();
-            this.setState({ enviando: false, imagem: null });
           })
           .catch(error => {
             notification.open({
@@ -323,14 +288,22 @@ class ClientesForm extends React.Component {
             this.setState({ enviando: false, imagem: null });
           });
         this.props.form.resetFields();
-        this.setState({ enviando: false });
+        this.setState({
+          enviando: false,
+          disabledCond: false,
+          disabledTipo: false
+        });
       } else {
         notification.open({
           message: 'Opps',
           description: 'Por favor, preencha todos os campos',
           icon: <Icon type="warning" style={{ color: 'yellow' }} />
         });
-        this.setState({ enviando: false });
+        this.setState({
+          enviando: false,
+          disabledCond: true,
+          disabledTipo: true
+        });
       }
     });
   };
@@ -543,6 +516,10 @@ class ClientesForm extends React.Component {
                             {
                               required: true,
                               message: 'Entre com o e-mail'
+                            },
+                            {
+                              type: 'email',
+                              message: 'Formato de e-mail inválido'
                             }
                           ]
                         })(<Input type="email" placeholder="E-mail" />)}
@@ -602,7 +579,7 @@ class ClientesForm extends React.Component {
                               (construtora, index) => {
                                 return (
                                   <Option
-                                    value={construtora.id}
+                                    value={construtora._id}
                                     key={construtora.id + index}
                                   >
                                     {construtora.nome}
@@ -653,7 +630,7 @@ class ClientesForm extends React.Component {
                             {this.state.condominios.map((condominio, index) => {
                               return (
                                 <Option
-                                  value={condominio.id}
+                                  value={condominio._id}
                                   key={condominio.id + index}
                                 >
                                   {condominio.nome}
@@ -705,8 +682,8 @@ class ClientesForm extends React.Component {
                             {this.state.tipologias.map((unidade, i) => {
                               return (
                                 <Option
-                                  value={unidade._id + i}
-                                  key={unidade._id}
+                                  value={unidade._id}
+                                  key={unidade._id + i}
                                 >
                                   {unidade.nome}
                                 </Option>
@@ -753,7 +730,7 @@ class ClientesForm extends React.Component {
               </Row>
             </Form>
           </Permissao>
-          <Permissao codTela={this.state.codTela} permissaoNecessaria={[1, 2]}>
+          {/* <Permissao codTela={this.state.codTela} permissaoNecessaria={[1, 2]}>
             <span
               style={{
                 color: '#757575',
@@ -775,7 +752,7 @@ class ClientesForm extends React.Component {
                 />
               </Col>
             </Row>
-          </Permissao>
+          </Permissao> */}
         </div>
         <div
           style={{

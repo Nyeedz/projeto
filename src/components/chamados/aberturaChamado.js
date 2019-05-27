@@ -67,6 +67,7 @@ class AberturaChamadoForm extends React.Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
+        let unidades = '';
         this.setState({
           uploading: true,
           enviando: true
@@ -76,77 +77,151 @@ class AberturaChamadoForm extends React.Component {
         const config = {
           headers: { Authorization: `Bearer ${auth}` }
         };
-
-        let unidades = values.unidade.split('_');
-
-        axios
-          .post(
-            `${url}/chamados`,
-            {
-              condominio: values.condominios,
-              areascomuns: values.areas_comuns,
-              areasgerais: values.areas_gerais,
-              tipologia: values.tipologia,
-              unidade: unidades,
-              comentario: values.comentario,
-              contato: values.contato,
-              user:
-                this.state.idUser ||
-                this.props.user.id ||
-                localStorage.getItem('id'),
-              data_visita: values.validade,
-              garantia: values.nome_item,
-              problema_repetido: this.state.problema_repetido,
-              status: VISITA_ANALISE_TECNICA
-            },
-            config
-          )
-          .then(res => {
-            const { fileList } = this.state;
-            const fotosChamado = new FormData();
-            fotosChamado.append('ref', 'chamados');
-            fotosChamado.append('refId', res.data.id);
-            fotosChamado.append('field', 'files');
-            fileList.forEach(file => {
-              fotosChamado.append('files', file, file.name);
-            });
-
-            const configUpload = {
-              headers: {
-                Accept: 'multipart/form-data',
-                'Content-Type': 'multipart/form-data',
-                Authorization: `Bearer ${auth}`
-              }
-            };
-            axios
-              .post(`${url}/upload`, fotosChamado, configUpload)
-              .then(res => {
-                this.setState({
-                  fileList: [],
-                  uploading: false,
-                  enviando: false,
-                  condominios: false,
-                  mostrarDados: false
-                });
-                this.props.form.resetFields();
-                this.props.next();
-                message.success('Chamado enviado com sucesso');
-              })
-              .catch(error => {
-                this.setState({
-                  uploading: false,
-                  enviando: false,
-                  idUser: null
-                });
-                console.log(error);
-                message.error('Erro ao enviar o arquivo.');
+        if (values.unidades !== undefined || values.unidades) {
+          unidades = values.unidade.split('_');
+          axios
+            .post(
+              `${url}/chamados`,
+              {
+                condominio: values.condominios,
+                tipologia: values.tipologia,
+                unidade: unidades,
+                comentario: values.comentario,
+                contato: values.contato,
+                user:
+                  this.state.idUser ||
+                  this.props.user.id ||
+                  localStorage.getItem('id'),
+                data_visita: values.validade,
+                garantia: values.nome_item,
+                problema_repetido: this.state.problema_repetido,
+                status: VISITA_ANALISE_TECNICA
+              },
+              config
+            )
+            .then(res => {
+              const { fileList } = this.state;
+              const fotosChamado = new FormData();
+              fotosChamado.append('ref', 'chamados');
+              fotosChamado.append('refId', res.data.id);
+              fotosChamado.append('field', 'files');
+              fileList.forEach(file => {
+                fotosChamado.append('files', file, file.name);
               });
-          })
-          .catch(error => {
-            message.error('Erro ao abrir o chamado.');
-            console.log(error);
-            this.setState({ enviando: false, uploading: false, idUser: null });
-          });
+
+              const configUpload = {
+                headers: {
+                  Accept: 'multipart/form-data',
+                  'Content-Type': 'multipart/form-data',
+                  Authorization: `Bearer ${auth}`
+                }
+              };
+              axios
+                .post(`${url}/upload`, fotosChamado, configUpload)
+                .then(res => {
+                  this.setState({
+                    fileList: [],
+                    uploading: false,
+                    enviando: false,
+                    condominios: false,
+                    mostrarDados: false
+                  });
+                  this.props.form.resetFields();
+                  this.props.next();
+                  message.success('Chamado enviado com sucesso');
+                })
+                .catch(error => {
+                  this.setState({
+                    uploading: false,
+                    enviando: false,
+                    idUser: null
+                  });
+                  console.log(error);
+                  message.error('Erro ao enviar o arquivo.');
+                });
+            })
+            .catch(error => {
+              message.error('Erro ao abrir o chamado.');
+              console.log(error);
+              this.setState({
+                enviando: false,
+                uploading: false,
+                idUser: null
+              });
+            });
+        } else {
+          axios
+            .post(
+              `${url}/chamados`,
+              {
+                condominio: values.condominios,
+                areascomun: values.areas_comuns,
+                areasgerais: values.areas_gerais,
+                tipologia: values.tipologia,
+                comentario: values.comentario,
+                contato: values.contato,
+                user:
+                  this.state.idUser ||
+                  this.props.user.id ||
+                  localStorage.getItem('id'),
+                data_visita: values.validade,
+                garantia: values.nome_item,
+                problema_repetido: this.state.problema_repetido,
+                status: VISITA_ANALISE_TECNICA
+              },
+              config
+            )
+            .then(res => {
+              const { fileList } = this.state;
+              const fotosChamado = new FormData();
+              fotosChamado.append('ref', 'chamados');
+              fotosChamado.append('refId', res.data.id);
+              fotosChamado.append('field', 'files');
+              fileList.forEach(file => {
+                fotosChamado.append('files', file, file.name);
+              });
+
+              const configUpload = {
+                headers: {
+                  Accept: 'multipart/form-data',
+                  'Content-Type': 'multipart/form-data',
+                  Authorization: `Bearer ${auth}`
+                }
+              };
+              axios
+                .post(`${url}/upload`, fotosChamado, configUpload)
+                .then(res => {
+                  this.setState({
+                    fileList: [],
+                    uploading: false,
+                    enviando: false,
+                    condominios: false,
+                    mostrarDados: false
+                  });
+                  this.props.form.resetFields();
+                  this.props.next();
+                  message.success('Chamado enviado com sucesso');
+                })
+                .catch(error => {
+                  this.setState({
+                    uploading: false,
+                    enviando: false,
+                    idUser: null
+                  });
+                  console.log(error);
+                  message.error('Erro ao enviar o arquivo.');
+                });
+            })
+            .catch(error => {
+              message.error('Erro ao abrir o chamado.');
+              console.log(error);
+              this.setState({
+                enviando: false,
+                uploading: false,
+                idUser: null
+              });
+            });
+        }
       }
     });
   };

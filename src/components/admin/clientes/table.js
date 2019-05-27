@@ -172,7 +172,7 @@ class TableClientes extends React.Component {
       {
         title: 'Nome',
         dataIndex: 'nome',
-        key: 'id',
+        key: 'id' + 'nome',
         render: text => <p key={text.id}>{text}</p>,
         onFilter: (value, record) => record.nome.indexOf(value) === 0,
         sorter: (a, b) => b.nome.length - a.nome.length,
