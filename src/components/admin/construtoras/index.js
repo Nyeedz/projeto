@@ -53,7 +53,6 @@ class ConstrutoraForm extends React.Component {
 
   componentDidMount = () => {
     this.dispatchConstrutoras();
-    this.props.form.validateFields();
 
     const path = this.props.history.location.pathname;
     this.setState({
@@ -98,7 +97,6 @@ class ConstrutoraForm extends React.Component {
       imagem: false,
       id: null
     });
-    this.props.form.validateFields();
   };
 
   handleUpdate = e => {
@@ -373,16 +371,15 @@ class ConstrutoraForm extends React.Component {
                       <FormItem
                         validateStatus={nomeError ? 'error' : ''}
                         help={nomeError || ''}
-                        label="Nome"
                       >
                         {getFieldDecorator('nome', {
                           rules: [
                             {
                               required: true,
-                              message: 'Entre com o nome'
+                              message: 'Entre com o nome da construtora'
                             }
                           ]
-                        })(<Input placeholder="Nome" />)}
+                        })(<Input placeholder="Nome da construtora" />)}
                       </FormItem>
                     </Row>
                     <Row gutter={16}>
@@ -390,7 +387,6 @@ class ConstrutoraForm extends React.Component {
                         <FormItem
                           validateStatus={razaoError ? 'error' : ''}
                           help={razaoError || ''}
-                          label="Razão Social"
                         >
                           {getFieldDecorator('razao_social', {
                             rules: [
@@ -406,7 +402,6 @@ class ConstrutoraForm extends React.Component {
                         <FormItem
                           validateStatus={cnpjError ? 'error' : ''}
                           help={cnpjError || ''}
-                          label="Cnpj"
                         >
                           {getFieldDecorator('cnpj', {
                             rules: [
@@ -433,7 +428,6 @@ class ConstrutoraForm extends React.Component {
                           <FormItem
                             validateStatus={cepError ? 'error' : ''}
                             help={cepError || ''}
-                            label="Cep"
                           >
                             {getFieldDecorator('cep', {
                               rules: [
@@ -458,7 +452,6 @@ class ConstrutoraForm extends React.Component {
                           <FormItem
                             validateStatus={cidadeError ? 'error' : ''}
                             help={cidadeError || ''}
-                            label="Cidade"
                           >
                             {getFieldDecorator('cidade', {
                               rules: [
@@ -478,7 +471,6 @@ class ConstrutoraForm extends React.Component {
                           <FormItem
                             validateStatus={estadoError ? 'error' : ''}
                             help={estadoError || ''}
-                            label="Estado"
                           >
                             {getFieldDecorator('estado', {
                               rules: [
@@ -492,15 +484,14 @@ class ConstrutoraForm extends React.Component {
                         </Spin>
                       </Col>
                     </Row>
-                    <Row gutter={16}>
-                      <Col span={7} className="esquerda">
+                    <Row gutter={18}>
+                      <Col span={9} className="esquerda">
                         <Spin
                           spinning={this.state.loading || this.state.enviando}
                         >
                           <FormItem
                             validateStatus={enderecoError ? 'error' : ''}
                             help={enderecoError || ''}
-                            label="Endereço"
                           >
                             {getFieldDecorator('endereco', {
                               rules: [
@@ -518,7 +509,6 @@ class ConstrutoraForm extends React.Component {
                           <FormItem
                             validateStatus={numeroError ? 'error' : ''}
                             help={numeroError || ''}
-                            label="Número"
                           >
                             {getFieldDecorator('numero', {
                               rules: [
@@ -531,14 +521,13 @@ class ConstrutoraForm extends React.Component {
                           </FormItem>
                         </Spin>
                       </Col>
-                      <Col span={7} className="esquerda">
+                      <Col span={6} className="esquerda">
                         <Spin
                           spinning={this.state.loading || this.state.enviando}
                         >
                           <FormItem
                             validateStatus={bairroError ? 'error' : ''}
                             help={bairroError || ''}
-                            label="Bairro"
                           >
                             {getFieldDecorator('bairro', {
                               rules: [
@@ -551,15 +540,13 @@ class ConstrutoraForm extends React.Component {
                           </FormItem>
                         </Spin>
                       </Col>
-
-                      <Col span={6} className="esquerda">
+                      <Col span={5} className="esquerda">
                         <Spin
                           spinning={this.state.loading || this.state.enviando}
                         >
                           <FormItem
                             validateStatus={complementoError ? 'error' : ''}
                             help={complementoError || ''}
-                            label="Complemento"
                           >
                             {getFieldDecorator('complemento', {
                               rules: [
@@ -577,7 +564,6 @@ class ConstrutoraForm extends React.Component {
                         <FormItem
                           validateStatus={emailError ? 'error' : ''}
                           help={emailError || ''}
-                          label="Email"
                         >
                           {getFieldDecorator('email', {
                             rules: [
@@ -597,7 +583,6 @@ class ConstrutoraForm extends React.Component {
                         <FormItem
                           validateStatus={telefoneError ? 'error' : ''}
                           help={telefoneError || ''}
-                          label="Telefone"
                         >
                           {getFieldDecorator('telefone', {
                             rules: [

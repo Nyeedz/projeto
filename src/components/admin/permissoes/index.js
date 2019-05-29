@@ -43,7 +43,6 @@ class FuncionariosForm extends React.Component {
   componentDidMount = () => {
     this.getFuncionarios();
     this.props.dispatch(fetchFuncionarios());
-    this.props.form.validateFields();
   };
 
   getFuncionarios = () => {
@@ -85,7 +84,6 @@ class FuncionariosForm extends React.Component {
     const { form } = this.props;
 
     form.resetFields();
-    form.validateFields();
 
     this.setState({
       editar: false,

@@ -103,7 +103,6 @@ class FuncionarioForm extends React.Component {
   };
 
   componentDidMount = () => {
-    this.props.form.validateFields();
     this.dispatchCondominios();
   };
 
@@ -148,7 +147,6 @@ class FuncionarioForm extends React.Component {
       enviando: false,
       id: null
     });
-    this.props.form.validateFields();
   };
 
   handleUpdate = e => {
@@ -539,7 +537,6 @@ class FuncionarioForm extends React.Component {
                     <FormItem
                       validateStatus={nomeError ? 'error' : ''}
                       help={nomeError || ''}
-                      label="Nome"
                     >
                       {getFieldDecorator('nome', {
                         rules: [
@@ -555,7 +552,6 @@ class FuncionarioForm extends React.Component {
                     <FormItem
                       validateStatus={sobrenomeError ? 'error' : ''}
                       help={sobrenomeError || ''}
-                      label="Sobrenome"
                     >
                       {getFieldDecorator('sobrenome', {
                         rules: [
@@ -573,7 +569,6 @@ class FuncionarioForm extends React.Component {
                     <FormItem
                       validateStatus={funcaoError ? 'error' : ''}
                       help={funcaoError || ''}
-                      label="Função"
                     >
                       {getFieldDecorator('funcao', {
                         rules: [
@@ -589,16 +584,8 @@ class FuncionarioForm extends React.Component {
                     <FormItem
                       validateStatus={assinaturaError ? 'error' : ''}
                       help={assinaturaError || ''}
-                      label="Assinatura Digital"
                     >
-                      {getFieldDecorator('assinatura', {
-                        rules: [
-                          {
-                            required: true,
-                            message: 'Entre com a assinatura'
-                          }
-                        ]
-                      })(
+                      {getFieldDecorator('assinatura')(
                         <div>
                           <Button
                             onClick={e => this.upload.click()}
@@ -634,7 +621,6 @@ class FuncionarioForm extends React.Component {
                     <FormItem
                       validateStatus={usernameError ? 'error' : ''}
                       help={usernameError || ''}
-                      label="Usuário"
                     >
                       {getFieldDecorator('username', {
                         rules: [
@@ -650,7 +636,6 @@ class FuncionarioForm extends React.Component {
                     <FormItem
                       validateStatus={passwordError ? 'error' : ''}
                       help={passwordError || ''}
-                      label="Senha"
                     >
                       {getFieldDecorator('password', {
                         rules: [
@@ -668,7 +653,6 @@ class FuncionarioForm extends React.Component {
                     <FormItem
                       validateStatus={emailError ? 'error' : ''}
                       help={emailError || ''}
-                      label="Email"
                     >
                       {getFieldDecorator('email', {
                         rules: [
@@ -688,7 +672,6 @@ class FuncionarioForm extends React.Component {
                     <FormItem
                       validateStatus={telefoneError ? 'error' : ''}
                       help={telefoneError || ''}
-                      label="Telefone"
                     >
                       {getFieldDecorator('telefone', {
                         rules: [
@@ -711,7 +694,6 @@ class FuncionarioForm extends React.Component {
                     <FormItem
                       validateStatus={construtorasError ? 'error' : ''}
                       help={construtorasError || ''}
-                      label="Escolha a construtora"
                     >
                       {getFieldDecorator('construtoras', {
                         rules: [
@@ -752,11 +734,6 @@ class FuncionarioForm extends React.Component {
                     <FormItem
                       validateStatus={condominiosError ? 'error' : ''}
                       help={condominiosError || ''}
-                      label={
-                        this.state.disabledCond
-                          ? 'Escolha a construtora para habilitar esta opção'
-                          : 'Escolha os condomínios no qual o funcionário será responsável'
-                      }
                     >
                       {getFieldDecorator('condominios', {
                         rules: [
@@ -853,43 +830,48 @@ class FuncionarioForm extends React.Component {
                     </FormItem>
                   </Col>
                 </Row> */}
-                <Row gutter={16} style={{ marginTop: '1rem' }}>
-                  <Col span={24}>
-                    <FormItem>
-                      <span
-                        style={{
-                          color: '#757575',
-                          fontWeight: 'bold',
-                          marginTop: '2rem'
-                        }}
-                      >
-                        Selecionar permissões
-                      </span>
-                    </FormItem>
-                  </Col>
-                </Row>
 
-                {telas.map(tela => {
+                {telas.map((tela, i) => {
                   return (
-                    <Row key={`tela-${tela.id}`}>
-                      <Col span={10}>
-                        {tela.nome}
-                        <Divider />
-                      </Col>
-                      <Col span={14}>
-                        <RadioGroup
-                          onChange={event => {
-                            this.onChangePermissoes(event, tela.id);
-                          }}
-                          value={this.state.statusPermissoes[tela.id].status}
-                        >
-                          <Radio value={0}>Nenhuma</Radio>
-                          <Radio value={1}>Visualizar</Radio>
-                          <Radio value={2}>Editar</Radio>
-                        </RadioGroup>
-                        <Divider />
-                      </Col>
-                    </Row>
+                    <div key={`tela-${tela.id + i}`}>
+                      <Row gutter={16} style={{ marginTop: '1rem' }}>
+                        <Col span={10}>
+                          <FormItem>
+                            <span
+                              style={{
+                                color: '#757575',
+                                fontWeight: 'bold',
+                                marginTop: '2rem'
+                              }}
+                            >
+                              Selecionar permissões
+                            </span>
+                          </FormItem>
+                        </Col>
+                        <Col span={14}>
+                          <Button>Todos</Button>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col span={10}>
+                          {tela.nome}
+                          <Divider />
+                        </Col>
+                        <Col span={14}>
+                          <RadioGroup
+                            onChange={event => {
+                              this.onChangePermissoes(event, tela.id);
+                            }}
+                            value={this.state.statusPermissoes[tela.id].status}
+                          >
+                            <Radio value={0}>Nenhuma</Radio>
+                            <Radio value={1}>Visualizar</Radio>
+                            <Radio value={2}>Editar</Radio>
+                          </RadioGroup>
+                          <Divider />
+                        </Col>
+                      </Row>
+                    </div>
                   );
                 })}
               </Col>

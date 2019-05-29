@@ -109,7 +109,7 @@ class TablePesquisa extends React.Component {
   };
 
   updatePerguntas = id => {
-    this.props.perguntas.map(pergunta => {
+    this.state.data.map(pergunta => {
       if (pergunta.id === id) {
         this.props.setFieldValue(pergunta);
       }
@@ -155,7 +155,7 @@ class TablePesquisa extends React.Component {
         key: 'perguntas',
         render: text =>
           Object.keys(text).map((pergunta, i) => {
-            return <p key={text[pergunta] + i}>{text[pergunta]}</p>;
+            return <p key={text[i] + i}>{text[pergunta]}</p>;
           }),
         onFilter: (value, record) => record.perguntas.indexOf(value) === 0,
         filterDropdown: (
@@ -190,9 +190,9 @@ class TablePesquisa extends React.Component {
       },
       {
         title: 'Construtora',
-        dataIndex: 'construtoras',
-        key: 'construtoras',
-        render: text => <p key={text.id}>{text.nome}</p>
+        dataIndex: 'construtora',
+        key: 'construtora',
+        render: text => <p key={text._id}>{text.nome}</p>
       },
       {
         title: 'Opções',

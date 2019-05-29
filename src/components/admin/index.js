@@ -169,8 +169,8 @@ class Admin extends React.Component {
             <Route exact path="/admin/permissoes" component={Permissoes} />
             <Route exact path="/admin/clientes" component={Clientes} />
             <Route exact path="/admin/chamados" component={Chamados} />
-            {/*<Route exact path="/admin/pesquisa" component={Pesquisa} />
-              <Route exact path="/admin/graficos" component={GraficosTotal} />
+            <Route exact path="/admin/pesquisa" component={Pesquisa} />
+            {/*   <Route exact path="/admin/graficos" component={GraficosTotal} />
               <Route exact path="/admin/teste" component={Teste} /> */}
           </Content>
         </Layout>

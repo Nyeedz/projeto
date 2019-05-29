@@ -48,7 +48,6 @@ class GarantiaForm extends React.Component {
 
   componentDidMount = () => {
     this.dispatchGarantias();
-    this.props.form.validateFields();
     const path = this.props.history.location.pathname;
     this.setState({
       codTela: getCodePath(path)
@@ -72,27 +71,25 @@ class GarantiaForm extends React.Component {
     });
 
     setTimeout(() => {
-      this.selectInfoCond(dados.construtoras.id);
+      this.selectInfoCond(dados.construtora._id);
       this.props.form.setFieldsValue({
-        construtoras: dados.construtoras.id
+        construtoras: dados.construtora._id
       });
 
-      this.selectInfoTipo(dados.condominios.id);
+      this.selectInfoTipo(dados.condominio._id);
       this.props.form.setFieldsValue({
-        condominios: dados.condominios.id
+        condominios: dados.condominio._id
       });
 
       this.props.form.setFieldsValue({
         nome: dados.nome,
-        torre: dados.torre.id
+        torre: dados.tipologia.id
       });
 
       Object.keys(dados.subitem).forEach((value, i) => {
         this.add();
         subitemArray[i] = dados.subitem[value];
       });
-
-      console.log(subitemArray);
 
       this.props.form.setFieldsValue({
         secondary: subitemArray.map(x => x.subitem),
@@ -117,7 +114,6 @@ class GarantiaForm extends React.Component {
       id: null,
       enviando: false
     });
-    this.props.form.validateFields();
   };
 
   handleGarantia = e => {
@@ -423,7 +419,7 @@ class GarantiaForm extends React.Component {
               }}
             >
               <h2>
-                <span>Cadastrar item</span>
+                <span>Itens de garantia</span>
               </h2>
             </div>
             <Form
@@ -439,16 +435,12 @@ class GarantiaForm extends React.Component {
                   padding: '3%'
                 }}
               >
-                <span style={{ color: '#757575', fontWeight: 'bold' }}>
-                  Novo item de garantia
-                </span>
                 <Spin spinning={this.state.enviando}>
                   <Row gutter={16} style={{ marginTop: '1rem' }}>
                     <Col span={12}>
                       <FormItem
                         validateStatus={construtorasError ? 'error' : ''}
                         help={construtorasError || ''}
-                        label="Escolha a construtora"
                       >
                         {getFieldDecorator('construtoras', {
                           rules: [
@@ -488,11 +480,6 @@ class GarantiaForm extends React.Component {
                       <FormItem
                         validateStatus={condominiosError ? 'error' : ''}
                         help={condominiosError || ''}
-                        label={
-                          this.state.disabledCond
-                            ? 'Escolha a construtora para habilitar esta opção'
-                            : 'Escolha o condomínio'
-                        }
                       >
                         {getFieldDecorator('condominios', {
                           rules: [
@@ -545,11 +532,6 @@ class GarantiaForm extends React.Component {
                       <FormItem
                         validateStatus={torreError ? 'error' : ''}
                         help={torreError || ''}
-                        label={
-                          this.state.disabledTipo
-                            ? 'Escolha o condomínio para habilitar esta opção'
-                            : 'Escolha a tipologia'
-                        }
                       >
                         {getFieldDecorator('torre', {
                           rules: [
@@ -592,7 +574,6 @@ class GarantiaForm extends React.Component {
                       <FormItem
                         validateStatus={nomeItemError ? 'error' : ''}
                         help={nomeItemError || ''}
-                        label="Nome do item:"
                       >
                         {getFieldDecorator('nome', {
                           rules: [

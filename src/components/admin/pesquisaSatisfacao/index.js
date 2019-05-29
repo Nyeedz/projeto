@@ -68,7 +68,6 @@ class PesquisaForm extends React.Component {
 
   componentDidMount = () => {
     this.dispatchDados();
-    this.props.form.validateFields();
     uuid = 0;
     const path = this.props.history.location.pathname;
     this.setState({
@@ -82,6 +81,7 @@ class PesquisaForm extends React.Component {
   };
 
   setFieldValue = dados => {
+    this.setState({ enviando: true });
     const { form } = this.props;
     const { perguntas } = dados;
     let perguntasArray = [];
@@ -95,7 +95,7 @@ class PesquisaForm extends React.Component {
 
     setTimeout(() => {
       this.props.form.setFieldsValue({
-        construtoras: dados.construtoras.id
+        construtoras: dados.construtora.id
       });
 
       Object.keys(perguntas).forEach((key, index) => {
@@ -106,18 +106,18 @@ class PesquisaForm extends React.Component {
       this.props.form.setFieldsValue({
         names: perguntasArray
       });
-    }, 200);
 
-    this.setState({
-      editar: true
-    });
+      this.setState({
+        editar: true,
+        enviando: false
+      });
+    }, 1500);
   };
 
   cancelarEdicao = () => {
     const { form } = this.props;
 
     form.resetFields();
-    form.validateFields();
     uuid = 0;
     form.setFieldsValue({
       keys: []
@@ -148,7 +148,7 @@ class PesquisaForm extends React.Component {
           .post(
             `${url}/pesquisasatisfacaos`,
             {
-              construtoras: values.construtoras,
+              construtora: values.construtoras,
               perguntas: p
             },
             config
@@ -215,7 +215,7 @@ class PesquisaForm extends React.Component {
               .put(
                 `${url}/pesquisasatisfacaos/${this.state.id}`,
                 {
-                  construtoras: values.construtoras,
+                  construtora: values.construtoras,
                   perguntas: p
                 },
                 config
@@ -429,7 +429,7 @@ class PesquisaForm extends React.Component {
               <Col span={24}>
                 <TablePesquisa
                   codTela={this.state.codTela}
-                  perguntas={this.state.perguntas}
+                  perguntas={this.props.perguntas}
                   getPerguntas={this.dispatchDados}
                   setFieldValue={this.setFieldValue}
                   resetFields={this.cancelarEdicao}

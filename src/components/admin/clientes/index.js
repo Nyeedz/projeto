@@ -65,7 +65,6 @@ class ClientesForm extends React.Component {
   };
 
   componentDidMount = () => {
-    this.props.form.validateFields();
     this.dispatchCondominios();
     const path = this.props.history.location.pathname;
     this.setState({
@@ -132,7 +131,6 @@ class ClientesForm extends React.Component {
       id: null,
       enviando: false
     });
-    this.props.form.validateFields();
   };
 
   handleUpdate = e => {
@@ -441,7 +439,6 @@ class ClientesForm extends React.Component {
                       <FormItem
                         validateStatus={nomeError ? 'error' : ''}
                         help={nomeError || ''}
-                        label="Nome"
                       >
                         {getFieldDecorator('nome', {
                           rules: [
@@ -457,7 +454,6 @@ class ClientesForm extends React.Component {
                       <FormItem
                         validateStatus={sobrenomeError ? 'error' : ''}
                         help={sobrenomeError || ''}
-                        label="Sobrenome"
                       >
                         {getFieldDecorator('sobrenome', {
                           rules: [
@@ -475,7 +471,6 @@ class ClientesForm extends React.Component {
                       <FormItem
                         validateStatus={usernameError ? 'error' : ''}
                         help={usernameError || ''}
-                        label="Usuário"
                       >
                         {getFieldDecorator('username', {
                           rules: [
@@ -491,7 +486,6 @@ class ClientesForm extends React.Component {
                       <FormItem
                         validateStatus={passwordError ? 'error' : ''}
                         help={passwordError || ''}
-                        label="Senha"
                       >
                         {getFieldDecorator('password', {
                           rules: [
@@ -509,7 +503,6 @@ class ClientesForm extends React.Component {
                       <FormItem
                         validateStatus={emailError ? 'error' : ''}
                         help={emailError || ''}
-                        label="Email"
                       >
                         {getFieldDecorator('email', {
                           rules: [
@@ -529,7 +522,6 @@ class ClientesForm extends React.Component {
                       <FormItem
                         validateStatus={telefoneError ? 'error' : ''}
                         help={telefoneError || ''}
-                        label="Telefone"
                       >
                         {getFieldDecorator('telefone', {
                           rules: [
@@ -552,7 +544,6 @@ class ClientesForm extends React.Component {
                       <FormItem
                         validateStatus={construtorasError ? 'error' : ''}
                         help={construtorasError || ''}
-                        label="Escolha a construtora"
                       >
                         {getFieldDecorator('construtoras', {
                           rules: [
@@ -595,11 +586,6 @@ class ClientesForm extends React.Component {
                       <FormItem
                         validateStatus={condominiosError ? 'error' : ''}
                         help={condominiosError || ''}
-                        label={
-                          this.state.disabledCond
-                            ? 'Escolha a construtora para habilitar esta opção'
-                            : 'Escolha o condomínio'
-                        }
                       >
                         {getFieldDecorator('condominios', {
                           rules: [
@@ -701,7 +687,7 @@ class ClientesForm extends React.Component {
                         value={this.state.tipo_morador}
                       >
                         <Radio value={1}>Morador</Radio>
-                        <Radio value={0}>Síndico</Radio>
+                        <Radio value={0}>Síndico/zelador</Radio>
                       </RadioGroup>
                     </Col>
                   </Row>

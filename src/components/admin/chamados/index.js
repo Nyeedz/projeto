@@ -217,7 +217,6 @@ class ChamadosList extends Component {
                     <FormItem
                       validateStatus={clienteError ? 'error' : ''}
                       help={clienteError || ''}
-                      label="Escolha o chamado"
                     >
                       {getFieldDecorator('cliente', {
                         rules: [
@@ -260,7 +259,6 @@ class ChamadosList extends Component {
                         <FormItem
                           validateStatus={condominioError ? 'error' : ''}
                           help={condominioError || ''}
-                          label="Condominio"
                         >
                           {getFieldDecorator('condominio')(
                             <strong>
@@ -273,7 +271,6 @@ class ChamadosList extends Component {
                         <FormItem
                           validateStatus={enderecoError ? 'error' : ''}
                           help={enderecoError || ''}
-                          label="Endereço"
                         >
                           {getFieldDecorator('endereco')(
                             <strong>
@@ -294,7 +291,6 @@ class ChamadosList extends Component {
                         <FormItem
                           validadeStatus={garantiaError ? 'error' : ''}
                           help={garantiaError || ''}
-                          label="Item de garantia"
                         >
                           {getFieldDecorator('garantia')(
                             <strong>
@@ -307,7 +303,6 @@ class ChamadosList extends Component {
                         <FormItem
                           validadeStatus={problemaError ? 'error' : ''}
                           help={problemaError || ''}
-                          label="Problema"
                         >
                           {getFieldDecorator('problema', {
                             initialValue: this.state.comentario
@@ -327,7 +322,6 @@ class ChamadosList extends Component {
                         <FormItem
                           validateStatus={dataAberturaError ? 'error' : ''}
                           help={dataAberturaError || ''}
-                          label="Data de abertura"
                         >
                           {getFieldDecorator('data_abertura', {
                             initialValue: moment(this.state.data_abertura),
@@ -352,7 +346,6 @@ class ChamadosList extends Component {
                         <FormItem
                           validateStatus={dataAgendamentoError ? 'error' : ''}
                           help={dataAgendamentoError || ''}
-                          label="Data de agendamento"
                         >
                           {getFieldDecorator('data_agendamento', {
                             initialValue: moment(this.state.data_visita),

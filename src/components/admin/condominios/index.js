@@ -56,10 +56,6 @@ class CondominiosForm extends React.Component {
     enviandoContrato: false
   };
 
-  componentDidMount = () => {
-    this.props.form.validateFields();
-  };
-
   onChange = e => {
     this.setState({
       ativo: e.target.value
@@ -79,7 +75,6 @@ class CondominiosForm extends React.Component {
   };
 
   componentDidMount = () => {
-    this.props.form.validateFields();
     this.dispatchDados();
 
     const path = this.props.history.location.pathname;
@@ -150,7 +145,6 @@ class CondominiosForm extends React.Component {
       downloadArquivo: false,
       contrato: null
     });
-    this.props.form.validateFields();
   };
 
   handleUpdate = e => {
@@ -471,7 +465,6 @@ class CondominiosForm extends React.Component {
                         <FormItem
                           validateStatus={construtorasError ? 'error' : ''}
                           help={construtorasError || ''}
-                          label="Escolha a construtora"
                         >
                           {getFieldDecorator('construtoras')(
                             <Select
@@ -508,7 +501,6 @@ class CondominiosForm extends React.Component {
                         <FormItem
                           validateStatus={nomeError ? 'error' : ''}
                           help={nomeError || ''}
-                          label="Nome"
                         >
                           {getFieldDecorator('nome', {
                             rules: [
@@ -533,7 +525,6 @@ class CondominiosForm extends React.Component {
                         <FormItem
                           validateStatus={ContratoError ? 'error' : ''}
                           help={ContratoError || ''}
-                          label="Contrato"
                           style={{ marginTop: '1.5rem' }}
                         >
                           {getFieldDecorator('contrato', {
@@ -553,6 +544,21 @@ class CondominiosForm extends React.Component {
                                 {this.state.fileName === ''
                                   ? 'Selecione o contrato'
                                   : this.state.fileName}
+                                <br />
+                                {this.state.downloadArquivo &&
+                                this.state.contrato !== null ? (
+                                  <a
+                                    style={{
+                                      display: 'flex',
+                                      justifyContent: 'center',
+                                      marginTop: '1rem'
+                                    }}
+                                    href={`${url}${this.state.contrato.url.toString()}`}
+                                    target="_blank"
+                                  >
+                                    Baixar Contrato
+                                  </a>
+                                ) : null}
                               </Button>
                               <input
                                 type="file"
@@ -580,7 +586,6 @@ class CondominiosForm extends React.Component {
                         <FormItem
                           validateStatus={validadeError ? 'error' : ''}
                           help={validadeError || ''}
-                          label="Validade"
                         >
                           {getFieldDecorator('validade', {
                             rules: [
@@ -601,24 +606,6 @@ class CondominiosForm extends React.Component {
                       </Spin>
                     </Col>
                   </Row>
-                  {this.state.downloadArquivo &&
-                  this.state.contrato !== null ? (
-                    <Row gutter={16}>
-                      <Col span={4} />
-                      <Col span={12}>
-                        <Spin spinning={this.state.enviandoContrato}>
-                          <FormItem>
-                            <a
-                              href={this.state.contrato.url.toString()}
-                              target="_blank"
-                            >
-                              Baixar Contrato
-                            </a>
-                          </FormItem>
-                        </Spin>
-                      </Col>
-                    </Row>
-                  ) : null}
                   <Row gutter={16}>
                     <Col span={8} className="esquerda">
                       <Spin
@@ -627,7 +614,6 @@ class CondominiosForm extends React.Component {
                         <FormItem
                           validateStatus={cepError ? 'error' : ''}
                           help={cepError || ''}
-                          label="Cep"
                         >
                           {getFieldDecorator('cep', {
                             rules: [
@@ -652,7 +638,6 @@ class CondominiosForm extends React.Component {
                         <FormItem
                           validateStatus={cidadeError ? 'error' : ''}
                           help={cidadeError || ''}
-                          label="Cidade"
                         >
                           {getFieldDecorator('cidade', {
                             rules: [
@@ -672,7 +657,6 @@ class CondominiosForm extends React.Component {
                         <FormItem
                           validateStatus={estadoError ? 'error' : ''}
                           help={estadoError || ''}
-                          label="Estado"
                         >
                           {getFieldDecorator('estado', {
                             rules: [
@@ -687,14 +671,13 @@ class CondominiosForm extends React.Component {
                     </Col>
                   </Row>
                   <Row gutter={16}>
-                    <Col span={7} className="esquerda">
+                    <Col span={9} className="esquerda">
                       <Spin
                         spinning={this.state.loading || this.state.enviando}
                       >
                         <FormItem
                           validateStatus={enderecoError ? 'error' : ''}
                           help={enderecoError || ''}
-                          label="Endereço"
                         >
                           {getFieldDecorator('endereco', {
                             rules: [
@@ -712,7 +695,6 @@ class CondominiosForm extends React.Component {
                         <FormItem
                           validateStatus={numeroError ? 'error' : ''}
                           help={numeroError || ''}
-                          label="Número"
                         >
                           {getFieldDecorator('numero', {
                             rules: [
@@ -725,14 +707,13 @@ class CondominiosForm extends React.Component {
                         </FormItem>
                       </Spin>
                     </Col>
-                    <Col span={7} className="esquerda">
+                    <Col span={6} className="esquerda">
                       <Spin
                         spinning={this.state.loading || this.state.enviando}
                       >
                         <FormItem
                           validateStatus={bairroError ? 'error' : ''}
                           help={bairroError || ''}
-                          label="Bairro"
                         >
                           {getFieldDecorator('bairro', {
                             rules: [
@@ -745,15 +726,13 @@ class CondominiosForm extends React.Component {
                         </FormItem>
                       </Spin>
                     </Col>
-
-                    <Col span={6} className="esquerda">
+                    <Col span={5} className="esquerda">
                       <Spin
                         spinning={this.state.loading || this.state.enviando}
                       >
                         <FormItem
                           validateStatus={complementoError ? 'error' : ''}
                           help={complementoError || ''}
-                          label="Complemento"
                         >
                           {getFieldDecorator('complemento', {
                             rules: [
@@ -772,7 +751,6 @@ class CondominiosForm extends React.Component {
                         <FormItem
                           validateStatus={emailError ? 'error' : ''}
                           help={emailError || ''}
-                          label="Email"
                         >
                           {getFieldDecorator('email', {
                             rules: [
@@ -794,7 +772,6 @@ class CondominiosForm extends React.Component {
                         <FormItem
                           validateStatus={telefoneError ? 'error' : ''}
                           help={telefoneError || ''}
-                          label="Telefone"
                         >
                           {getFieldDecorator('telefone', {
                             rules: [

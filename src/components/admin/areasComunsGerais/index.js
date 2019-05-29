@@ -44,7 +44,6 @@ class AreasGeraisForm extends React.Component {
   componentDidMount = () => {
     this.dispatchAreasGerais();
     this.props.dispatch(fetchConstrutoras());
-    this.props.form.validateFields();
     const path = this.props.history.location.pathname;
     this.setState({
       codTela: getCodePath(path)
@@ -244,7 +243,6 @@ class AreasGeraisForm extends React.Component {
   cancelarEdicao = () => {
     this.props.form.resetFields();
     this.setState({ editar: false, id: null, disabled: true });
-    this.props.form.validateFields();
   };
 
   selectInfo = id => {
@@ -288,11 +286,7 @@ class AreasGeraisForm extends React.Component {
 
     const areasComumGeral = keys.map((k, index) => {
       return (
-        <FormItem
-          label={index === 0 ? `Área comum` : ''}
-          required={false}
-          key={`nome${k + index}`}
-        >
+        <FormItem required={false} key={`nome${k + index}`}>
           {getFieldDecorator(`names[${k}]`, {
             validateTrigger: ['onChange', 'onBlur'],
             rules: [
@@ -354,7 +348,6 @@ class AreasGeraisForm extends React.Component {
                     <FormItem
                       validateStatus={construtorasError ? 'error' : ''}
                       help={construtorasError || ''}
-                      label="Escolha a construtora"
                     >
                       {getFieldDecorator('construtoras', {
                         rules: [
@@ -392,11 +385,6 @@ class AreasGeraisForm extends React.Component {
                     <FormItem
                       validateStatus={condominioError ? 'error' : ''}
                       help={condominioError || ''}
-                      label={
-                        this.state.disabled
-                          ? 'Escolha a construtora para habilitar esta opção'
-                          : 'Escolha o condomínio'
-                      }
                     >
                       {getFieldDecorator('condominio', {
                         rules: [

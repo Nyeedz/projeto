@@ -163,7 +163,7 @@ class LoginForm extends React.Component {
                       }
                     ]
                   })(
-                    <Input
+                    <Input.Password
                       prefix={<Icon type="lock" />}
                       type="password"
                       placeholder="Password"

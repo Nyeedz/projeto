@@ -48,7 +48,6 @@ class TipologiaForm extends React.Component {
 
   componentDidMount = () => {
     this.dispatchTipologia();
-    this.props.form.validateFields();
     const path = this.props.history.location.pathname;
     this.setState({
       codTela: getCodePath(path)
@@ -129,51 +128,51 @@ class TipologiaForm extends React.Component {
         const config = {
           headers: { Authorization: `Bearer ${auth}` }
         };
-        
-        if (
-          moment(values.validade).startOf('day') <=
-          moment(this.state.validadeCondominio, 'DD/MM/YYYY')
-        ) {
-          notification.open({
-            message: 'Opps',
-            description: `Validade não pode ser menor ou igual a ${
-              this.state.validadeCondominio
-            }`,
-            icon: <Icon type="warning" style={{ color: 'yellow' }} />
-          });
-          this.setState({ enviando: false });
-          return;
-        } else {
-          axios
-            .post(
-              `${url}/tipologias`,
-              {
-                nome: values.nome,
-                validade: values.validade,
-                condominios: values.condominio,
-                construtora: values.construtoras
-              },
-              config
-            )
-            .then(() => {
-              notification.open({
-                message: 'Ok!',
-                description: 'Tipologia cadastrada com sucesso!',
-                icon: <Icon type="check" style={{ color: 'green' }} />
-              });
-              this.dispatchTipologia();
-              this.props.form.resetFields();
-              this.setState({ enviando: false });
-            })
-            .catch(() => {
-              notification.open({
-                message: 'Erro!',
-                description: 'Erro ao cadastrar a tipologia',
-                icon: <Icon type="close" style={{ color: 'red' }} />
-              });
-              this.setState({ enviando: false });
+
+        // if (
+        //   moment(values.validade).startOf('day') <=
+        //   moment(this.state.validadeCondominio, 'DD/MM/YYYY')
+        // ) {
+        //   notification.open({
+        //     message: 'Opps',
+        //     description: `Validade não pode ser menor ou igual a ${
+        //       this.state.validadeCondominio
+        //     }`,
+        //     icon: <Icon type="warning" style={{ color: 'yellow' }} />
+        //   });
+        //   this.setState({ enviando: false });
+        //   return;
+        // } else {
+        axios
+          .post(
+            `${url}/tipologias`,
+            {
+              nome: values.nome,
+              validade: values.validade,
+              condominios: values.condominio,
+              construtora: values.construtoras
+            },
+            config
+          )
+          .then(() => {
+            notification.open({
+              message: 'Ok!',
+              description: 'Tipologia cadastrada com sucesso!',
+              icon: <Icon type="check" style={{ color: 'green' }} />
             });
-        }
+            this.dispatchTipologia();
+            this.props.form.resetFields();
+            this.setState({ enviando: false });
+          })
+          .catch(() => {
+            notification.open({
+              message: 'Erro!',
+              description: 'Erro ao cadastrar a tipologia',
+              icon: <Icon type="close" style={{ color: 'red' }} />
+            });
+            this.setState({ enviando: false });
+          });
+        // }
       } else {
         notification.open({
           message: 'Opps',
@@ -215,7 +214,6 @@ class TipologiaForm extends React.Component {
   cancelarEdicao = () => {
     this.props.form.resetFields();
     this.setState({ editar: false, id: null, disabled: true });
-    this.props.form.validateFields();
   };
 
   selectInfo = id => {
@@ -297,7 +295,6 @@ class TipologiaForm extends React.Component {
                     <FormItem
                       validateStatus={construtorasError ? 'error' : ''}
                       help={construtorasError || ''}
-                      label="Escolha a construtora"
                     >
                       {getFieldDecorator('construtoras', {
                         rules: [
@@ -335,11 +332,6 @@ class TipologiaForm extends React.Component {
                     <FormItem
                       validateStatus={condominioError ? 'error' : ''}
                       help={condominioError || ''}
-                      label={
-                        this.state.disabled
-                          ? 'Escolha a construtora para habilitar esta opção'
-                          : 'Escolha o condomínio'
-                      }
                     >
                       {getFieldDecorator('condominio', {
                         rules: [
@@ -391,7 +383,6 @@ class TipologiaForm extends React.Component {
                     <FormItem
                       validateStatus={nomeError ? 'error' : ''}
                       help={nomeError || ''}
-                      label="Nome da tipologia"
                     >
                       {getFieldDecorator('nome', {
                         rules: [
@@ -407,7 +398,6 @@ class TipologiaForm extends React.Component {
                     <FormItem
                       validateStatus={validadeError ? 'error' : ''}
                       help={validadeError || ''}
-                      label="Data início da garantia"
                     >
                       {getFieldDecorator('validade', {
                         rules: [

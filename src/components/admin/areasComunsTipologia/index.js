@@ -47,7 +47,6 @@ class AreasComunsForm extends React.Component {
     this.dispatchAreasComuns();
     this.props.dispatch(fetchCondominios());
     this.props.dispatch(fetchConstrutoras());
-    this.props.form.validateFields();
     const path = this.props.history.location.pathname;
     this.setState({
       codTela: getCodePath(path)
@@ -262,7 +261,6 @@ class AreasComunsForm extends React.Component {
       disabled: false,
       disabledTipo: false
     });
-    this.props.form.validateFields();
   };
 
   selectInfoCond = id => {
@@ -317,11 +315,7 @@ class AreasComunsForm extends React.Component {
 
     const areaComumTipologia = keys.map((k, index) => {
       return (
-        <FormItem
-          label={index === 0 ? `Área comum da tipologia` : ''}
-          required={false}
-          key={`nome${k + index}`}
-        >
+        <FormItem required={false} key={`nome${k + index}`}>
           {getFieldDecorator(`names[${k}]`, {
             validateTrigger: ['onChange', 'onBlur'],
             rules: [
@@ -389,7 +383,6 @@ class AreasComunsForm extends React.Component {
                     <FormItem
                       validateStatus={construtorasError ? 'error' : ''}
                       help={construtorasError || ''}
-                      label="Escolha a construtora"
                     >
                       {getFieldDecorator('construtoras', {
                         rules: [
@@ -427,11 +420,6 @@ class AreasComunsForm extends React.Component {
                     <FormItem
                       validateStatus={condominiosError ? 'error' : ''}
                       help={condominiosError || ''}
-                      label={
-                        this.state.disabledCond
-                          ? 'Escolha a construtora para habilitar esta opção'
-                          : 'Escolha o condomínio'
-                      }
                     >
                       {getFieldDecorator('condominios', {
                         rules: [
@@ -485,11 +473,6 @@ class AreasComunsForm extends React.Component {
                     <FormItem
                       validateStatus={torreError ? 'error' : ''}
                       help={torreError || ''}
-                      label={
-                        this.state.disabledTipo
-                          ? 'Escolha o condomínio para habilitar esta opção'
-                          : 'Escolha a tipologia'
-                      }
                     >
                       {getFieldDecorator('torre', {
                         rules: [

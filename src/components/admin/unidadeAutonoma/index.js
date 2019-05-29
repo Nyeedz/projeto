@@ -11,7 +11,8 @@ import {
   Button,
   notification,
   Divider,
-  Spin
+  Spin,
+  DatePicker
 } from 'antd';
 import axios from 'axios';
 import { fetchCondominios } from '../../../actions/condominioActions';
@@ -22,10 +23,15 @@ import TableUnidade from './table';
 import { url, CODE_NENHUMA, CODE_EDITAR } from '../../../utilities/constants';
 import { getCodePath } from '../../../utilities/functions';
 import Permissao from '../permissoes/permissoes';
+import moment from 'moment';
 
 const FormItem = Form.Item;
 const { Content } = Layout;
 const Option = Select.Option;
+
+function onChange(date, dateString) {
+  moment(dateString).format('DD/MM/YYYY');
+}
 
 function hasErrors(fieldsError) {
   return Object.keys(fieldsError).some(field => fieldsError[field]);
@@ -48,7 +54,6 @@ class UnidadeForm extends React.Component {
 
   componentDidMount = () => {
     this.dispatchUnidades();
-    this.props.form.validateFields();
     const path = this.props.history.location.pathname;
     this.setState({
       codTela: getCodePath(path)
@@ -124,7 +129,8 @@ class UnidadeForm extends React.Component {
             {
               construtoras: values.construtoras,
               condominios: values.condominios,
-              tipologia: values.torre
+              tipologia: values.torre,
+              validade: values.validade
             },
             config
           )
@@ -228,7 +234,8 @@ class UnidadeForm extends React.Component {
             {
               construtora: values.construtoras,
               condominio: values.condominios,
-              tipologia: values.torre
+              tipologia: values.torre,
+              validade: values.validade
             },
             config
           )
@@ -315,7 +322,9 @@ class UnidadeForm extends React.Component {
         id: dados.id
       });
 
-      this.setState({ unidades: dados.unidades });
+      this.setState({
+        unidades: dados.unidades
+      });
 
       dados.unidades.map(unidade => {
         this.add();
@@ -323,6 +332,7 @@ class UnidadeForm extends React.Component {
         unidadeIdsArray.push(unidade._id);
       });
       this.props.form.setFieldsValue({
+        validade: moment(dados.validade),
         names: unidadeArray,
         ids: unidadeIdsArray,
         torre: dados.tipologia._id
@@ -348,7 +358,6 @@ class UnidadeForm extends React.Component {
       disabledCond: true,
       disabledTipo: true
     });
-    form.validateFields();
   };
 
   selectInfoCond = id => {
@@ -379,7 +388,8 @@ class UnidadeForm extends React.Component {
       getFieldDecorator,
       getFieldError,
       isFieldTouched,
-      getFieldValue
+      getFieldValue,
+      getFieldsError
     } = this.props.form;
 
     const construtorasError =
@@ -387,6 +397,8 @@ class UnidadeForm extends React.Component {
     const condominiosError =
       isFieldTouched('condominios') && getFieldError('condominios');
     const torreError = isFieldTouched('torre') && getFieldError('torre');
+    const validadeError =
+      isFieldTouched('validade') && getFieldError('validade');
 
     const formItemLayout = {
       labelCol: {
@@ -405,12 +417,10 @@ class UnidadeForm extends React.Component {
     const unidadesAutonomas = keys.map((k, index) => {
       return (
         <React.Fragment>
-          {getFieldDecorator(`ids[${k}]`)(<div key={`ids${k + index}`} />)}
-          <FormItem
-            label={index === 0 ? `Unidades` : ''}
-            required={false}
-            key={`nome${k + index}`}
-          >
+          {getFieldDecorator(`ids[${k}]`)(
+            <div key={`ids${k + index + 'ids'}`} />
+          )}
+          <FormItem required={false} key={`nome${k + index}`}>
             {getFieldDecorator(`names[${k}]`, {
               validateTrigger: ['onChange', 'onBlur'],
               rules: [
@@ -479,7 +489,6 @@ class UnidadeForm extends React.Component {
                     <FormItem
                       validateStatus={construtorasError ? 'error' : ''}
                       help={construtorasError || ''}
-                      label="Escolha a construtora"
                     >
                       {getFieldDecorator('construtoras', {
                         rules: [
@@ -520,11 +529,6 @@ class UnidadeForm extends React.Component {
                     <FormItem
                       validateStatus={condominiosError ? 'error' : ''}
                       help={condominiosError || ''}
-                      label={
-                        this.state.disabledCond
-                          ? 'Escolha a construtora para habilitar esta opção'
-                          : 'Escolha o condomínio'
-                      }
                     >
                       {getFieldDecorator('condominios', {
                         rules: [
@@ -579,11 +583,6 @@ class UnidadeForm extends React.Component {
                     <FormItem
                       validateStatus={torreError ? 'error' : ''}
                       help={torreError || ''}
-                      label={
-                        this.state.disabledTipo
-                          ? 'Escolha o condomínio para habilitar esta opção'
-                          : 'Escolha a tipologia'
-                      }
                     >
                       {getFieldDecorator('torre', {
                         rules: [
@@ -622,7 +621,30 @@ class UnidadeForm extends React.Component {
                       )}
                     </FormItem>
                   </Col>
-                  <Col span={10} />
+                  <Col span={10}>
+                    <Spin spinning={this.state.enviando}>
+                      <FormItem
+                        validateStatus={validadeError ? 'error' : ''}
+                        help={validadeError || ''}
+                      >
+                        {getFieldDecorator('validade', {
+                          rules: [
+                            {
+                              required: true,
+                              message: 'Entre com a data de entrega'
+                            }
+                          ]
+                        })(
+                          <DatePicker
+                            onChange={onChange}
+                            placeholder="Data de entrega"
+                            format="DD/MM/YYYY"
+                            style={{ width: '100%' }}
+                          />
+                        )}
+                      </FormItem>
+                    </Spin>
+                  </Col>
                 </Row>
                 <Row gutter={16}>
                   <Col span={4} />
