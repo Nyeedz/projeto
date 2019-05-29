@@ -142,8 +142,8 @@ class EditAvatarModal extends React.Component {
             this.state.image
               ? this.state.image
               : this.props.imagem
-                ? this.props.imagem
-                : 'https://www.contentchampion.com/wp-content/uploads/2013/11/avatar-placeholder.png'
+              ? this.props.imagem
+              : 'https://www.contentchampion.com/wp-content/uploads/2013/11/avatar-placeholder.png'
           }
         />
         <Button

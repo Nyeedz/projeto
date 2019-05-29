@@ -384,8 +384,7 @@ class ChamadosList extends Component {
                               fileList={this.state.fotosChamados}
                               onPreview={this.handlePreview}
                               onChange={this.handleChange}
-                            >
-                            </Upload>
+                            />
                             <Modal
                               visible={previewVisible}
                               footer={null}

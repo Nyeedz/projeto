@@ -5,7 +5,7 @@ import EditAvatar from './modal';
 
 class ModalAvatar extends React.Component {
   state = {
-    visible: false,
+    visible: false
   };
 
   showModal = () => {

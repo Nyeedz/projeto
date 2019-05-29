@@ -155,7 +155,7 @@ class AreasComunsForm extends React.Component {
 
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        let areasTipologias = {}; 
+        let areasTipologias = {};
         this.setState({ enviando: true });
         values.names.map((areaTipologia, i) => {
           return JSON.stringify((areasTipologias[i] = areaTipologia));

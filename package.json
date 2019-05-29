@@ -33,6 +33,6 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "@selcip/react-scripts": "^1.1.4"
+    "react-scripts": "1.1.4"
   }
 }

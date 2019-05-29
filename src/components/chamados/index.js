@@ -1,13 +1,13 @@
 import React from 'react';
-import {Row, Col, Layout, Steps, Popover} from 'antd';
+import { Row, Col, Layout, Steps, Popover } from 'antd';
 import './style.css';
 import axios from 'axios';
 
 import AberturaChamado from './aberturaChamado';
 import PesquisaSatisfacao from './pesquisaSatisfacao';
-import {ABERTURA_CHAMADO, url} from '../../utilities/constants';
+import { ABERTURA_CHAMADO, url } from '../../utilities/constants';
 
-const {Content} = Layout;
+const { Content } = Layout;
 const Step = Steps.Step;
 
 class Chamados extends React.Component {
@@ -16,100 +16,100 @@ class Chamados extends React.Component {
       title: 'Abertura',
       description: 'de chamado',
       content: <AberturaChamado next={this.next} />,
-      status: 0,
+      status: 0
     },
     {
       title: 'Visita para',
       description: 'análise técnica',
       content: 'visita',
-      status: 1,
+      status: 1
     },
     {
       title: 'Laudo',
       description: 'de vistoria',
       content: 'laudo',
-      status: 2,
+      status: 2
     },
     {
       title: 'Abertura',
       content: 'abertura-os',
       description: 'de OS',
-      status: 3,
+      status: 3
     },
     {
       title: 'Execução',
       content: 'execucao-os',
       description: 'de OS',
-      status: 4,
+      status: 4
     },
     {
       title: 'Fechamento',
       content: 'fechamento-chamado',
       description: 'do chamado',
-      status: 5,
+      status: 5
     },
     {
       title: 'Pesquisa',
       content: <PesquisaSatisfacao />,
       description: 'de satisfação',
-      status: 6,
-    },
+      status: 6
+    }
   ];
 
-  constructor (props) {
-    super (props);
+  constructor(props) {
+    super(props);
     this.state = {
-      current: ABERTURA_CHAMADO,
+      current: ABERTURA_CHAMADO
     };
   }
 
   componentDidMount = () => {
-    this.getChamadosUser ();
+    this.getChamadosUser();
   };
 
   getChamadosUser = () => {
-    let auth = localStorage.getItem ('jwt') || this.props.user.jwt;
+    let auth = localStorage.getItem('jwt') || this.props.user.jwt;
     const config = {
-      headers: {Authorization: `Bearer ${auth}`},
+      headers: { Authorization: `Bearer ${auth}` }
     };
     axios
-      .get (
-        `${url}/users/${this.props.user.id || localStorage.getItem ('id')}`,
+      .get(
+        `${url}/users/${this.props.user.id || localStorage.getItem('id')}`,
         config
       )
-      .then (res => {
+      .then(res => {
         const chamado = res.data.chamado;
         if (chamado) {
-          chamado.map (value => {
-            this.setState ({current: value.status});
+          chamado.map(value => {
+            this.setState({ current: value.status });
           });
         }
       })
-      .catch (error => {
-        console.log (error);
+      .catch(error => {
+        console.log(error);
       });
   };
 
   next = () => {
     const current = this.state.current + 1;
-    this.setState ({current});
+    this.setState({ current });
   };
 
   prev = () => {
     const current = this.state.current - 1;
-    this.setState ({current});
+    this.setState({ current });
   };
 
-  get renderContent () {
+  get renderContent() {
     switch (this.state.current) {
       case ABERTURA_CHAMADO:
         return <AberturaChamado next={this.next} />;
     }
   }
 
-  render () {
-    const {current} = this.state;
-    const customDot = (dot, {status, index}) => (
+  render() {
+    const { current } = this.state;
+    const customDot = (dot, { status, index }) => (
       <Popover
         content={
           <span>
@@ -126,9 +126,9 @@ class Chamados extends React.Component {
         <Row type="flex" justify="space-around" align="middle">
           <Col span={24} />
         </Row>
-        <div style={{background: '#fff'}}>
+        <div style={{ background: '#fff' }}>
           <Steps current={current}>
-            {this.steps.map ((item, i) => (
+            {this.steps.map((item, i) => (
               <Step
                 key={item.title + i}
                 title={item.title}

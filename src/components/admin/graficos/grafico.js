@@ -34,12 +34,18 @@ class GraficoPergunta extends React.Component {
     displayTitle: true,
     displayLegend: true,
     legendPosition: 'right',
-    fontSize: 22  
+    fontSize: 22
   };
 
   render() {
     return (
-      <Line data={this.state.chartData} options={this.state.chartOptions} style={{ marginTop: '1rem' }} height={100} width={300} />
+      <Line
+        data={this.state.chartData}
+        options={this.state.chartOptions}
+        style={{ marginTop: '1rem' }}
+        height={100}
+        width={300}
+      />
     );
   }
 }

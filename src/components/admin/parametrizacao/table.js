@@ -70,7 +70,7 @@ class TableParametrizacao extends React.Component {
               if (unidadeAutonoma.unidades) {
                 return unidadeAutonoma.unidades.map((unidade, i) => {
                   return <p key={unidade._id + i}>{unidade.nome}</p>;
-                })
+                });
               } else {
                 return <p key="placeholder">...</p>;
               }

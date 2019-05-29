@@ -118,8 +118,8 @@ class EditAvatarModal extends React.Component {
             this.state.image
               ? this.state.image
               : this.props.imagem
-                ? this.props.imagem
-                : placeholder
+              ? this.props.imagem
+              : placeholder
           }
         />
         <Button

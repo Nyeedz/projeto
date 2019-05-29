@@ -1,34 +1,34 @@
 import React from 'react';
-import {connect} from 'react-redux';
-import {Row, Col, Layout, Form} from 'antd';
+import { connect } from 'react-redux';
+import { Row, Col, Layout, Form } from 'antd';
 import axios from 'axios';
-import {url} from '../../utilities/constants';
+import { url } from '../../utilities/constants';
 
-const {Content} = Layout;
+const { Content } = Layout;
 
 class Chamados extends React.Component {
   state = {
-    loading: false,
+    loading: false
   };
 
   componentDidMount = () => {
-    this.fetch ();
+    this.fetch();
   };
 
   fetch = () => {
-    this.setState ({loading: true});
+    this.setState({ loading: true });
 
-    let auth = localStorage.getItem ('jwt') || this.props.user.jwt;
+    let auth = localStorage.getItem('jwt') || this.props.user.jwt;
     const config = {
-      headers: {Authorization: `Bearer ${auth}`},
+      headers: { Authorization: `Bearer ${auth}` }
     };
 
-    this.props.user.chamado.map (chamado => {
-      console.log (chamado);
+    this.props.user.chamado.map(chamado => {
+      console.log(chamado);
     });
   };
 
-  render () {
+  render() {
     return (
       <Content>
         <div
@@ -36,7 +36,7 @@ class Chamados extends React.Component {
             display: 'flex',
             justifyContent: 'center',
             borderBottom: '1px solid rgba(0, 0, 0, .1)',
-            padding: 5,
+            padding: 5
           }}
         >
           <h2>
@@ -48,9 +48,9 @@ class Chamados extends React.Component {
   }
 }
 
-let ListaChamados = Form.create () (Chamados);
-export default (ListaChamados = connect (store => {
+let ListaChamados = Form.create()(Chamados);
+export default (ListaChamados = connect(store => {
   return {
-    user: store.user,
+    user: store.user
   };
-}) (ListaChamados));
+})(ListaChamados));

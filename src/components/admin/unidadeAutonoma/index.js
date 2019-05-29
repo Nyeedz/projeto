@@ -156,8 +156,8 @@ class UnidadeForm extends React.Component {
               return axios.delete(`${url}/unidades/${unidade._id}`, config);
             });
 
-            Promise.all([...filaEditar, ...filaCriar, ...filaExcluir]).then(
-              values => {
+            Promise.all([...filaEditar, ...filaCriar, ...filaExcluir])
+              .then(values => {
                 notification.open({
                   message: 'Ok',
                   description: 'Unidade autônoma editada com sucesso!',
@@ -179,10 +179,10 @@ class UnidadeForm extends React.Component {
                   id: null,
                   unidades: []
                 });
-              }
-            ).catch(err => {
-              console.log('erro aqui men')
-            });
+              })
+              .catch(err => {
+                console.log('erro aqui men');
+              });
           })
           .catch(error => {
             notification.open({

@@ -14,7 +14,7 @@ export default function(
         fetching: true,
         fetched: null,
         error: null
-      }
+      };
     case 'GET_CONSTRUTORAS_SUCCESS':
       return {
         ...state,
@@ -28,8 +28,8 @@ export default function(
         ...state,
         fetching: null,
         fetched: null,
-        error: action.payload,
-      }
+        error: action.payload
+      };
     default:
       return state;
   }

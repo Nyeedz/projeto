@@ -11,29 +11,30 @@ class Permissao extends React.PureComponent {
       permissoes == null ||
       permissaoNecessaria == null ||
       typeof codTela !== 'number' ||
-      (
-        typeof permissaoNecessaria !== 'number' &&
-        typeof permissaoNecessaria !== 'object'
-      )
+      (typeof permissaoNecessaria !== 'number' &&
+        typeof permissaoNecessaria !== 'object')
     ) {
-      return false
+      return false;
     }
 
-    const permissaoUsuario = permissoes[codTela] ? permissoes[codTela].status : 0;
+    const permissaoUsuario = permissoes[codTela]
+      ? permissoes[codTela].status
+      : 0;
 
     if (typeof permissaoNecessaria === 'object') {
-      return permissaoNecessaria.indexOf(permissaoUsuario) !== -1
+      return permissaoNecessaria.indexOf(permissaoUsuario) !== -1;
     }
     return permissaoUsuario === parseInt(permissaoNecessaria);
-
   };
 
   render() {
     return (
       <React.Fragment>
-        {this.isPermitido() ? this.props.children : <span>{
-          this.props.segundaOpcao
-        }</span>}
+        {this.isPermitido() ? (
+          this.props.children
+        ) : (
+          <span>{this.props.segundaOpcao}</span>
+        )}
       </React.Fragment>
     );
   }

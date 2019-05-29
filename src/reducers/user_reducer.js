@@ -40,7 +40,8 @@ export default function(
         assinatura: action.payload.assinatura || state.assinatura,
         condominios: action.payload.condominios || state.condominios,
         construtoras: action.payload.construtoras || state.construtoras,
-        unidadesAutonomas: action.payload.unidadesAutonomas || state.unidadesAutonomas,
+        unidadesAutonomas:
+          action.payload.unidadesAutonomas || state.unidadesAutonomas,
         torres: action.payload.torres || state.torres,
         fotosChamado: action.payload.fotosChamado || state.fotosChamado,
         chamado: action.payload.chamado || state.chamado,
