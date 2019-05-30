@@ -124,7 +124,7 @@ class GarantiaForm extends React.Component {
         const itens = values.keys.map((k, i) => {
           return {
             subitem: values.secondary[k],
-            tempo_garantia: values.tempo[k],
+            tempo_garantia: values.prefix[k] == 'a' ? null : values.tempo[k],
             unidade_garantia: values.prefix[k],
             data_inicio: moment(this.state.validadeCondominio).format(
               'DD/MM/YYYY'
@@ -361,13 +361,14 @@ class GarantiaForm extends React.Component {
             validateTrigger: ['onChange', 'onBlur'],
             rules: [
               {
-                required: true,
+                required: false,
                 message: 'Entre com o tempo da garantia ou remova este campo.'
               }
             ]
           })(
             <Input
               addonBefore={prefixSelector[k]}
+              disabled={getFieldValue(`prefix[${k}]`) == 'a'}
               style={{ width: '100%' }}
               placeholder="Tempo garantia"
             />
@@ -377,7 +378,7 @@ class GarantiaForm extends React.Component {
     });
 
     const previewData = keys.map((k, i) => {
-      return (
+      return getFieldValue(`prefix[${k}]`) == 'a' ? <div style={{ height: 40, marginBottom: 24 }} key={`preview${k + i}`}></div> : (
         <FormItem key={`preview${k + i}`}>
           <span
             style={{

@@ -22,6 +22,7 @@ import { saveUser } from '../../../actions/userActions';
 import ModalAvatar from './avatar';
 
 const { Content } = Layout;
+const ButtonGroup = Button.Group;
 
 const styles = {
   centralizado: {
@@ -364,7 +365,7 @@ class FuncionarioForm extends React.Component {
           });
       } else {
         notification.open({
-          message: 'Opps',
+          message: 'Ops',
           description: 'Por favor, preencha todos os campos',
           icon: <Icon type="warning" style={{ color: 'yellow' }} />
         });
@@ -395,6 +396,24 @@ class FuncionarioForm extends React.Component {
       condominios: c,
       disabledCond: false
     });
+  };
+
+  changeAll = val => {
+    const newPerm = [
+      { status: val },
+      { status: val },
+      { status: val },
+      { status: val },
+      { status: val },
+      { status: val },
+      { status: val },
+      { status: val },
+      { status: val },
+      { status: val },
+      { status: val }
+    ];
+
+    this.setState({ statusPermissoes: newPerm })
   };
 
   // selectInfoTipo = id => {
@@ -831,27 +850,38 @@ class FuncionarioForm extends React.Component {
                   </Col>
                 </Row> */}
 
+                <Row style={{ marginTop: '1rem' }}>
+                  <Col span={10}>
+                    <FormItem>
+                      <span
+                        style={{
+                          color: '#757575',
+                          fontWeight: 'bold',
+                          marginTop: '2rem'
+                        }}
+                      >
+                        Selecionar permissões
+                      </span>
+                    </FormItem>
+                  </Col>
+                  <Col span={14}>
+                    <ButtonGroup>
+                      <Button onClick={() => this.changeAll(0)} type="primary">
+                        Nenhuma
+                      </Button>
+                      <Button onClick={() => this.changeAll(1)} type="primary">
+                        Visualizar
+                      </Button>
+                      <Button onClick={() => this.changeAll(2)} type="primary">
+                        Editar
+                      </Button>
+                    </ButtonGroup>
+                  </Col>
+                </Row>
+
                 {telas.map((tela, i) => {
                   return (
                     <div key={`tela-${tela.id + i}`}>
-                      <Row gutter={16} style={{ marginTop: '1rem' }}>
-                        <Col span={10}>
-                          <FormItem>
-                            <span
-                              style={{
-                                color: '#757575',
-                                fontWeight: 'bold',
-                                marginTop: '2rem'
-                              }}
-                            >
-                              Selecionar permissões
-                            </span>
-                          </FormItem>
-                        </Col>
-                        <Col span={14}>
-                          <Button>Todos</Button>
-                        </Col>
-                      </Row>
                       <Row>
                         <Col span={10}>
                           {tela.nome}
