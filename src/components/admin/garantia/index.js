@@ -329,10 +329,11 @@ class GarantiaForm extends React.Component {
         required: false,
         initialValue: 'd'
       })(
-        <Select style={{ width: 80 }}>
+        <Select style={{ width: 140 }}>
           <Option value="d">Dia</Option>
           <Option value="month">Mes</Option>
           <Option value="y">Ano</Option>
+          <Option value="a">No ato da entrega</Option>
         </Select>
       );
     });
@@ -590,8 +591,8 @@ class GarantiaForm extends React.Component {
                 <Spin spinning={this.state.enviando}>
                   <Row gutter={8}>
                     <Col span={9}>{nomeItems}</Col>
-                    <Col span={6}>{tempoItems}</Col>
-                    <Col span={9}>{previewData}</Col>
+                    <Col span={10}>{tempoItems}</Col>
+                    <Col span={5}>{previewData}</Col>
                   </Row>
                 </Spin>
                 <FormItem {...formItemLayout}>

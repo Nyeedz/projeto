@@ -45,7 +45,8 @@ class ClientesForm extends React.Component {
     clientes: [],
     disabledCond: true,
     disabledTipo: true,
-    codTela: null
+    codTela: null,
+    tipo: []
   };
 
   onChange = e => {
@@ -256,7 +257,8 @@ class ClientesForm extends React.Component {
                 {
                   construtoras: values.construtoras,
                   condominios: values.condominios,
-                  unidades: values.unidadesAutonomas
+                  unidades: values.unidadesAutonomas,
+                  tipologia: values.tipo
                 },
                 config
               )
@@ -332,31 +334,39 @@ class ClientesForm extends React.Component {
     // this.props.form.resetFields();
   };
 
-  selectInfoTipo = id => {
-    let c = [];
+  tipologiaChange = id => {
     let auth = localStorage.getItem('jwt');
     const config = {
       headers: { Authorization: `Bearer ${auth}` }
     };
+    axios
+      .get(`${url}/tipologias/${id}`, config)
+      .then(res => {
+        res.data.unidadesautonomas.map(unidades => {
+          axios
+            .get(`${url}/unidadesautonomas/${unidades._id}`, config)
+            .then(res => {
+              this.setState({
+                tipologias: res.data.unidades,
+                disabledTipo: false
+              });
+            })
+            .catch(error => console.log(error));
+        });
+      })
+      .catch(error => console.log(error));
+  };
 
-    id.map((value, i) => {
+  selectInfoTipo = id => {
+    let c = [];
+    let t = [];
+    id.map(value => {
       let cond = this.props.condominios.filter(x => x.id === value);
-      cond[0].unidadesautonomas.map((value, i) => {
-        return c.push(value);
-      });
-    });
+      cond[0].torres.map(tipologias => t.push(tipologias));
 
-    c.map(unidades => {
-      axios
-        .get(`${url}/unidadesautonomas/${unidades._id}`, config)
-        .then(res => {
-          this.setState({
-            tipologias: res.data.unidades,
-            disabledTipo: false
-          });
-        })
-        .catch(error => console.log(error));
+      cond[0].unidadesautonomas.map(value => c.push(value));
     });
+    this.setState({ tipo: t, disabledTipo: false });
   };
 
   render() {
@@ -376,6 +386,7 @@ class ClientesForm extends React.Component {
 
     const construtorasError =
       isFieldTouched('construtoras') && getFieldError('construtoras');
+    const tipoError = isFieldTouched('tipo') && getFieldError('tipo');
     const condominiosError =
       isFieldTouched('condominios') && getFieldError('condominios');
     const unidadesAutonomasError =
@@ -494,7 +505,7 @@ class ClientesForm extends React.Component {
                               message: 'Por favor entre com sua senha!'
                             }
                           ]
-                        })(<Input type="password" placeholder="Senha" />)}
+                        })(<Input.Password type="password" placeholder="Senha" />)}
                       </FormItem>
                     </Col>
                   </Row>
@@ -631,13 +642,43 @@ class ClientesForm extends React.Component {
                   <Row gutter={16}>
                     <Col span={12}>
                       <FormItem
+                        validateStatus={tipoError ? 'error' : ''}
+                        help={tipoError || ''}
+                      >
+                        {getFieldDecorator('tipo')(
+                          <Select
+                            showSearch
+                            //mode="tags"
+                            style={{ width: '350px' }}
+                            placeholder={
+                              this.state.disabledTipo
+                                ? 'Escolha o condomínio para habilitar esta opção'
+                                : 'Escolha a tipologia'
+                            }
+                            disabled={this.state.disabledTipo}
+                            optionFilterProp="children"
+                            onChange={this.tipologiaChange}
+                            filterOption={(input, option) =>
+                              option.props.children
+                                .toLowerCase()
+                                .indexOf(input.toLowerCase()) >= 0
+                            }
+                          >
+                            {this.state.tipo.map((value, index) => {
+                              return (
+                                <Option value={value.id} key={index}>
+                                  {value.nome}
+                                </Option>
+                              );
+                            })}
+                          </Select>
+                        )}
+                      </FormItem>
+                    </Col>
+                    <Col span={12}>
+                      <FormItem
                         validateStatus={unidadesAutonomasError ? 'error' : ''}
                         help={unidadesAutonomasError || ''}
-                        label={
-                          this.state.disabledTipo
-                            ? 'Escolha o condomínio para habilitar esta opção'
-                            : 'Escolha a unidade'
-                        }
                       >
                         {getFieldDecorator('unidadesAutonomas', {
                           rules: [
