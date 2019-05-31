@@ -36,6 +36,8 @@ class FuncionariosForm extends React.Component {
       { status: 0 },
       { status: 0 },
       { status: 0 },
+      { status: 0 },
+      { status: 0 },
       { status: 0 }
     ]
   };
@@ -154,6 +156,10 @@ class FuncionariosForm extends React.Component {
       {
         id: 9,
         nome: 'Clientes'
+      },
+      {
+        id: 10,
+        nome: 'Funcionarios'
       }
     ];
 

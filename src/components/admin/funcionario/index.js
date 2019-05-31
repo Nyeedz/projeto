@@ -18,7 +18,7 @@ import * as axios from 'axios';
 import { url, funcionarioId } from '../../../utilities/constants';
 import { fetchCondominios } from '../../../actions/condominioActions';
 import { fetchConstrutoras } from '../../../actions/construtoraActions';
-import { fetchClientes } from '../../../actions/clientesActions';
+import { fetchFuncionarios } from '../../../actions/funcionariosActions';
 import TableFuncionarios from './table';
 import ModalAvatar from './avatar';
 import { getCodePath } from '../../../utilities/functions';
@@ -61,6 +61,7 @@ class FuncionarioForm extends React.Component {
     disabledCond: true,
     disabledTipo: true,
     statusPermissoes: [
+      { status: 0 },
       { status: 0 },
       { status: 0 },
       { status: 0 },
@@ -119,7 +120,7 @@ class FuncionarioForm extends React.Component {
   dispatchCondominios = () => {
     this.props.dispatch(fetchCondominios());
     this.props.dispatch(fetchConstrutoras());
-    this.props.dispatch(fetchClientes());
+    this.props.dispatch(fetchFuncionarios());
   };
 
   setFieldValue = dados => {
@@ -261,29 +262,12 @@ class FuncionarioForm extends React.Component {
               sobrenome: values.sobrenome,
               telefone: values.telefone,
               funcao: values.funcao,
-              logo: this.state.imagem
+              logo: this.state.imagem,
+              funcionario: true
             },
             config
           )
           .then(res => {
-            // this.props.dispatch(
-            //   saveUser({
-            //     logo: res.data.user.logo,
-            //     jwt: res.data.jwt,
-            //     id: res.data.user.id,
-            //     email: res.data.user.email,
-            //     role: res.data.user.role.type,
-            //     ativo: res.data.ativo,
-            //     username: res.data.user.username,
-            //     nome: res.data.user.nome,
-            //     sobrenome: res.data.user.sobrenome,
-            //     telefone: res.data.user.telefone,
-            //     assinatura: res.data.user.id,
-            //     funcao: res.data.user.funcao,
-            //     deleted: false,
-            //     permissoes: this.state.statusPermissoes
-            //   })
-            // );
             axios
               .put(
                 `${url}/users/${res.data.user.id}`,
@@ -299,28 +283,16 @@ class FuncionarioForm extends React.Component {
                 config
               )
               .then(res => {
-                axios
-                  .post(
-                    `${url}/funcionarios`,
-                    {
-                      users: res.data._id,
-                      construtoras: values.construtoras,
-                      condominios: values.condominios
-                    },
-                    config
-                  )
-                  .then(res => {
-                    let contrato = new FormData();
-                    contrato.append('ref', 'funcionarios');
-                    contrato.append('refId', res.data._id);
-                    contrato.append('field', 'file');
-                    contrato.append('files', this.state.file);
+                let contrato = new FormData();
+                contrato.append('ref', 'user');
+                contrato.append('refId', res.data._id);
+                contrato.append('field', 'file');
+                contrato.append('source', 'users-permissions');
+                contrato.append('files', this.state.file);
 
-                    axios
-                      .post(`${url}/upload`, contrato, config)
-                      .then(() => console.log('enviou o contrato'))
-                      .catch(error => console.log(error));
-                  })
+                axios
+                  .post(`${url}/upload`, contrato, config)
+                  .then(() => console.log('enviou o contrato'))
                   .catch(error => console.log(error));
               })
               .catch(error => console.log(error));
@@ -345,6 +317,7 @@ class FuncionarioForm extends React.Component {
                 { status: 0 },
                 { status: 0 },
                 { status: 0 },
+                { status: 0 },
                 { status: 0 }
               ]
             });
@@ -359,6 +332,7 @@ class FuncionarioForm extends React.Component {
               enviando: false,
               imagem: null,
               statusPermissoes: [
+                { status: 0 },
                 { status: 0 },
                 { status: 0 },
                 { status: 0 },
@@ -420,26 +394,12 @@ class FuncionarioForm extends React.Component {
       { status: val },
       { status: val },
       { status: val },
+      { status: val },
       { status: val }
     ];
 
     this.setState({ statusPermissoes: newPerm });
   };
-
-  // selectInfoTipo = id => {
-  //   let c = [];
-
-  //   id.map((value, i) => {
-  //     let cond = this.props.condominios.filter(x => x.id === value);
-  //     cond[0].unidades_condominios.map((value, i) => {
-  //       return c.push(value);
-  //     });
-  //   });
-  //   this.setState({
-  //     tipologias: c,
-  //     disabledTipo: false
-  //   });
-  // };
 
   render() {
     const {
@@ -518,6 +478,10 @@ class FuncionarioForm extends React.Component {
       {
         id: 10,
         nome: 'Chamados'
+      },
+      {
+        id: 11,
+        nome: 'Funcionarios'
       }
     ];
 
@@ -807,61 +771,6 @@ class FuncionarioForm extends React.Component {
                       </FormItem>
                     </Col>
                   </Row>
-                  {/* <Row>
-                  <Col span={12}>
-                    <FormItem
-                      validateStatus={
-                        responsavelCondominiosError ? 'error' : ''
-                      }
-                      help={responsavelCondominiosError || ''}
-                      label={
-                        this.state.disabledCond
-                          ? 'Escolha a construtora para habilitar esta opção'
-                          : 'Responsável pelos condomínios'
-                      }
-                    >
-                      {getFieldDecorator('responsavelCondominios', {
-                        rules: [
-                          {
-                            required: true,
-                            message: 'Responsável pelos condomínios'
-                          }
-                        ]
-                      })(
-                        <Select
-                          showSearch
-                          mode="multiple"
-                          style={{ width: '100%' }}
-                          placeholder={
-                            this.state.disabledCond
-                              ? 'Escolha a construtora para habilitar esta opção'
-                              : 'Responsável pelos condomínios'
-                          }
-                          disabled={this.state.disabledCond}
-                          optionFilterProp="children"
-                          onChange={this.selectInfoTipo}
-                          filterOption={(input, option) =>
-                            option.props.children
-                              .toLowerCase()
-                              .indexOf(input.toLowerCase()) >= 0
-                          }
-                        >
-                          {this.state.condominios.map((condominio, index) => {
-                            return (
-                              <Option
-                                value={condominio.id}
-                                key={condominio.id + index}
-                              >
-                                {condominio.nome}
-                              </Option>
-                            );
-                          })}
-                        </Select>
-                      )}
-                    </FormItem>
-                  </Col>
-                </Row> */}
-
                   <Row style={{ marginTop: '1rem' }}>
                     <Col span={10}>
                       <FormItem>
@@ -967,8 +876,8 @@ class FuncionarioForm extends React.Component {
               <Col span={24}>
                 <TableFuncionarios
                   codTela={this.state.codTela}
-                  clientes={this.props.clientes}
-                  dispatchClientes={this.dispatchCondominios}
+                  funcionarios={this.props.funcionarios}
+                  dispatchFuncionarios={this.dispatchCondominios}
                   setFieldValue={this.setFieldValue}
                   resetFields={this.cancelarEdicao}
                 />
@@ -1000,6 +909,7 @@ export default (Funcionario = connect(store => {
   return {
     condominios: store.condominios.data,
     construtoras: store.construtoras.data,
-    user: store.user
+    user: store.user,
+    funcionarios: store.funcionarios.data
   };
 })(Funcionario));

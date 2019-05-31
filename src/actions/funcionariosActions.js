@@ -12,7 +12,7 @@ export function fetchFuncionarios() {
       headers: { Authorization: `Bearer ${auth}` }
     };
     axios
-      .get(`${url}/funcionario`, config)
+      .get(`${url}/users?funcionario=true`, config)
       .then(res => {
         dispatch({
           type: 'GET_FUNCIONARIOS_SUCCESS',

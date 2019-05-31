@@ -29,7 +29,7 @@ class TableFuncionarios extends React.Component {
   };
 
   componentWillReceiveProps = nextProps => {
-    if (nextProps.clientes) this.setState({ data: nextProps.clientes });
+    if (nextProps.funcionarios) this.setState({ data: nextProps.funcionarios });
   };
 
   handleTableChange = (pagination, filters, sorter) => {
@@ -56,7 +56,7 @@ class TableFuncionarios extends React.Component {
     };
 
     axios
-      .get(`${url}/users?cliente=true`, config)
+      .get(`${url}/users?funcionario=true`, config)
       .then(res => {
         const pagination = { ...this.state.pagination };
         pagination.total = res.data.length;
@@ -66,10 +66,10 @@ class TableFuncionarios extends React.Component {
           pagination
         });
       })
-      .catch(error => {
+      .catch(() => {
         notification.open({
           message: 'Oops!',
-          description: 'Erro ao buscar dados dos clientes',
+          description: 'Erro ao buscar dados dos funcionarios',
           icon: <Icon type="close" style={{ color: 'red' }} />
         });
         this.setState({ loading: false });
@@ -82,7 +82,7 @@ class TableFuncionarios extends React.Component {
     this.setState({
       filterDropdownVisible: false,
       filtered: !!searchText,
-      data: this.props.clientes
+      data: this.props.funcionarios
         .map(record => {
           const match = record.nome.match(reg);
 
@@ -110,9 +110,9 @@ class TableFuncionarios extends React.Component {
   };
 
   updateFuncionario = id => {
-    this.props.clientes.map(cliente => {
-      if (cliente.id === id) {
-        this.props.setFieldValue(cliente);
+    this.props.funcionarios.map(funcionario => {
+      if (funcionario._id === id) {
+        this.props.setFieldValue(funcionario);
       }
       return true;
     });
@@ -129,7 +129,7 @@ class TableFuncionarios extends React.Component {
           message: 'Ok!',
           description: 'Funcionário deletado com sucesso!'
         });
-        this.props.dispatchDados();
+        this.props.dispatchFuncionarios();
       })
       .catch(error => {
         notification.open({
@@ -223,7 +223,7 @@ class TableFuncionarios extends React.Component {
                 <Button
                   type="primary"
                   style={{ fontSize: '12px' }}
-                  onClick={() => this.updateClientes(record._id)}
+                  onClick={() => this.updateFuncionario(record._id)}
                 >
                   <Icon type="edit" />
                 </Button>
@@ -237,7 +237,7 @@ class TableFuncionarios extends React.Component {
             >
               <Popconfirm
                 title="Tem certeza que deseja excluir esta unidade ?"
-                onConfirm={() => this.deleteClientes(record._id)}
+                onConfirm={() => this.deleteFuncionario(record._id)}
               >
                 <Tooltip title="Deletar">
                   <Button type="danger" style={{ fontSize: '12px' }}>
@@ -251,9 +251,9 @@ class TableFuncionarios extends React.Component {
       }
     ];
 
-    const { clientes } = this.props;
+    const { funcionarios } = this.props;
 
-    if (clientes.error) {
+    if (funcionarios.error) {
       return null;
     }
 
