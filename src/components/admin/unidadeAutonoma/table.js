@@ -121,8 +121,19 @@ class TableUnidade extends React.Component {
       headers: { Authorization: `Bearer ${auth}` }
     };
     axios
-      .delete(`${url}/unidadesautonomas/${id}`, config)
+      .get(`${url}/unidadesautonomas/${id}`, config)
       .then(res => {
+        res.data.unidades.map(unidade => {
+          axios
+            .delete(`${url}/unidades/${unidade._id}`, config)
+            .then(() => {})
+            .catch(error => console.log(error));
+        });
+      })
+      .catch(error => console.log(error));
+    axios
+      .delete(`${url}/unidadesautonomas/${id}`, config)
+      .then(() => {
         notification.open({
           message: 'Ok!',
           description: 'Unidade deletada com sucesso!',
