@@ -58,6 +58,8 @@ class FuncionarioForm extends React.Component {
     file: null,
     fileName: '',
     visible: false,
+    download: true,
+    assinatura: null,
     disabledCond: true,
     disabledTipo: true,
     statusPermissoes: [
@@ -75,7 +77,8 @@ class FuncionarioForm extends React.Component {
       { status: 0 },
       { status: 0 }
     ],
-    codTela: null
+    codTela: null,
+    downloadArquivo: false
   };
 
   onChangePermissoes = (event, id) => {
@@ -124,31 +127,43 @@ class FuncionarioForm extends React.Component {
   };
 
   setFieldValue = dados => {
-    let c = [];
-    let p = [];
+    this.setState({ loading: true });
+    console.log(dados);
 
-    dados.condominios.map((x, i) => {
-      return c.push(x.id);
+    const construtoras = dados.construtoras.map((construtora, i) => {
+      return construtora._id;
     });
 
-    dados.parametrizacao.map((x, i) => {
-      return p.push(x.id);
+    const condominios = dados.condominios.map((condominio, i) => {
+      return condominio._id;
     });
+
+    this.selectInfoCond(construtoras);
+
+    this.props.form.setFieldsValue({ construtoras });
+    this.props.form.setFieldsValue({ condominios });
 
     this.props.form.setFieldsValue({
-      nome: dados.nome,
+      username: dados.username,
       email: dados.email,
-      telefone: dados.celular,
-      condominio: c,
-      parametrizacao: p
+      nome: dados.nome,
+      sobrenome: dados.sobrenome,
+      telefone: dados.telefone,
+      funcao: dados.funcao,
     });
+
     this.setState({
       imagem: dados.logo,
       ativo: dados.ativo ? 1 : 0,
       editar: true,
-      id: dados.id
+      id: dados._id,
+      assinatura: dados.file,
+      downloadArquivo: true,
+      fileName: dados.file.name,
+      statusPermissoes: dados.permissoes
     });
-    this.props.form.validateFields();
+
+    // this.props.form.validateFields();
   };
 
   cancelarEdicao = () => {
@@ -156,79 +171,102 @@ class FuncionarioForm extends React.Component {
     this.setState({
       editar: false,
       imagem: false,
+      id: null,
       enviando: false,
-      id: null
+      file: null,
+      download: true,
+      fileName: '',
+      downloadArquivo: false,
+      assinatura: null
     });
   };
 
   handleUpdate = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
+      console.log(err)
       if (!err) {
         this.setState({ enviando: true });
         const config = {
           headers: { Authorization: 'bearer ' + localStorage.getItem('jwt') }
         };
-        let c = [];
-        let p = [];
 
-        values.condominio.map((x, i) => {
-          return c.push({ id: x });
+        const construtoras = values.construtoras.map((id, i) => {
+          return id;
         });
 
-        values.parametrizacao.map((x, i) => {
-          return p.push({ id: x });
+        const condominios = values.condominios.map((id, i) => {
+          return id;
         });
 
         axios
           .put(
-            `${url}/clientes/${this.state.id}`,
+            `${url}/users/${this.state.id}`,
             {
-              condominios: [],
-              parametrizacao: []
+              logo: this.state.imagem,
+              construtoras,
+              condominios,
+              username: values.username,
+              email: values.email,
+              nome: values.nome,
+              ativo: this.state.ativo,
+              sobrenome: values.sobrenome,
+              telefone: values.telefone,
+              funcao: values.funcao,
+              telefone: values.telefone,
+              permissoes: this.state.statusPermissoes
             },
             config
           )
           .then(res => {
-            axios
-              .put(
-                `${url}/clientes/${this.state.id}`,
-                {
-                  nome: values.nome,
-                  email: values.email,
-                  celular: values.telefone,
-                  logo: this.state.imagem,
-                  ativo: this.state.ativo,
-                  condominios: c,
-                  parametrizacao: p
-                },
-                config
-              )
-              .then(res => {
-                notification.open({
-                  message: 'Ok',
-                  description: 'Cliente editado com sucesso!'
-                });
-                this.props.form.resetFields();
-                this.setState({
-                  enviando: false,
-                  imagem: null,
-                  editar: false,
-                  id: null
-                });
-              })
-              .catch(error => {
-                notification.open({
-                  message: 'Opps!',
-                  description: 'Erro ao editar o cliente!'
-                });
-                this.setState({
-                  enviando: false,
-                  imagem: null,
-                  editar: false,
-                  id: null
-                });
+            if (this.state.file === null) {
+              this.dispatchCondominios();
+              notification.open({
+                message: 'Ok',
+                description: 'Funcionário editado com sucesso!',
+                icon: <Icon type="check" style={{ color: 'green' }} />
               });
+
+              this.props.form.resetFields();
+
+              this.setState({
+                enviando: false,
+                imagem: null,
+                file: null,
+                editar: false,
+                fileName: 'Assinatura Digital',
+                id: null,
+                download: true
+              });
+              return false;
+            } else {
+              let contrato = new FormData();
+              contrato.append('ref', 'user');
+              contrato.append('refId', res.data._id);
+              contrato.append('field', 'file');
+              contrato.append('source', 'users-permissions');
+              contrato.append('files', this.state.file);
+
+              axios
+                .post(`${url}/upload`, contrato, config)
+                .then(() => {
+                  this.dispatchCondominios();
+                  notification.open({
+                    message: 'Ok',
+                    description: 'Funcionário editado com sucesso!',
+                    icon: <Icon type="check" style={{ color: 'green' }} />
+                  });
+                  this.props.form.resetFields();
+                  this.setState({
+                    enviando: false,
+                    imagem: null,
+                    editar: false,
+                    id: null,
+                    download: true
+                  });
+                })
+                .catch(error => console.log(error));
+            }
           });
       } else {
         notification.open({
@@ -292,7 +330,9 @@ class FuncionarioForm extends React.Component {
 
                 axios
                   .post(`${url}/upload`, contrato, config)
-                  .then(() => console.log('enviou o contrato'))
+                  .then(() => {
+                    this.props.dispatch(fetchFuncionarios());
+                  })
                   .catch(error => console.log(error));
               })
               .catch(error => console.log(error));
@@ -376,6 +416,7 @@ class FuncionarioForm extends React.Component {
         return c.push(value);
       });
     });
+
     this.setState({
       condominios: c,
       disabledCond: false
@@ -588,12 +629,27 @@ class FuncionarioForm extends React.Component {
                               {this.state.fileName === ''
                                 ? 'Assinatura digital'
                                 : this.state.fileName}
+                              <br />
+                              {this.state.downloadArquivo &&
+                              this.state.assinatura !== null ? (
+                                <a
+                                  style={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    marginTop: '1rem'
+                                  }}
+                                  href={`${url}${this.state.assinatura.url.toString()}`}
+                                  target="_blank"
+                                >
+                                  Baixar Assinatura
+                                </a>
+                              ) : null}
                             </Button>
                             <input
                               type="file"
                               accept="image/*"
                               ref={ref => (this.upload = ref)}
-                              hidden
+                              hidden={this.state.download}
                               onChange={this.handleFile}
                             />
                             <br />
@@ -633,7 +689,7 @@ class FuncionarioForm extends React.Component {
                         {getFieldDecorator('password', {
                           rules: [
                             {
-                              required: true,
+                              required: !this.state.editar,
                               message: 'Por favor entre com sua senha!'
                             }
                           ]

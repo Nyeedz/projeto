@@ -29,7 +29,9 @@ class TableFuncionarios extends React.Component {
   };
 
   componentWillReceiveProps = nextProps => {
-    if (nextProps.funcionarios) this.setState({ data: nextProps.funcionarios });
+    if (nextProps.funcionarios) {
+      this.setState({ data: nextProps.funcionarios });
+    }
   };
 
   handleTableChange = (pagination, filters, sorter) => {
