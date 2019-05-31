@@ -31,15 +31,6 @@ class ChamadosList extends Component {
     showContent: false,
     previewVisible: false,
     previewImage: '',
-    fileList: [
-      {
-        uid: -1,
-        name: 'xxx.png',
-        status: 'done',
-        url:
-          'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png'
-      }
-    ],
     fotosChamados: []
   };
 
@@ -51,8 +42,6 @@ class ChamadosList extends Component {
       previewVisible: true
     });
   };
-
-  handleUpload = ({ fileList }) => this.setState({ fileList });
 
   componentDidMount = () => {
     const path = this.props.history.location.pathname;
@@ -127,7 +116,6 @@ class ChamadosList extends Component {
   chamadoChange = id => {
     console.log(this.state.chamados, 'chamado');
     let chamado = this.state.chamados.filter(x => x.id === id);
-    let userId = '';
     chamado.map(value => {
       this.setState({
         condominios: value.condominio,
@@ -141,13 +129,7 @@ class ChamadosList extends Component {
         user: value.user,
         showContent: true
       });
-
-      userId = value.user.id;
     });
-    let auth = localStorage.getItem('jwt');
-    const config = {
-      headers: { Authorization: `Bearer ${auth}` }
-    };
     chamado.map(chamado => {
       const fotosChamados = chamado.files.map(file => {
         return {
@@ -184,14 +166,7 @@ class ChamadosList extends Component {
     const dataAgendamentoError =
       isFieldTouched('data_agendamento') && getFieldError('data_agendamento');
 
-    const { previewVisible, previewImage, fileList } = this.state;
-
-    const uploadButton = (
-      <div>
-        <Icon type="plus" />
-        <div className="ant-upload-text">Upload</div>
-      </div>
-    );
+    const { previewVisible, previewImage } = this.state;
 
     return (
       <Content>

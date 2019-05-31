@@ -6,6 +6,7 @@ import {
   Layout,
   Form,
   Input,
+  Spin,
   Select,
   Button,
   notification,
@@ -17,9 +18,10 @@ import * as axios from 'axios';
 import { url, funcionarioId } from '../../../utilities/constants';
 import { fetchCondominios } from '../../../actions/condominioActions';
 import { fetchConstrutoras } from '../../../actions/construtoraActions';
-import { saveUser } from '../../../actions/userActions';
-// import TableClientes from './table';
+import { fetchClientes } from '../../../actions/clientesActions';
+import TableClientes from '../clientes/table';
 import ModalAvatar from './avatar';
+import Permissao from '../permissoes/permissoes';
 
 const { Content } = Layout;
 const ButtonGroup = Button.Group;
@@ -110,6 +112,7 @@ class FuncionarioForm extends React.Component {
   dispatchCondominios = () => {
     this.props.dispatch(fetchCondominios());
     this.props.dispatch(fetchConstrutoras());
+    this.props.dispatch(fetchClientes());
   };
 
   setFieldValue = dados => {
@@ -413,7 +416,7 @@ class FuncionarioForm extends React.Component {
       { status: val }
     ];
 
-    this.setState({ statusPermissoes: newPerm })
+    this.setState({ statusPermissoes: newPerm });
   };
 
   // selectInfoTipo = id => {
@@ -450,9 +453,6 @@ class FuncionarioForm extends React.Component {
       isFieldTouched('construtoras') && getFieldError('construtoras');
     const condominiosError =
       isFieldTouched('condominios') && getFieldError('condominios');
-    const responsavelCondominiosError =
-      isFieldTouched('responsavelCondominios') &&
-      getFieldError('responsavelCondominios');
     const nomeError = isFieldTouched('nome') && getFieldError('nome');
     const sobrenomeError =
       isFieldTouched('sobrenome') && getFieldError('sobrenome');
@@ -529,273 +529,278 @@ class FuncionarioForm extends React.Component {
               <span>Novo funcionário</span>
             </h2>
           </div>
-          <Form
-            onSubmit={e => {
-              this.state.editar ? this.handleUpdate(e) : this.handleClientes(e);
-            }}
-            style={{ width: '90%' }}
-          >
-            <Row gutter={16} style={{ marginTop: '1rem' }}>
-              <Col span={8} style={styles.centralizado}>
-                <ModalAvatar
-                  imagem={this.state.imagem}
-                  saveImage={this.saveImage}
-                />
-                <RadioGroup onChange={this.onChange} value={this.state.ativo}>
-                  <Radio style={radioStyle} value={1}>
-                    Ativo
-                  </Radio>
-                  <Radio style={radioStyle} value={0}>
-                    Inativo
-                  </Radio>
-                </RadioGroup>
-              </Col>
-              <Col span={16}>
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <FormItem
-                      validateStatus={nomeError ? 'error' : ''}
-                      help={nomeError || ''}
-                    >
-                      {getFieldDecorator('nome', {
-                        rules: [
-                          {
-                            required: true,
-                            message: 'Entre com o nome'
-                          }
-                        ]
-                      })(<Input placeholder="Nome" />)}
-                    </FormItem>
-                  </Col>
-                  <Col span={12}>
-                    <FormItem
-                      validateStatus={sobrenomeError ? 'error' : ''}
-                      help={sobrenomeError || ''}
-                    >
-                      {getFieldDecorator('sobrenome', {
-                        rules: [
-                          {
-                            required: true,
-                            message: 'Entre com o sobrenome'
-                          }
-                        ]
-                      })(<Input placeholder="Sobrenome" />)}
-                    </FormItem>
-                  </Col>
-                </Row>
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <FormItem
-                      validateStatus={funcaoError ? 'error' : ''}
-                      help={funcaoError || ''}
-                    >
-                      {getFieldDecorator('funcao', {
-                        rules: [
-                          {
-                            required: true,
-                            message: 'Entre a função'
-                          }
-                        ]
-                      })(<Input placeholder="Função" />)}
-                    </FormItem>
-                  </Col>
-                  <Col span={12}>
-                    <FormItem
-                      validateStatus={assinaturaError ? 'error' : ''}
-                      help={assinaturaError || ''}
-                    >
-                      {getFieldDecorator('assinatura')(
-                        <div>
-                          <Button
-                            onClick={e => this.upload.click()}
-                            style={{ width: '95%' }}
+          <Spin spinning={this.state.enviando}>
+            <Form
+              onSubmit={e => {
+                this.state.editar
+                  ? this.handleUpdate(e)
+                  : this.handleClientes(e);
+              }}
+              style={{ width: '90%' }}
+            >
+              <Row gutter={16} style={{ marginTop: '1rem' }}>
+                <Col span={8} style={styles.centralizado}>
+                  <ModalAvatar
+                    imagem={this.state.imagem}
+                    saveImage={this.saveImage}
+                  />
+                  <RadioGroup onChange={this.onChange} value={this.state.ativo}>
+                    <Radio style={radioStyle} value={1}>
+                      Ativo
+                    </Radio>
+                    <Radio style={radioStyle} value={0}>
+                      Inativo
+                    </Radio>
+                  </RadioGroup>
+                </Col>
+                <Col span={16}>
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <FormItem
+                        validateStatus={nomeError ? 'error' : ''}
+                        help={nomeError || ''}
+                      >
+                        {getFieldDecorator('nome', {
+                          rules: [
+                            {
+                              required: true,
+                              message: 'Entre com o nome'
+                            }
+                          ]
+                        })(<Input placeholder="Nome" />)}
+                      </FormItem>
+                    </Col>
+                    <Col span={12}>
+                      <FormItem
+                        validateStatus={sobrenomeError ? 'error' : ''}
+                        help={sobrenomeError || ''}
+                      >
+                        {getFieldDecorator('sobrenome', {
+                          rules: [
+                            {
+                              required: true,
+                              message: 'Entre com o sobrenome'
+                            }
+                          ]
+                        })(<Input placeholder="Sobrenome" />)}
+                      </FormItem>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <FormItem
+                        validateStatus={funcaoError ? 'error' : ''}
+                        help={funcaoError || ''}
+                      >
+                        {getFieldDecorator('funcao', {
+                          rules: [
+                            {
+                              required: true,
+                              message: 'Entre a função'
+                            }
+                          ]
+                        })(<Input placeholder="Função" />)}
+                      </FormItem>
+                    </Col>
+                    <Col span={12}>
+                      <FormItem
+                        validateStatus={assinaturaError ? 'error' : ''}
+                        help={assinaturaError || ''}
+                      >
+                        {getFieldDecorator('assinatura')(
+                          <div>
+                            <Button
+                              onClick={e => this.upload.click()}
+                              style={{ width: '95%' }}
+                            >
+                              <Icon type="upload" />
+                              {this.state.fileName === ''
+                                ? 'Assinatura digital'
+                                : this.state.fileName}
+                            </Button>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              ref={ref => (this.upload = ref)}
+                              hidden
+                              onChange={this.handleFile}
+                            />
+                            <br />
+                            <span
+                              hidden={this.state.visible}
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'center'
+                              }}
+                            />
+                          </div>
+                        )}
+                      </FormItem>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <FormItem
+                        validateStatus={usernameError ? 'error' : ''}
+                        help={usernameError || ''}
+                      >
+                        {getFieldDecorator('username', {
+                          rules: [
+                            {
+                              required: true,
+                              message: 'Entre com o usuário'
+                            }
+                          ]
+                        })(<Input placeholder="Usuário" />)}
+                      </FormItem>
+                    </Col>
+                    <Col span={12}>
+                      <FormItem
+                        validateStatus={passwordError ? 'error' : ''}
+                        help={passwordError || ''}
+                      >
+                        {getFieldDecorator('password', {
+                          rules: [
+                            {
+                              required: true,
+                              message: 'Por favor entre com sua senha!'
+                            }
+                          ]
+                        })(<Input type="password" placeholder="Senha" />)}
+                      </FormItem>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col span={12} style={styles.esquerda}>
+                      <FormItem
+                        validateStatus={emailError ? 'error' : ''}
+                        help={emailError || ''}
+                      >
+                        {getFieldDecorator('email', {
+                          rules: [
+                            {
+                              required: true,
+                              message: 'Entre com o e-mail'
+                            },
+                            {
+                              type: 'email',
+                              message: 'Formato de e-mail inválido'
+                            }
+                          ]
+                        })(<Input type="email" placeholder="E-mail" />)}
+                      </FormItem>
+                    </Col>
+                    <Col span={12} style={styles.esquerda}>
+                      <FormItem
+                        validateStatus={telefoneError ? 'error' : ''}
+                        help={telefoneError || ''}
+                      >
+                        {getFieldDecorator('telefone', {
+                          rules: [
+                            {
+                              required: true,
+                              message: 'Entre com o telefone'
+                            }
+                          ]
+                        })(
+                          <Input
+                            placeholder="Telefone"
+                            onChange={this.phoneMask}
+                          />
+                        )}
+                      </FormItem>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <FormItem
+                        validateStatus={construtorasError ? 'error' : ''}
+                        help={construtorasError || ''}
+                      >
+                        {getFieldDecorator('construtoras', {
+                          rules: [
+                            {
+                              required: true,
+                              message: 'Escolha a construtora'
+                            }
+                          ]
+                        })(
+                          <Select
+                            showSearch
+                            mode="multiple"
+                            style={{ width: '100%' }}
+                            placeholder="Escolha a construtora"
+                            optionFilterProp="children"
+                            onChange={this.selectInfoCond}
+                            filterOption={(input, option) =>
+                              option.props.children
+                                .toLowerCase()
+                                .indexOf(input.toLowerCase()) >= 0
+                            }
                           >
-                            <Icon type="upload" />
-                            {this.state.fileName === ''
-                              ? 'Assinatura digital'
-                              : this.state.fileName}
-                          </Button>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            ref={ref => (this.upload = ref)}
-                            hidden
-                            onChange={this.handleFile}
-                          />
-                          <br />
-                          <span
-                            hidden={this.state.visible}
-                            style={{
-                              display: 'flex',
-                              justifyContent: 'center'
-                            }}
-                          />
-                        </div>
-                      )}
-                    </FormItem>
-                  </Col>
-                </Row>
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <FormItem
-                      validateStatus={usernameError ? 'error' : ''}
-                      help={usernameError || ''}
-                    >
-                      {getFieldDecorator('username', {
-                        rules: [
-                          {
-                            required: true,
-                            message: 'Entre com o usuário'
-                          }
-                        ]
-                      })(<Input placeholder="Usuário" />)}
-                    </FormItem>
-                  </Col>
-                  <Col span={12}>
-                    <FormItem
-                      validateStatus={passwordError ? 'error' : ''}
-                      help={passwordError || ''}
-                    >
-                      {getFieldDecorator('password', {
-                        rules: [
-                          {
-                            required: true,
-                            message: 'Por favor entre com sua senha!'
-                          }
-                        ]
-                      })(<Input type="password" placeholder="Senha" />)}
-                    </FormItem>
-                  </Col>
-                </Row>
-                <Row gutter={16}>
-                  <Col span={12} style={styles.esquerda}>
-                    <FormItem
-                      validateStatus={emailError ? 'error' : ''}
-                      help={emailError || ''}
-                    >
-                      {getFieldDecorator('email', {
-                        rules: [
-                          {
-                            required: true,
-                            message: 'Entre com o e-mail'
-                          },
-                          {
-                            type: 'email',
-                            message: 'Formato de e-mail inválido'
-                          }
-                        ]
-                      })(<Input type="email" placeholder="E-mail" />)}
-                    </FormItem>
-                  </Col>
-                  <Col span={12} style={styles.esquerda}>
-                    <FormItem
-                      validateStatus={telefoneError ? 'error' : ''}
-                      help={telefoneError || ''}
-                    >
-                      {getFieldDecorator('telefone', {
-                        rules: [
-                          {
-                            required: true,
-                            message: 'Entre com o telefone'
-                          }
-                        ]
-                      })(
-                        <Input
-                          placeholder="Telefone"
-                          onChange={this.phoneMask}
-                        />
-                      )}
-                    </FormItem>
-                  </Col>
-                </Row>
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <FormItem
-                      validateStatus={construtorasError ? 'error' : ''}
-                      help={construtorasError || ''}
-                    >
-                      {getFieldDecorator('construtoras', {
-                        rules: [
-                          {
-                            required: true,
-                            message: 'Escolha a construtora'
-                          }
-                        ]
-                      })(
-                        <Select
-                          showSearch
-                          mode="multiple"
-                          style={{ width: '100%' }}
-                          placeholder="Escolha a construtora"
-                          optionFilterProp="children"
-                          onChange={this.selectInfoCond}
-                          filterOption={(input, option) =>
-                            option.props.children
-                              .toLowerCase()
-                              .indexOf(input.toLowerCase()) >= 0
-                          }
-                        >
-                          {this.props.construtoras.map((construtora, index) => {
-                            return (
-                              <Option
-                                value={construtora.id}
-                                key={construtora.id + index}
-                              >
-                                {construtora.nome}
-                              </Option>
-                            );
-                          })}
-                        </Select>
-                      )}
-                    </FormItem>
-                  </Col>
-                  <Col span={12}>
-                    <FormItem
-                      validateStatus={condominiosError ? 'error' : ''}
-                      help={condominiosError || ''}
-                    >
-                      {getFieldDecorator('condominios', {
-                        rules: [
-                          {
-                            required: true,
-                            message: 'Escolha os condomínios'
-                          }
-                        ]
-                      })(
-                        <Select
-                          showSearch
-                          mode="multiple"
-                          style={{ width: '100%' }}
-                          placeholder={
-                            this.state.disabledCond
-                              ? 'Escolha a construtora para habilitar esta opção'
-                              : 'Escolha os condomínios'
-                          }
-                          disabled={this.state.disabledCond}
-                          optionFilterProp="children"
-                          onChange={this.selectInfoTipo}
-                          filterOption={(input, option) =>
-                            option.props.children
-                              .toLowerCase()
-                              .indexOf(input.toLowerCase()) >= 0
-                          }
-                        >
-                          {this.state.condominios.map((condominio, index) => {
-                            return (
-                              <Option
-                                value={condominio.id}
-                                key={condominio.id + index}
-                              >
-                                {condominio.nome}
-                              </Option>
-                            );
-                          })}
-                        </Select>
-                      )}
-                    </FormItem>
-                  </Col>
-                </Row>
-                {/* <Row>
+                            {this.props.construtoras.map(
+                              (construtora, index) => {
+                                return (
+                                  <Option
+                                    value={construtora.id}
+                                    key={construtora.id + index}
+                                  >
+                                    {construtora.nome}
+                                  </Option>
+                                );
+                              }
+                            )}
+                          </Select>
+                        )}
+                      </FormItem>
+                    </Col>
+                    <Col span={12}>
+                      <FormItem
+                        validateStatus={condominiosError ? 'error' : ''}
+                        help={condominiosError || ''}
+                      >
+                        {getFieldDecorator('condominios', {
+                          rules: [
+                            {
+                              required: true,
+                              message: 'Escolha os condomínios'
+                            }
+                          ]
+                        })(
+                          <Select
+                            showSearch
+                            mode="multiple"
+                            style={{ width: '100%' }}
+                            placeholder={
+                              this.state.disabledCond
+                                ? 'Escolha a construtora para habilitar esta opção'
+                                : 'Escolha os condomínios'
+                            }
+                            disabled={this.state.disabledCond}
+                            optionFilterProp="children"
+                            onChange={this.selectInfoTipo}
+                            filterOption={(input, option) =>
+                              option.props.children
+                                .toLowerCase()
+                                .indexOf(input.toLowerCase()) >= 0
+                            }
+                          >
+                            {this.state.condominios.map((condominio, index) => {
+                              return (
+                                <Option
+                                  value={condominio.id}
+                                  key={condominio.id + index}
+                                >
+                                  {condominio.nome}
+                                </Option>
+                              );
+                            })}
+                          </Select>
+                        )}
+                      </FormItem>
+                    </Col>
+                  </Row>
+                  {/* <Row>
                   <Col span={12}>
                     <FormItem
                       validateStatus={
@@ -850,100 +855,119 @@ class FuncionarioForm extends React.Component {
                   </Col>
                 </Row> */}
 
-                <Row style={{ marginTop: '1rem' }}>
-                  <Col span={10}>
-                    <FormItem>
-                      <span
-                        style={{
-                          color: '#757575',
-                          fontWeight: 'bold',
-                          marginTop: '2rem'
-                        }}
-                      >
-                        Selecionar permissões
-                      </span>
-                    </FormItem>
-                  </Col>
-                  <Col span={14}>
-                    <ButtonGroup>
-                      <Button onClick={() => this.changeAll(0)} type="primary">
-                        Nenhuma
-                      </Button>
-                      <Button onClick={() => this.changeAll(1)} type="primary">
-                        Visualizar
-                      </Button>
-                      <Button onClick={() => this.changeAll(2)} type="primary">
-                        Editar
-                      </Button>
-                    </ButtonGroup>
-                  </Col>
-                </Row>
+                  <Row style={{ marginTop: '1rem' }}>
+                    <Col span={10}>
+                      <FormItem>
+                        <span
+                          style={{
+                            color: '#757575',
+                            fontWeight: 'bold',
+                            marginTop: '2rem'
+                          }}
+                        >
+                          Selecionar permissões
+                        </span>
+                      </FormItem>
+                    </Col>
+                    <Col span={14}>
+                      <ButtonGroup>
+                        <Button
+                          onClick={() => this.changeAll(0)}
+                          type="primary"
+                        >
+                          Nenhuma
+                        </Button>
+                        <Button
+                          onClick={() => this.changeAll(1)}
+                          type="primary"
+                        >
+                          Visualizar
+                        </Button>
+                        <Button
+                          onClick={() => this.changeAll(2)}
+                          type="primary"
+                        >
+                          Editar
+                        </Button>
+                      </ButtonGroup>
+                    </Col>
+                  </Row>
 
-                {telas.map((tela, i) => {
-                  return (
-                    <div key={`tela-${tela.id + i}`}>
-                      <Row>
-                        <Col span={10}>
-                          {tela.nome}
-                          <Divider />
-                        </Col>
-                        <Col span={14}>
-                          <RadioGroup
-                            onChange={event => {
-                              this.onChangePermissoes(event, tela.id);
-                            }}
-                            value={this.state.statusPermissoes[tela.id].status}
-                          >
-                            <Radio value={0}>Nenhuma</Radio>
-                            <Radio value={1}>Visualizar</Radio>
-                            <Radio value={2}>Editar</Radio>
-                          </RadioGroup>
-                          <Divider />
-                        </Col>
-                      </Row>
-                    </div>
-                  );
-                })}
-              </Col>
-              {this.state.editar && (
+                  {telas.map((tela, i) => {
+                    return (
+                      <div key={`tela-${tela.id + i}`}>
+                        <Row>
+                          <Col span={10}>
+                            {tela.nome}
+                            <Divider />
+                          </Col>
+                          <Col span={14}>
+                            <RadioGroup
+                              onChange={event => {
+                                this.onChangePermissoes(event, tela.id);
+                              }}
+                              value={
+                                this.state.statusPermissoes[tela.id].status
+                              }
+                            >
+                              <Radio value={0}>Nenhuma</Radio>
+                              <Radio value={1}>Visualizar</Radio>
+                              <Radio value={2}>Editar</Radio>
+                            </RadioGroup>
+                            <Divider />
+                          </Col>
+                        </Row>
+                      </div>
+                    );
+                  })}
+                </Col>
+                {this.state.editar && (
+                  <Button
+                    style={{
+                      float: 'right',
+                      marginBottom: '2rem',
+                      marginLeft: '1rem'
+                    }}
+                    onClick={this.cancelarEdicao}
+                  >
+                    Cancelar
+                  </Button>
+                )}
                 <Button
-                  style={{
-                    float: 'right',
-                    marginBottom: '2rem',
-                    marginLeft: '1rem'
-                  }}
-                  onClick={this.cancelarEdicao}
+                  type="primary"
+                  htmlType="submit"
+                  style={{ float: 'right', marginBottom: '2rem' }}
+                  loading={this.state.enviando}
+                  disabled={hasErrors(getFieldsError()) || this.state.enviando}
                 >
-                  Cancelar
+                  {this.state.editar ? 'Editar' : 'Concluir'}
                 </Button>
-              )}
-              <Button
-                type="primary"
-                htmlType="submit"
-                style={{ float: 'right', marginBottom: '2rem' }}
-                loading={this.state.enviando}
-                disabled={hasErrors(getFieldsError()) || this.state.enviando}
-              >
-                {this.state.editar ? 'Editar' : 'Concluir'}
-              </Button>
+              </Row>
+            </Form>
+          </Spin>
+          <Permissao codTela={this.state.codTela} permissaoNecessaria={[1, 2]}>
+            <span
+              style={{
+                color: '#757575',
+                fontWeight: 'bold',
+                marginLeft: '1rem'
+              }}
+            >
+              Clientes Cadastratos
+            </span>
+            <Divider />
+            <Row>
+              <Col span={24}>
+                <TableClientes
+                  codTela={this.state.codTela}
+                  clientes={this.props.clientes}
+                  dispatchClientes={this.dispatchCondominios}
+                  setFieldValue={this.setFieldValue}
+                  resetFields={this.cancelarEdicao}
+                />
+              </Col>
             </Row>
-          </Form>
-          {/* <span
-            style={{ color: '#757575', fontWeight: 'bold', marginLeft: '1rem' }}
-          >
-            Clientes Cadastratos
-          </span>
-          <Divider /> */}
-          {/* <Row>
-            <Col span={24}>
-              <TableClientes
-                clientes={this.props.clientes}
-                dispatchDados={this.dispatchCondominios}
-                setFieldValue={this.setFieldValue}
-                resetFields={this.cancelarEdicao}
-              />
-            </Col>
-          </Row> */}
+          </Permissao>
         </div>
         <div
           style={{

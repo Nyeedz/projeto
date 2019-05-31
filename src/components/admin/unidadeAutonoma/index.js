@@ -23,19 +23,10 @@ import TableUnidade from './table';
 import { url, CODE_NENHUMA, CODE_EDITAR } from '../../../utilities/constants';
 import { getCodePath } from '../../../utilities/functions';
 import Permissao from '../permissoes/permissoes';
-import moment from 'moment';
 
 const FormItem = Form.Item;
 const { Content } = Layout;
 const Option = Select.Option;
-
-function onChange(date, dateString) {
-  moment(dateString).format('DD/MM/YYYY');
-}
-
-function hasErrors(fieldsError) {
-  return Object.keys(fieldsError).some(field => fieldsError[field]);
-}
 
 let uuid = 0;
 
@@ -129,8 +120,7 @@ class UnidadeForm extends React.Component {
             {
               construtoras: values.construtoras,
               condominios: values.condominios,
-              tipologia: values.torre,
-              validade: values.validade
+              tipologia: values.torre
             },
             config
           )
@@ -234,8 +224,7 @@ class UnidadeForm extends React.Component {
             {
               construtora: values.construtoras,
               condominio: values.condominios,
-              tipologia: values.torre,
-              validade: values.validade
+              tipologia: values.torre
             },
             config
           )
@@ -247,7 +236,8 @@ class UnidadeForm extends React.Component {
                   nome: unidade,
                   unidadesautonoma: {
                     _id: res.data._id
-                  }
+                  },
+                  tipologia: this.state.tipologiaId
                 },
                 config
               );
@@ -332,7 +322,6 @@ class UnidadeForm extends React.Component {
         unidadeIdsArray.push(unidade._id);
       });
       this.props.form.setFieldsValue({
-        validade: moment(dados.validade),
         names: unidadeArray,
         ids: unidadeIdsArray,
         torre: dados.tipologia._id
@@ -383,13 +372,16 @@ class UnidadeForm extends React.Component {
     });
   };
 
+  handleChange = id => {
+    this.setState({ tipologiaId: id });
+  };
+
   render() {
     const {
       getFieldDecorator,
       getFieldError,
       isFieldTouched,
-      getFieldValue,
-      getFieldsError
+      getFieldValue
     } = this.props.form;
 
     const construtorasError =
@@ -397,8 +389,6 @@ class UnidadeForm extends React.Component {
     const condominiosError =
       isFieldTouched('condominios') && getFieldError('condominios');
     const torreError = isFieldTouched('torre') && getFieldError('torre');
-    const validadeError =
-      isFieldTouched('validade') && getFieldError('validade');
 
     const formItemLayout = {
       labelCol: {
@@ -622,28 +612,7 @@ class UnidadeForm extends React.Component {
                     </FormItem>
                   </Col>
                   <Col span={10}>
-                    <Spin spinning={this.state.enviando}>
-                      <FormItem
-                        validateStatus={validadeError ? 'error' : ''}
-                        help={validadeError || ''}
-                      >
-                        {getFieldDecorator('validade', {
-                          rules: [
-                            {
-                              required: true,
-                              message: 'Entre com a data de entrega'
-                            }
-                          ]
-                        })(
-                          <DatePicker
-                            onChange={onChange}
-                            placeholder="Data de entrega"
-                            format="DD/MM/YYYY"
-                            style={{ width: '100%' }}
-                          />
-                        )}
-                      </FormItem>
-                    </Spin>
+                    <Spin spinning={this.state.enviando} />
                   </Col>
                 </Row>
                 <Row gutter={16}>

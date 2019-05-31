@@ -30,7 +30,6 @@ class TableClientes extends React.Component {
 
   componentWillReceiveProps = nexProps => {
     if (nexProps.clientes) {
-      // this.fetch();
       this.setState({ data: nexProps.clientes });
     }
   };
@@ -103,8 +102,7 @@ class TableClientes extends React.Component {
                   </span>
                 ) : (
                   record.nome
-                ) // eslint-disable-line
-                }
+                )}
               </span>
             )
           };
@@ -173,7 +171,7 @@ class TableClientes extends React.Component {
         title: 'Nome',
         dataIndex: 'nome',
         key: 'id' + 'nome',
-        render: text => <p key={text.id}>{text}</p>,
+        render: text => <p key={text + 'id'}>{text}</p>,
         onFilter: (value, record) => record.nome.indexOf(value) === 0,
         sorter: (a, b) => b.nome.length - a.nome.length,
         filterDropdown: (
@@ -209,7 +207,7 @@ class TableClientes extends React.Component {
       {
         title: 'Sobrenome',
         dataIndex: 'sobrenome',
-        key: 'sobrenom' + 'id',
+        key: 'sobrenome' + 'id',
         render: text => <p key={text.id}>{text}</p>
       },
       {
@@ -220,7 +218,7 @@ class TableClientes extends React.Component {
       },
       {
         title: 'Opções',
-        key: 'nome' + 'id',
+        key: '_id',
         render: (text, record) => (
           <span>
             <Permissao

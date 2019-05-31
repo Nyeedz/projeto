@@ -11,6 +11,8 @@ import AreasComuns from './areasComuns_reducer';
 import Funcionarios from './funcionarios_reducer';
 import Clientes from './cliente_reducer.js';
 import Chamados from './chamados_reducer';
+import Pesquisa from './pesquisaSatisfacao_reducer';
+import Tipologia from './tipologia_reducer';
 
 export default combineReducers({
   user: User,
@@ -24,5 +26,7 @@ export default combineReducers({
   areasGerais: AreasGerais,
   areasComuns: AreasComuns,
   clientes: Clientes,
-  chamados: Chamados
+  chamados: Chamados,
+  pesquisa: Pesquisa,
+  tipologia: Tipologia
 });

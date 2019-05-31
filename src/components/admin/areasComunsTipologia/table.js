@@ -270,7 +270,6 @@ class TableAreaComum extends React.Component {
           pagination={this.state.pagination}
           loading={this.state.loading}
           onChange={this.handleTableChange}
-          pagination={true}
           style={{ width: '90%', maxWidth: '100%' }}
         />
       </div>

@@ -12,7 +12,6 @@ import axios from 'axios';
 import React from 'react';
 import { url, CODE_EDITAR } from '../../../utilities/constants';
 import Permissao from '../permissoes/permissoes';
-import moment from 'moment';
 
 class TableUnidade extends React.Component {
   state = {
@@ -186,14 +185,6 @@ class TableUnidade extends React.Component {
             () => this.searchInput && this.searchInput.focus()
           );
         }
-      },
-      {
-        title: 'Data de entrega',
-        dataIndex: 'validade',
-        key: 'validade',
-        render: (text, i) => (
-          <p key={text + i}>{moment(text).format('DD/MM/YYYY')}</p>
-        )
       },
       {
         title: 'Tipologia',

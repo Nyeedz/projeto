@@ -13,7 +13,7 @@ import {
   Spin
 } from 'antd';
 import { fetchConstrutoras } from '../../../actions/construtoraActions';
-import { fetchPerguntas } from '../../../actions/perquisaSatisfacaoActions';
+import { fetchPesquisa } from '../../../actions/perquisaSatisfacaoActions';
 import TablePesquisa from './table';
 import axios from 'axios';
 import { url, CODE_EDITAR } from '../../../utilities/constants';
@@ -77,7 +77,7 @@ class PesquisaForm extends React.Component {
 
   dispatchDados = () => {
     this.props.dispatch(fetchConstrutoras());
-    this.props.dispatch(fetchPerguntas());
+    this.props.dispatch(fetchPesquisa());
   };
 
   setFieldValue = dados => {
@@ -161,7 +161,7 @@ class PesquisaForm extends React.Component {
             });
             this.setState({ enviando: false });
             form.resetFields();
-            this.props.dispatch(fetchPerguntas());
+            this.props.dispatch(fetchPesquisa());
             uuid = 0;
           })
           .catch(error => {
@@ -227,7 +227,7 @@ class PesquisaForm extends React.Component {
                   icon: <Icon type="check" style={{ color: 'green' }} />
                 });
                 form.resetFields();
-                this.props.dispatch(fetchPerguntas());
+                this.props.dispatch(fetchPesquisa());
                 this.setState({
                   enviando: false,
                   editar: false
@@ -429,7 +429,7 @@ class PesquisaForm extends React.Component {
               <Col span={24}>
                 <TablePesquisa
                   codTela={this.state.codTela}
-                  perguntas={this.props.perguntas}
+                  perguntas={this.props.pesquisa}
                   getPerguntas={this.dispatchDados}
                   setFieldValue={this.setFieldValue}
                   resetFields={this.cancelarEdicao}
@@ -460,6 +460,7 @@ class PesquisaForm extends React.Component {
 let Pesquisa = Form.create()(PesquisaForm);
 export default (Pesquisa = connect(store => {
   return {
-    construtoras: store.construtoras.data
+    construtoras: store.construtoras.data,
+    pesquisa: store.pesquisa.data
   };
 })(Pesquisa));

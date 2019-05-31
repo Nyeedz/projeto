@@ -25,11 +25,12 @@ class TableTipologia extends React.Component {
     filterDropdownVisible: false
   };
 
+  componentDidMount = () => {
+    this.fetch();
+  };
+
   componentWillReceiveProps = nextProps => {
-    if (nextProps.torre) {
-      this.fetch();
-      this.setState({ data: nextProps.torre });
-    }
+    if (nextProps.torre) this.setState({ data: nextProps.torre });
   };
 
   handleTableChange = (pagination, filters, sorter) => {

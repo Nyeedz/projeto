@@ -39,7 +39,7 @@ class GarantiaForm extends React.Component {
     enviando: false,
     editar: null,
     condominios: [],
-    tipologia: [],
+    // tipologia: [],
     disabledCond: true,
     disabledTipo: true,
     codTela: null,
@@ -82,8 +82,8 @@ class GarantiaForm extends React.Component {
       });
 
       this.props.form.setFieldsValue({
-        nome: dados.nome,
-        torre: dados.tipologia.id
+        nome: dados.nome
+        // torre: dados.tipologia.id
       });
 
       Object.keys(dados.subitem).forEach((value, i) => {
@@ -141,7 +141,7 @@ class GarantiaForm extends React.Component {
               nome: values.nome,
               construtora: values.construtoras,
               condominio: values.condominios,
-              tipologia: values.torre,
+              // tipologia: values.torre,
               subitem: itens
             },
             config
@@ -198,7 +198,7 @@ class GarantiaForm extends React.Component {
               nome: values.nome,
               construtora: values.construtoras,
               condominio: values.condominios,
-              tipologia: values.torre,
+              // tipologia: values.torre,
               subitem: itens
             },
             config
@@ -252,7 +252,7 @@ class GarantiaForm extends React.Component {
     let tipo = this.props.condominios.filter(x => x.id === id);
     tipo.map(info => {
       return this.setState({
-        tipologia: info.torres,
+        // tipologia: info.torres,
         disabledTipo: false
       });
     });
@@ -313,12 +313,8 @@ class GarantiaForm extends React.Component {
       isFieldTouched('construtoras') && getFieldError('construtoras');
     const condominiosError =
       isFieldTouched('condominios') && getFieldError('condominios');
-    const torreError = isFieldTouched('torre') && getFieldError('torre');
+    // const torreError = isFieldTouched('torre') && getFieldError('torre');
     const nomeItemError = isFieldTouched('nome') && getFieldError('nome');
-    const itemSecundarioError =
-      isFieldTouched('item_secundario') && getFieldError('item_secundario');
-    const garantiaError =
-      isFieldTouched('tempo_garantia') && getFieldError('tempo_garantia');
 
     getFieldDecorator('keys', { initialValue: [] });
     const keys = getFieldValue('keys');
@@ -378,7 +374,9 @@ class GarantiaForm extends React.Component {
     });
 
     const previewData = keys.map((k, i) => {
-      return getFieldValue(`prefix[${k}]`) == 'a' ? <div style={{ height: 40, marginBottom: 24 }} key={`preview${k + i}`}></div> : (
+      return getFieldValue(`prefix[${k}]`) == 'a' ? (
+        <div style={{ height: 40, marginBottom: 24 }} key={`preview${k + i}`} />
+      ) : (
         <FormItem key={`preview${k + i}`}>
           <span
             style={{
@@ -523,14 +521,8 @@ class GarantiaForm extends React.Component {
                   </Row>
                 </Spin>
                 <Spin spinning={this.state.enviando}>
-                  <Row
-                    style={{ marginTop: '1rem' }}
-                    type="flex"
-                    justify="space-around"
-                    align="middle"
-                    gutter={16}
-                  >
-                    <Col span={12}>
+                  <Row gutter={16}>
+                    {/* <Col span={12}>
                       <FormItem
                         validateStatus={torreError ? 'error' : ''}
                         help={torreError || ''}
@@ -571,7 +563,7 @@ class GarantiaForm extends React.Component {
                           </Select>
                         )}
                       </FormItem>
-                    </Col>
+                    </Col> */}
                     <Col span={12}>
                       <FormItem
                         validateStatus={nomeItemError ? 'error' : ''}

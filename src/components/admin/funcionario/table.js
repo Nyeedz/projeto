@@ -1,25 +1,118 @@
 import React from 'react';
-import { Table, Icon, Divider, notification, Button, Popconfirm } from 'antd';
+import {
+  Table,
+  Icon,
+  Divider,
+  notification,
+  Button,
+  Popconfirm,
+  Tooltip,
+  Avatar,
+  Input
+} from 'antd';
 import axios from 'axios';
-import { url } from '../../../utilities/constants';
+import { url, CODE_EDITAR } from '../../../utilities/constants';
+import Permissao from '../permissoes/permissoes';
 
-class TableFuncionarios extends React.Component {
+class TableClientes extends React.Component {
   state = {
-    loading: true
+    data: [],
+    pagination: {},
+    loading: false,
+    searchText: '',
+    filtered: false,
+    filterDropdownVisible: false
   };
 
   componentDidMount = () => {
-    setTimeout(() => {
-      this.setState({
-        loading: false
+    this.fetch();
+  };
+
+  componentWillReceiveProps = nextProps => {
+    if (nextProps.clientes) this.setState({ data: nextProps.clientes });
+  };
+
+  handleTableChange = (pagination, filters, sorter) => {
+    const pager = { ...this.state.pagination };
+    pager.current = pagination.current;
+    this.setState({
+      pagination: pager
+    });
+    this.fetch({
+      results: pagination.pageSize,
+      page: pagination.current,
+      sortField: sorter.field,
+      sortOrder: sorter.order,
+      ...filters
+    });
+  };
+
+  fetch = () => {
+    this.setState({ loading: true });
+    let auth = localStorage.getItem('jwt') || this.props.user.jwt;
+
+    const config = {
+      headers: { Authorization: `Bearer ${auth}` }
+    };
+
+    axios
+      .get(`${url}/users?cliente=true`, config)
+      .then(res => {
+        const pagination = { ...this.state.pagination };
+        pagination.total = res.data.length;
+        this.setState({
+          loading: false,
+          data: res.data,
+          pagination
+        });
+      })
+      .catch(error => {
+        notification.open({
+          message: 'Oops!',
+          description: 'Erro ao buscar dados dos clientes',
+          icon: <Icon type="close" style={{ color: 'red' }} />
+        });
+        this.setState({ loading: false });
       });
-    }, 1000);
+  };
+
+  onSearch = () => {
+    const { searchText } = this.state;
+    const reg = new RegExp(searchText, 'gi');
+    this.setState({
+      filterDropdownVisible: false,
+      filtered: !!searchText,
+      data: this.props.clientes
+        .map(record => {
+          const match = record.nome.match(reg);
+
+          if (!match) {
+            return null;
+          }
+          if (searchText === '') return this.fetch();
+          return {
+            ...record,
+            nome: (
+              <span>
+                {record.nome.toLowerCase() === searchText.toLowerCase() ? (
+                  <span key={record._id} className="highlight">
+                    {record.nome}
+                  </span>
+                ) : (
+                  record.nome
+                )}
+              </span>
+            )
+          };
+        })
+        .filter(record => !!record)
+    });
   };
 
   updateFuncionario = id => {
-    this.props.construtoras.map((construtora, i) => {
-      if (construtora.id === id) {
-        this.props.setFieldValue(construtora);
+    this.props.clientes.map(cliente => {
+      if (cliente.id === id) {
+        this.props.setFieldValue(cliente);
       }
       return true;
     });
@@ -31,13 +124,12 @@ class TableFuncionarios extends React.Component {
     };
     axios
       .delete(`${url}/users/${id}`, config)
-      .then(res => {
+      .then(() => {
         notification.open({
           message: 'Ok!',
           description: 'Funcionário deletado com sucesso!'
         });
         this.props.dispatchDados();
-        this.props.resetFields();
       })
       .catch(error => {
         notification.open({
@@ -48,56 +140,120 @@ class TableFuncionarios extends React.Component {
       });
   };
 
+  onInputChange = e => {
+    this.setState({ searchText: e.target.value });
+  };
+
   render() {
     const columns = [
       {
-        title: 'Nome',
-        dataIndex: 'nome',
-        key: 'nome',
-        render: text => <a role="button">{text}</a>
-      },
-      {
-        title: 'Condomínios',
-        dataIndex: 'condominios',
-        key: 'condominios.id',
+        title: 'Foto',
+        dataIndex: 'logo',
+        key: 'logo' + 'id',
         render: text => (
           <a role="button">
-            {typeof text === 'object' &&
-              text.map((x, i) => {
-                return <p key={x.id}>{x.nome}</p>;
-              })}
+            {typeof text === 'string' && (
+              <p key={text.id}>
+                <Avatar size="large" shape="square" src={text} />
+              </p>
+            )}
           </a>
         )
       },
       {
+        title: 'Nome',
+        dataIndex: 'nome',
+        key: 'id' + 'nome',
+        render: text => <p key={text + 'id'}>{text}</p>,
+        onFilter: (value, record) => record.nome.indexOf(value) === 0,
+        sorter: (a, b) => b.nome.length - a.nome.length,
+        filterDropdown: (
+          <div className="custom-filter-dropdown">
+            <Input
+              ref={ele => (this.searchInput = ele)}
+              placeholder="Pesquisar"
+              value={this.state.searchText}
+              onChange={this.onInputChange}
+              onPressEnter={this.onSearch}
+            />
+            <Button type="primary" onClick={this.onSearch}>
+              Pesquisar
+            </Button>
+          </div>
+        ),
+        filterIcon: (
+          <Icon
+            type="search"
+            style={{ color: this.state.filtered ? '#108ee9' : '#aaa' }}
+          />
+        ),
+        filterDropdownVisible: this.state.filterDropdownVisible,
+        onFilterDropdownVisibleChange: visible => {
+          this.setState(
+            {
+              filterDropdownVisible: visible
+            },
+            () => this.searchInput && this.searchInput.focus()
+          );
+        }
+      },
+      {
+        title: 'Sobrenome',
+        dataIndex: 'sobrenome',
+        key: 'sobrenome' + 'id',
+        render: text => <p key={text.id}>{text}</p>
+      },
+      {
+        title: 'Email',
+        dataIndex: 'email',
+        key: 'email' + 'id',
+        render: text => <p key={text.id}>{text}</p>
+      },
+      {
         title: 'Opções',
-        key: 'id',
+        key: '_id',
         render: (text, record) => (
           <span>
-            <Button
-              type="default"
-              onClick={() => this.updateFuncionario(record.id)}
+            <Permissao
+              codTela={this.props.codTela}
+              permissaoNecessaria={CODE_EDITAR}
+              segundaOpcao="Nenhuma opção disponível!"
             >
-              Editar
-              <Icon type="edit" />
-            </Button>
+              <Tooltip title="Editar">
+                <Button
+                  type="primary"
+                  style={{ fontSize: '12px' }}
+                  onClick={() => this.updateClientes(record._id)}
+                >
+                  <Icon type="edit" />
+                </Button>
+              </Tooltip>
+            </Permissao>
+
             <Divider type="vertical" />
-            <Popconfirm
-              title="Tem certeza que deseja excluir este cliente ?"
-              onConfirm={() => this.deleteFuncionario(record.id)}
+            <Permissao
+              codTela={this.props.codTela}
+              permissaoNecessaria={CODE_EDITAR}
             >
-              <Button type="danger">
-                Deletar <Icon type="delete" />
-              </Button>
-            </Popconfirm>
+              <Popconfirm
+                title="Tem certeza que deseja excluir esta unidade ?"
+                onConfirm={() => this.deleteClientes(record._id)}
+              >
+                <Tooltip title="Deletar">
+                  <Button type="danger" style={{ fontSize: '12px' }}>
+                    <Icon type="delete" />
+                  </Button>
+                </Tooltip>
+              </Popconfirm>
+            </Permissao>
           </span>
         )
       }
     ];
 
-    const { construtoras } = this.props;
+    const { clientes } = this.props;
 
-    if (construtoras.error) {
+    if (clientes.error) {
       return null;
     }
 
@@ -111,11 +267,12 @@ class TableFuncionarios extends React.Component {
       >
         <Table
           columns={columns}
-          dataSource={construtoras}
-          loading={this.state.loading}
-          style={{ width: '90%' }}
-          pagination={true}
           rowKey="id"
+          dataSource={this.state.data}
+          pagination={this.state.pagination}
+          loading={this.state.loading}
+          onChange={this.handleTableChange}
+          style={{ width: '90%', maxWidth: '100%' }}
         />
       </div>
     );

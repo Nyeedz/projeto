@@ -162,7 +162,7 @@ class TipologiaForm extends React.Component {
             });
             this.dispatchTipologia();
             this.props.form.resetFields();
-            this.setState({ enviando: false });
+            this.setState({ enviando: false, disabled: true });
           })
           .catch(() => {
             notification.open({

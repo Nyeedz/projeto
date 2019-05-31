@@ -11,13 +11,15 @@ import {
   notification,
   Radio,
   Icon,
-  Divider
+  Divider,
+  Spin
 } from 'antd';
 import * as axios from 'axios';
 import { url, CODE_EDITAR } from '../../../utilities/constants';
 import { fetchCondominios } from '../../../actions/condominioActions';
 import { fetchConstrutoras } from '../../../actions/construtoraActions';
 import { fetchClientes } from '../../../actions/clientesActions.js';
+import { fetchTipologia } from '../../../actions/tipologiaActions';
 import TableClientes from './table';
 import ModalAvatar from './avatar';
 import { getCodePath } from '../../../utilities/functions';
@@ -77,51 +79,60 @@ class ClientesForm extends React.Component {
     this.props.dispatch(fetchCondominios());
     this.props.dispatch(fetchConstrutoras());
     this.props.dispatch(fetchClientes());
+    this.props.dispatch(fetchTipologia());
   };
 
   setFieldValue = dados => {
     this.setState({ enviando: true });
+
     let constru = [];
     let condo = [];
     let unidade = [];
+    let tipo = [];
 
     setTimeout(() => {
       dados.construtoras.map(x => {
-        return constru.push(x.id);
+        return constru.push(x._id);
       });
+      this.selectInfoCond(constru);
+      this.props.form.setFieldsValue({ construtoras: constru });
+
       dados.condominios.map(x => {
-        return condo.push(x.id);
+        return condo.push(x._id);
       });
+      this.selectInfoTipo(condo);
+      this.props.form.setFieldsValue({ condominios: condo });
+
+      dados.tipologias.map(x => {
+        return tipo.push(x._id);
+      });
+      this.tipologiaChange(tipo);
+      this.props.form.setFieldsValue({ tipo: tipo });
+
       dados.unidades.map(x => {
-        return unidade.push(x.id);
+        return unidade.push(x._id);
       });
+      this.props.form.setFieldsValue({ unidadesAutonomas: unidade });
 
       this.props.form.setFieldsValue({
-        construtoras: constru,
-        condominios: condo,
-        unidadesAutonomas: unidade
+        nome: dados.nome,
+        sobrenome: dados.sobrenome,
+        password: dados.password,
+        username: dados.username,
+        email: dados.email,
+        telefone: dados.telefone
+      });
+      this.setState({
+        enviando: false,
+        imagem: dados.logo,
+        ativo: dados.ativo ? 1 : 0,
+        tipo_morador: dados.tipo_morador ? 1 : 0,
+        editar: true,
+        id: dados._id,
+        disabledCond: false,
+        disabledTipo: false
       });
     }, 1500);
-
-    this.props.form.setFieldsValue({
-      nome: dados.nome,
-      sobrenome: dados.sobrenome,
-      username: dados.username,
-      email: dados.email,
-      telefone: dados.telefone
-    });
-
-    this.setState({
-      enviando: false,
-      imagem: dados.logo,
-      ativo: dados.ativo ? 1 : 0,
-      tipo_morador: dados.tipo_morador ? 1 : 0,
-      editar: true,
-      id: dados.id,
-      disabledCond: false,
-      disabledTipo: false
-    });
-    this.props.form.validateFields();
   };
 
   cancelarEdicao = () => {
@@ -130,7 +141,9 @@ class ClientesForm extends React.Component {
       editar: false,
       imagem: null,
       id: null,
-      enviando: false
+      enviando: false,
+      disabledCond: true,
+      disabledTipo: true
     });
   };
 
@@ -138,76 +151,57 @@ class ClientesForm extends React.Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        console.log(values);
-        return;
         this.setState({ enviando: true });
         const config = {
           headers: { Authorization: 'bearer ' + localStorage.getItem('jwt') }
         };
-        let c = [];
-        let p = [];
-
-        values.condominio.map((x, i) => {
-          return c.push({ id: x });
-        });
-
-        values.parametrizacao.map((x, i) => {
-          return p.push({ id: x });
-        });
 
         axios
           .put(
-            `${url}/clientes/${this.state.id}`,
+            `${url}/users/${this.state.id}`,
             {
-              condominios: [],
-              parametrizacao: []
+              nome: values.nome,
+              email: values.email,
+              password: values.password,
+              telefone: values.telefone,
+              logo: this.state.imagem,
+              ativo: this.state.ativo,
+              tipo_morador: this.state.tipo_morador,
+              condominios: values.condominios,
+              construtoras: values.contrtutoras,
+              tipologias: values.tipo,
+              unidades: values.unidadesAutonomas,
+              client: true,
+              funcionario: false,
+              admin: false
             },
             config
           )
           .then(res => {
-            axios
-              .put(
-                `${url}/clientes/${this.state.id}`,
-                {
-                  nome: values.nome,
-                  email: values.email,
-                  celular: values.telefone,
-                  logo: this.state.imagem,
-                  ativo: this.state.ativo,
-                  tipo_morador: this.state.tipo_morador,
-                  condominios: c,
-                  parametrizacao: p,
-                  client: true,
-                  funcionario: false,
-                  admin: false
-                },
-                config
-              )
-              .then(res => {
-                notification.open({
-                  message: 'Ok',
-                  description: 'Cliente editado com sucesso!'
-                });
-                this.props.form.resetFields();
-                this.setState({
-                  enviando: false,
-                  imagem: null,
-                  editar: false,
-                  id: null
-                });
-              })
-              .catch(error => {
-                notification.open({
-                  message: 'Opps!',
-                  description: 'Erro ao editar o cliente!'
-                });
-                this.setState({
-                  enviando: false,
-                  imagem: null,
-                  editar: false,
-                  id: null
-                });
-              });
+            notification.open({
+              message: 'Ok',
+              description: 'Cliente editado com sucesso!'
+            });
+            this.props.form.resetFields();
+            this.setState({
+              enviando: false,
+              imagem: null,
+              editar: false,
+              id: null
+            });
+            this.props.dispatch(fetchClientes());
+          })
+          .catch(error => {
+            notification.open({
+              message: 'Opps!',
+              description: 'Erro ao editar o cliente!'
+            });
+            this.setState({
+              enviando: false,
+              imagem: null,
+              editar: false,
+              id: null
+            });
           });
         this.setState({ enviando: false });
       } else {
@@ -258,7 +252,7 @@ class ClientesForm extends React.Component {
                   construtoras: values.construtoras,
                   condominios: values.condominios,
                   unidades: values.unidadesAutonomas,
-                  tipologia: values.tipo
+                  tipologias: values.tipo
                 },
                 config
               )
@@ -322,7 +316,7 @@ class ClientesForm extends React.Component {
 
     id.map((value, i) => {
       let constru = this.props.construtoras.filter(x => x.id === value);
-      constru[0].condominios.map((value, i) => {
+      constru[0].condominios.map(value => {
         return c.push(value);
       });
     });
@@ -335,36 +329,22 @@ class ClientesForm extends React.Component {
   };
 
   tipologiaChange = id => {
-    let auth = localStorage.getItem('jwt');
-    const config = {
-      headers: { Authorization: `Bearer ${auth}` }
-    };
-    axios
-      .get(`${url}/tipologias/${id}`, config)
-      .then(res => {
-        res.data.unidadesautonomas.map(unidades => {
-          axios
-            .get(`${url}/unidadesautonomas/${unidades._id}`, config)
-            .then(res => {
-              this.setState({
-                tipologias: res.data.unidades,
-                disabledTipo: false
-              });
-            })
-            .catch(error => console.log(error));
-        });
-      })
-      .catch(error => console.log(error));
+    let u = [];
+
+    id.map(value => {
+      let tipo = this.props.tipologia.filter(x => x.id === value);
+      tipo[0].unidades.map(unidade => {
+        return u.push(unidade);
+      });
+      this.setState({ unidades: u });
+    });
   };
 
   selectInfoTipo = id => {
-    let c = [];
     let t = [];
     id.map(value => {
       let cond = this.props.condominios.filter(x => x.id === value);
       cond[0].torres.map(tipologias => t.push(tipologias));
-
-      cond[0].unidadesautonomas.map(value => c.push(value));
     });
     this.setState({ tipo: t, disabledTipo: false });
   };
@@ -421,343 +401,360 @@ class ClientesForm extends React.Component {
                 <span>Novo Cliente</span>
               </h2>
             </div>
-            <Form
-              onSubmit={e => {
-                this.state.editar
-                  ? this.handleUpdate(e)
-                  : this.handleClientes(e);
-              }}
-              style={{ width: '90%', marginTop: '1rem' }}
-            >
-              <Row gutter={16}>
-                <Col span={8} className="centralizado">
-                  <ModalAvatar
-                    imagem={this.state.imagem}
-                    saveImage={this.saveImage}
-                  />
-                  <RadioGroup onChange={this.onChange} value={this.state.ativo}>
-                    <Radio style={radioStyle} value={1}>
-                      Ativo
-                    </Radio>
-                    <Radio style={radioStyle} value={0}>
-                      Inativo
-                    </Radio>
-                  </RadioGroup>
-                </Col>
-                <Col span={16}>
-                  <Row gutter={16}>
-                    <Col span={12}>
-                      <FormItem
-                        validateStatus={nomeError ? 'error' : ''}
-                        help={nomeError || ''}
-                      >
-                        {getFieldDecorator('nome', {
-                          rules: [
-                            {
-                              required: true,
-                              message: 'Entre com o nome'
-                            }
-                          ]
-                        })(<Input placeholder="Nome" />)}
-                      </FormItem>
-                    </Col>
-                    <Col span={12}>
-                      <FormItem
-                        validateStatus={sobrenomeError ? 'error' : ''}
-                        help={sobrenomeError || ''}
-                      >
-                        {getFieldDecorator('sobrenome', {
-                          rules: [
-                            {
-                              required: true,
-                              message: 'Entre com o sobrenome'
-                            }
-                          ]
-                        })(<Input placeholder="Sobrenome" />)}
-                      </FormItem>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col span={12}>
-                      <FormItem
-                        validateStatus={usernameError ? 'error' : ''}
-                        help={usernameError || ''}
-                      >
-                        {getFieldDecorator('username', {
-                          rules: [
-                            {
-                              required: true,
-                              message: 'Entre com o usuário'
-                            }
-                          ]
-                        })(<Input placeholder="Usuário" />)}
-                      </FormItem>
-                    </Col>
-                    <Col span={12}>
-                      <FormItem
-                        validateStatus={passwordError ? 'error' : ''}
-                        help={passwordError || ''}
-                      >
-                        {getFieldDecorator('password', {
-                          rules: [
-                            {
-                              required: true,
-                              message: 'Por favor entre com sua senha!'
-                            }
-                          ]
-                        })(<Input.Password type="password" placeholder="Senha" />)}
-                      </FormItem>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col span={12} className="esquerda">
-                      <FormItem
-                        validateStatus={emailError ? 'error' : ''}
-                        help={emailError || ''}
-                      >
-                        {getFieldDecorator('email', {
-                          rules: [
-                            {
-                              required: true,
-                              message: 'Entre com o e-mail'
-                            },
-                            {
-                              type: 'email',
-                              message: 'Formato de e-mail inválido'
-                            }
-                          ]
-                        })(<Input type="email" placeholder="E-mail" />)}
-                      </FormItem>
-                    </Col>
-                    <Col span={12} className="esquerda">
-                      <FormItem
-                        validateStatus={telefoneError ? 'error' : ''}
-                        help={telefoneError || ''}
-                      >
-                        {getFieldDecorator('telefone', {
-                          rules: [
-                            {
-                              required: true,
-                              message: 'Entre com o telefone'
-                            }
-                          ]
-                        })(
-                          <Input
-                            placeholder="Telefone"
-                            onChange={this.phoneMask}
-                          />
-                        )}
-                      </FormItem>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col span={12}>
-                      <FormItem
-                        validateStatus={construtorasError ? 'error' : ''}
-                        help={construtorasError || ''}
-                      >
-                        {getFieldDecorator('construtoras', {
-                          rules: [
-                            {
-                              required: true,
-                              message: 'Escolha a construtora'
-                            }
-                          ]
-                        })(
-                          <Select
-                            showSearch
-                            mode="multiple"
-                            style={{ width: '100%' }}
-                            placeholder="Escolha a construtora"
-                            optionFilterProp="children"
-                            onChange={this.selectInfoCond}
-                            filterOption={(input, option) =>
-                              option.props.children
-                                .toLowerCase()
-                                .indexOf(input.toLowerCase()) >= 0
-                            }
-                          >
-                            {this.props.construtoras.map(
-                              (construtora, index) => {
+            <Spin spinning={this.state.enviando}>
+              <Form
+                onSubmit={e => {
+                  this.state.editar
+                    ? this.handleUpdate(e)
+                    : this.handleClientes(e);
+                }}
+                style={{ width: '90%', marginTop: '1rem' }}
+              >
+                <Row gutter={16}>
+                  <Col span={8} className="centralizado">
+                    <ModalAvatar
+                      imagem={this.state.imagem}
+                      saveImage={this.saveImage}
+                    />
+                    <RadioGroup
+                      onChange={this.onChange}
+                      value={this.state.ativo}
+                    >
+                      <Radio style={radioStyle} value={1}>
+                        Ativo
+                      </Radio>
+                      <Radio style={radioStyle} value={0}>
+                        Inativo
+                      </Radio>
+                    </RadioGroup>
+                  </Col>
+                  <Col span={16}>
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <FormItem
+                          validateStatus={nomeError ? 'error' : ''}
+                          help={nomeError || ''}
+                        >
+                          {getFieldDecorator('nome', {
+                            rules: [
+                              {
+                                required: true,
+                                message: 'Entre com o nome'
+                              }
+                            ]
+                          })(<Input placeholder="Nome" />)}
+                        </FormItem>
+                      </Col>
+                      <Col span={12}>
+                        <FormItem
+                          validateStatus={sobrenomeError ? 'error' : ''}
+                          help={sobrenomeError || ''}
+                        >
+                          {getFieldDecorator('sobrenome', {
+                            rules: [
+                              {
+                                required: true,
+                                message: 'Entre com o sobrenome'
+                              }
+                            ]
+                          })(<Input placeholder="Sobrenome" />)}
+                        </FormItem>
+                      </Col>
+                    </Row>
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <FormItem
+                          validateStatus={usernameError ? 'error' : ''}
+                          help={usernameError || ''}
+                        >
+                          {getFieldDecorator('username', {
+                            rules: [
+                              {
+                                required: true,
+                                message: 'Entre com o usuário'
+                              }
+                            ]
+                          })(<Input placeholder="Usuário" />)}
+                        </FormItem>
+                      </Col>
+                      <Col span={12}>
+                        <FormItem
+                          validateStatus={passwordError ? 'error' : ''}
+                          help={passwordError || ''}
+                        >
+                          {getFieldDecorator('password', {
+                            rules: [
+                              {
+                                required: true,
+                                message: 'Por favor entre com sua senha!'
+                              }
+                            ]
+                          })(
+                            <Input.Password
+                              type="password"
+                              placeholder="Senha"
+                            />
+                          )}
+                        </FormItem>
+                      </Col>
+                    </Row>
+                    <Row gutter={16}>
+                      <Col span={12} className="esquerda">
+                        <FormItem
+                          validateStatus={emailError ? 'error' : ''}
+                          help={emailError || ''}
+                        >
+                          {getFieldDecorator('email', {
+                            rules: [
+                              {
+                                required: true,
+                                message: 'Entre com o e-mail'
+                              },
+                              {
+                                type: 'email',
+                                message: 'Formato de e-mail inválido'
+                              }
+                            ]
+                          })(<Input type="email" placeholder="E-mail" />)}
+                        </FormItem>
+                      </Col>
+                      <Col span={12} className="esquerda">
+                        <FormItem
+                          validateStatus={telefoneError ? 'error' : ''}
+                          help={telefoneError || ''}
+                        >
+                          {getFieldDecorator('telefone', {
+                            rules: [
+                              {
+                                required: true,
+                                message: 'Entre com o telefone'
+                              }
+                            ]
+                          })(
+                            <Input
+                              placeholder="Telefone"
+                              onChange={this.phoneMask}
+                            />
+                          )}
+                        </FormItem>
+                      </Col>
+                    </Row>
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <FormItem
+                          validateStatus={construtorasError ? 'error' : ''}
+                          help={construtorasError || ''}
+                        >
+                          {getFieldDecorator('construtoras', {
+                            rules: [
+                              {
+                                required: true,
+                                message: 'Escolha a construtora'
+                              }
+                            ]
+                          })(
+                            <Select
+                              showSearch
+                              mode="multiple"
+                              style={{ width: '100%' }}
+                              placeholder="Escolha a construtora"
+                              optionFilterProp="children"
+                              onChange={this.selectInfoCond}
+                              filterOption={(input, option) =>
+                                option.props.children
+                                  .toLowerCase()
+                                  .indexOf(input.toLowerCase()) >= 0
+                              }
+                            >
+                              {this.props.construtoras.map(
+                                (construtora, index) => {
+                                  return (
+                                    <Option
+                                      value={construtora._id}
+                                      key={construtora.id + index}
+                                    >
+                                      {construtora.nome}
+                                    </Option>
+                                  );
+                                }
+                              )}
+                            </Select>
+                          )}
+                        </FormItem>
+                      </Col>
+                      <Col span={12}>
+                        <FormItem
+                          validateStatus={condominiosError ? 'error' : ''}
+                          help={condominiosError || ''}
+                        >
+                          {getFieldDecorator('condominios', {
+                            rules: [
+                              {
+                                required: true,
+                                message: 'Escolha o condomínio'
+                              }
+                            ]
+                          })(
+                            <Select
+                              showSearch
+                              mode="multiple"
+                              style={{ width: '100%' }}
+                              placeholder={
+                                this.state.disabledCond
+                                  ? 'Escolha a construtora para habilitar esta opção'
+                                  : 'Escolha o condomínio'
+                              }
+                              disabled={this.state.disabledCond}
+                              optionFilterProp="children"
+                              onChange={this.selectInfoTipo}
+                              filterOption={(input, option) =>
+                                option.props.children
+                                  .toLowerCase()
+                                  .indexOf(input.toLowerCase()) >= 0
+                              }
+                            >
+                              {this.state.condominios.map(
+                                (condominio, index) => {
+                                  return (
+                                    <Option
+                                      value={condominio._id}
+                                      key={condominio.id + index}
+                                    >
+                                      {condominio.nome}
+                                    </Option>
+                                  );
+                                }
+                              )}
+                            </Select>
+                          )}
+                        </FormItem>
+                      </Col>
+                    </Row>
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <FormItem
+                          validateStatus={tipoError ? 'error' : ''}
+                          help={tipoError || ''}
+                        >
+                          {getFieldDecorator('tipo')(
+                            <Select
+                              mode="multiple"
+                              showSearch
+                              //mode="tags"
+                              style={{ width: '350px' }}
+                              placeholder={
+                                this.state.disabledTipo
+                                  ? 'Escolha o condomínio para habilitar esta opção'
+                                  : 'Escolha a tipologia'
+                              }
+                              disabled={this.state.disabledTipo}
+                              optionFilterProp="children"
+                              onChange={this.tipologiaChange}
+                              filterOption={(input, option) =>
+                                option.props.children
+                                  .toLowerCase()
+                                  .indexOf(input.toLowerCase()) >= 0
+                              }
+                            >
+                              {this.state.tipo.map((value, index) => {
                                 return (
-                                  <Option
-                                    value={construtora._id}
-                                    key={construtora.id + index}
-                                  >
-                                    {construtora.nome}
+                                  <Option value={value.id} key={index}>
+                                    {value.nome}
                                   </Option>
                                 );
+                              })}
+                            </Select>
+                          )}
+                        </FormItem>
+                      </Col>
+                      <Col span={12}>
+                        <FormItem
+                          validateStatus={unidadesAutonomasError ? 'error' : ''}
+                          help={unidadesAutonomasError || ''}
+                        >
+                          {getFieldDecorator('unidadesAutonomas', {
+                            rules: [
+                              {
+                                required: true,
+                                message: 'Escolha a unidade'
                               }
-                            )}
-                          </Select>
-                        )}
-                      </FormItem>
-                    </Col>
-                    <Col span={12}>
-                      <FormItem
-                        validateStatus={condominiosError ? 'error' : ''}
-                        help={condominiosError || ''}
-                      >
-                        {getFieldDecorator('condominios', {
-                          rules: [
-                            {
-                              required: true,
-                              message: 'Escolha o condomínio'
-                            }
-                          ]
-                        })(
-                          <Select
-                            showSearch
-                            mode="multiple"
-                            style={{ width: '100%' }}
-                            placeholder={
-                              this.state.disabledCond
-                                ? 'Escolha a construtora para habilitar esta opção'
-                                : 'Escolha o condomínio'
-                            }
-                            disabled={this.state.disabledCond}
-                            optionFilterProp="children"
-                            onChange={this.selectInfoTipo}
-                            filterOption={(input, option) =>
-                              option.props.children
-                                .toLowerCase()
-                                .indexOf(input.toLowerCase()) >= 0
-                            }
-                          >
-                            {this.state.condominios.map((condominio, index) => {
-                              return (
-                                <Option
-                                  value={condominio._id}
-                                  key={condominio.id + index}
-                                >
-                                  {condominio.nome}
-                                </Option>
-                              );
-                            })}
-                          </Select>
-                        )}
-                      </FormItem>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col span={12}>
-                      <FormItem
-                        validateStatus={tipoError ? 'error' : ''}
-                        help={tipoError || ''}
-                      >
-                        {getFieldDecorator('tipo')(
-                          <Select
-                            showSearch
-                            //mode="tags"
-                            style={{ width: '350px' }}
-                            placeholder={
-                              this.state.disabledTipo
-                                ? 'Escolha o condomínio para habilitar esta opção'
-                                : 'Escolha a tipologia'
-                            }
-                            disabled={this.state.disabledTipo}
-                            optionFilterProp="children"
-                            onChange={this.tipologiaChange}
-                            filterOption={(input, option) =>
-                              option.props.children
-                                .toLowerCase()
-                                .indexOf(input.toLowerCase()) >= 0
-                            }
-                          >
-                            {this.state.tipo.map((value, index) => {
-                              return (
-                                <Option value={value.id} key={index}>
-                                  {value.nome}
-                                </Option>
-                              );
-                            })}
-                          </Select>
-                        )}
-                      </FormItem>
-                    </Col>
-                    <Col span={12}>
-                      <FormItem
-                        validateStatus={unidadesAutonomasError ? 'error' : ''}
-                        help={unidadesAutonomasError || ''}
-                      >
-                        {getFieldDecorator('unidadesAutonomas', {
-                          rules: [
-                            {
-                              required: true,
-                              message: 'Escolha a unidade'
-                            }
-                          ]
-                        })(
-                          <Select
-                            showSearch
-                            mode="multiple"
-                            style={{ width: '100%' }}
-                            placeholder={
-                              this.state.disabledTipo
-                                ? 'Escolha o condomínio para habilitar esta opção'
-                                : 'Escolha a unidade'
-                            }
-                            disabled={this.state.disabledTipo}
-                            optionFilterProp="children"
-                            onChange={this.handleChange}
-                            filterOption={(input, option) =>
-                              option.props.children
-                                .toLowerCase()
-                                .indexOf(input.toLowerCase()) >= 0
-                            }
-                          >
-                            {this.state.tipologias.map((unidade, i) => {
-                              return (
-                                <Option
-                                  value={unidade._id}
-                                  key={unidade._id + i}
-                                >
-                                  {unidade.nome}
-                                </Option>
-                              );
-                            })}
-                          </Select>
-                        )}
-                      </FormItem>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col span={12} className="esquerda">
-                      <RadioGroup
-                        onChange={this.tipoChange}
-                        value={this.state.tipo_morador}
-                      >
-                        <Radio value={1}>Morador</Radio>
-                        <Radio value={0}>Síndico/zelador</Radio>
-                      </RadioGroup>
-                    </Col>
-                  </Row>
-                </Col>
-                {this.state.editar && (
+                            ]
+                          })(
+                            <Select
+                              showSearch
+                              mode="multiple"
+                              style={{ width: '100%' }}
+                              placeholder={
+                                this.state.disabledTipo
+                                  ? 'Escolha o condomínio para habilitar esta opção'
+                                  : 'Escolha a unidade'
+                              }
+                              disabled={this.state.disabledTipo}
+                              optionFilterProp="children"
+                              onChange={this.handleChange}
+                              filterOption={(input, option) =>
+                                option.props.children
+                                  .toLowerCase()
+                                  .indexOf(input.toLowerCase()) >= 0
+                              }
+                            >
+                              {this.state.unidades
+                                ? this.state.unidades.map((unidade, i) => {
+                                    return (
+                                      <Option
+                                        value={unidade._id}
+                                        key={unidade._id + i}
+                                      >
+                                        {unidade.nome}
+                                      </Option>
+                                    );
+                                  })
+                                : null}
+                            </Select>
+                          )}
+                        </FormItem>
+                      </Col>
+                    </Row>
+                    <Row gutter={16}>
+                      <Col span={12} className="esquerda">
+                        <RadioGroup
+                          onChange={this.tipoChange}
+                          value={this.state.tipo_morador}
+                        >
+                          <Radio value={1}>Morador</Radio>
+                          <Radio value={0}>Síndico/zelador</Radio>
+                        </RadioGroup>
+                      </Col>
+                    </Row>
+                  </Col>
+                  {this.state.editar && (
+                    <Button
+                      style={{
+                        float: 'right',
+                        marginBottom: '2rem',
+                        marginLeft: '1rem'
+                      }}
+                      onClick={this.cancelarEdicao}
+                    >
+                      Cancelar
+                    </Button>
+                  )}
                   <Button
-                    style={{
-                      float: 'right',
-                      marginBottom: '2rem',
-                      marginLeft: '1rem'
-                    }}
-                    onClick={this.cancelarEdicao}
+                    type="primary"
+                    htmlType="submit"
+                    style={{ float: 'right', marginBottom: '2rem' }}
+                    loading={this.state.enviando}
+                    disabled={
+                      hasErrors(getFieldsError()) || this.state.enviando
+                    }
                   >
-                    Cancelar
+                    {this.state.editar ? 'Editar' : 'Concluir'}
                   </Button>
-                )}
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  style={{ float: 'right', marginBottom: '2rem' }}
-                  loading={this.state.enviando}
-                  disabled={hasErrors(getFieldsError()) || this.state.enviando}
-                >
-                  {this.state.editar ? 'Editar' : 'Concluir'}
-                </Button>
-              </Row>
-            </Form>
+                </Row>
+              </Form>
+            </Spin>
           </Permissao>
-          {/* <Permissao codTela={this.state.codTela} permissaoNecessaria={[1, 2]}>
+          <Permissao codTela={this.state.codTela} permissaoNecessaria={[1, 2]}>
             <span
               style={{
                 color: '#757575',
@@ -779,7 +776,7 @@ class ClientesForm extends React.Component {
                 />
               </Col>
             </Row>
-          </Permissao> */}
+          </Permissao>
         </div>
         <div
           style={{
@@ -805,6 +802,7 @@ export default (Clientes = connect(store => {
   return {
     condominios: store.condominios.data,
     construtoras: store.construtoras.data,
-    clientes: store.clientes.data
+    clientes: store.clientes.data,
+    tipologia: store.tipologia.data
   };
 })(Clientes));

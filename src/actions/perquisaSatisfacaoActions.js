@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { url } from '../utilities/constants';
 
-export function fetchPerguntas() {
+export function fetchPesquisa() {
   return function(dispatch) {
     dispatch({
-      type: 'GET_PERGUNTAS',
+      type: 'GET_PESQUISA',
       payload: {}
     });
     let auth = localStorage.getItem('jwt');
@@ -16,13 +16,13 @@ export function fetchPerguntas() {
       .get(`${url}/pesquisasatisfacaos`, config)
       .then(res => {
         dispatch({
-          type: 'GET_PERGUNTAS_SUCCESS',
+          type: 'GET_PESQUISA_SUCCESS',
           payload: res.data
         });
       })
       .catch(err => {
         dispatch({
-          type: 'GET_PERGUNTAS_ERROR',
+          type: 'GET_PESQUISA_ERROR',
           payload: 'deu erro'
         });
       });

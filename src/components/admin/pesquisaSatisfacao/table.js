@@ -124,7 +124,7 @@ class TablePesquisa extends React.Component {
 
     axios
       .delete(`${url}/pesquisasatisfacaos/${id}`, config)
-      .then(res => {
+      .then(() => {
         notification.open({
           message: 'Ok!',
           description: 'Pergunta deletada com sucesso!',
