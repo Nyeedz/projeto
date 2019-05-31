@@ -38,6 +38,20 @@ class UnidadeForm extends React.Component {
     tipologia: [],
     disabledCond: true,
     disabledTipo: true,
+    statusPermissoes: [
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 }
+    ],
     codTela: null,
     loadingUnidades: false,
     unidades: []

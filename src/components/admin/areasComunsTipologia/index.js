@@ -40,6 +40,20 @@ class AreasComunsForm extends React.Component {
     tipologia: [],
     disabledTipo: true,
     disabledCond: true,
+    statusPermissoes: [
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 }
+    ],
     codTela: null
   };
 

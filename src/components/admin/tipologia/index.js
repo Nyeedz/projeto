@@ -43,6 +43,20 @@ class TipologiaForm extends React.Component {
     editar: null,
     condominios: [],
     disabled: true,
+    statusPermissoes: [
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 }
+    ],
     codTela: null
   };
 

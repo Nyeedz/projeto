@@ -14,7 +14,7 @@ import axios from 'axios';
 import { url, CODE_EDITAR } from '../../../utilities/constants';
 import Permissao from '../permissoes/permissoes';
 
-class TableClientes extends React.Component {
+class TableFuncionarios extends React.Component {
   state = {
     data: [],
     pagination: {},

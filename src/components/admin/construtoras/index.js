@@ -38,6 +38,20 @@ class ConstrutoraForm extends React.Component {
     enviando: false,
     imagem: null,
     ativo: 1,
+    statusPermissoes: [
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 }
+    ],
     codTela: null
   };
 

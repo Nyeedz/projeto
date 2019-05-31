@@ -52,6 +52,20 @@ class CondominiosForm extends React.Component {
     download: true,
     loading: false,
     contrato: null,
+    statusPermissoes: [
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 }
+    ],
     codTela: null,
     enviandoContrato: false
   };

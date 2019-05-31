@@ -19,8 +19,9 @@ import { url, funcionarioId } from '../../../utilities/constants';
 import { fetchCondominios } from '../../../actions/condominioActions';
 import { fetchConstrutoras } from '../../../actions/construtoraActions';
 import { fetchClientes } from '../../../actions/clientesActions';
-import TableClientes from '../clientes/table';
+import TableFuncionarios from './table';
 import ModalAvatar from './avatar';
+import { getCodePath } from '../../../utilities/functions';
 import Permissao from '../permissoes/permissoes';
 
 const { Content } = Layout;
@@ -70,8 +71,10 @@ class FuncionarioForm extends React.Component {
       { status: 0 },
       { status: 0 },
       { status: 0 },
+      { status: 0 },
       { status: 0 }
-    ]
+    ],
+    codTela: null
   };
 
   onChangePermissoes = (event, id) => {
@@ -107,6 +110,10 @@ class FuncionarioForm extends React.Component {
 
   componentDidMount = () => {
     this.dispatchCondominios();
+    const path = this.props.history.location.pathname;
+    this.setState({
+      codTela: getCodePath(path)
+    });
   };
 
   dispatchCondominios = () => {
@@ -958,7 +965,7 @@ class FuncionarioForm extends React.Component {
             <Divider />
             <Row>
               <Col span={24}>
-                <TableClientes
+                <TableFuncionarios
                   codTela={this.state.codTela}
                   clientes={this.props.clientes}
                   dispatchClientes={this.dispatchCondominios}

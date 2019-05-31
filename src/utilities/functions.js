@@ -32,6 +32,9 @@ export function getCodePath(path) {
 
     case '/admin/chamados':
       return 10;
+
+    case '/admin/funcionario':
+      return 11;
     default:
       return null;
   }

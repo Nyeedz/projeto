@@ -47,6 +47,20 @@ class ClientesForm extends React.Component {
     clientes: [],
     disabledCond: true,
     disabledTipo: true,
+    statusPermissoes: [
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 },
+      { status: 0 }
+    ],
     codTela: null,
     tipo: []
   };
