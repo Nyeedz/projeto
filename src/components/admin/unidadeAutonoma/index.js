@@ -420,7 +420,7 @@ class UnidadeForm extends React.Component {
 
     const unidadesAutonomas = keys.map((k, index) => {
       return (
-        <React.Fragment>
+        <React.Fragment key={k + index + 'fragment'}>
           {getFieldDecorator(`ids[${k}]`)(
             <div key={`ids${k + index + 'ids'}`} />
           )}

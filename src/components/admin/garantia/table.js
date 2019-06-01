@@ -215,12 +215,12 @@ class TableGarantia extends React.Component {
         key: 'condominio.id',
         render: text => <p key={text.id}>{text.nome}</p>
       },
-      // {
-      //   title: 'Tipologia',
-      //   dataIndex: 'tipologia',
-      //   key: 'tipologia.id',
-      //   render: text => <p key={text.id}>{text.nome}</p>
-      // },
+      {
+        title: 'Tipologia',
+        dataIndex: 'tipologia',
+        key: 'tipologia.id',
+        render: text => <p key={text.id}>{text.nome}</p>
+      },
       {
         title: 'Tempo garantia',
         dataIndex: 'subitem',
@@ -229,7 +229,8 @@ class TableGarantia extends React.Component {
           Object.keys(text).map((x, i) => {
             return (
               <p key={text[x] + i}>
-                {text[x].tempo_garantia || 'ato da entrega'} {prefix[text[x].unidade_garantia]}
+                {text[x].tempo_garantia || 'ato da entrega'}{' '}
+                {prefix[text[x].unidade_garantia]}
               </p>
             );
           })
@@ -251,10 +252,12 @@ class TableGarantia extends React.Component {
           Object.keys(text).map((x, i) => {
             return (
               <p key={text[x] + i}>
-                {!text[x].tempo_garantia ? '--' : moment(text[x].data_inicio, 'DD/MM/YYYY')
-                  .add(text[x].tempo_garantia, text[x].unidade_garantia)
-                  .format('DD/MM/YYYY')
-                  .toString()}
+                {!text[x].tempo_garantia
+                  ? '--'
+                  : moment(text[x].data_inicio, 'DD/MM/YYYY')
+                      .add(text[x].tempo_garantia, text[x].unidade_garantia)
+                      .format('DD/MM/YYYY')
+                      .toString()}
               </p>
             );
           })

@@ -16,7 +16,8 @@ export default function(
     condominios: [],
     construtoras: [],
     unidadesAutonomas: [],
-    torres: [],
+    tipologias: [],
+    unidades: [],
     fotosChamados: [],
     chamado: [],
     permissoes: null
@@ -42,7 +43,8 @@ export default function(
         construtoras: action.payload.construtoras || state.construtoras,
         unidadesAutonomas:
           action.payload.unidadesAutonomas || state.unidadesAutonomas,
-        torres: action.payload.torres || state.torres,
+        tipologias: action.payload.tipologias || state.tipologias,
+        unidades: action.payload.unidades || state.unidades,
         fotosChamado: action.payload.fotosChamado || state.fotosChamado,
         chamado: action.payload.chamado || state.chamado,
         username: action.payload.username || state.username,
@@ -68,7 +70,7 @@ export default function(
         condominios: [],
         construtoras: [],
         unidadesAutonomas: [],
-        torres: [],
+        tipologias: [],
         fotosChamado: [],
         chamado: [],
         permissoes: null

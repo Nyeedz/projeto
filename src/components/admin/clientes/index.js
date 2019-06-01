@@ -191,11 +191,12 @@ class ClientesForm extends React.Component {
             },
             config
           )
-          .then(res => {
+          .then(() => {
             notification.open({
               message: 'Ok',
               description: 'Cliente editado com sucesso!'
             });
+            this.props.dispatch(fetchClientes());
             this.props.form.resetFields();
             this.setState({
               enviando: false,
@@ -203,9 +204,8 @@ class ClientesForm extends React.Component {
               editar: false,
               id: null
             });
-            this.props.dispatch(fetchClientes());
           })
-          .catch(error => {
+          .catch(() => {
             notification.open({
               message: 'Opps!',
               description: 'Erro ao editar o cliente!'
@@ -277,6 +277,8 @@ class ClientesForm extends React.Component {
                   description: 'Cliente cadastrado com sucesso!',
                   icon: <Icon type="check" style={{ color: 'green' }} />
                 });
+
+                this.props.dispatch(fetchClientes());
                 this.props.form.resetFields();
                 this.setState({
                   enviando: false,

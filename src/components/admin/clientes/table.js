@@ -129,7 +129,7 @@ class TableClientes extends React.Component {
 
     axios
       .delete(`${url}/users/${id}`, config)
-      .then(res => {
+      .then(() => {
         notification.open({
           message: 'Ok!',
           description: 'Cliente deletado com sucesso!',

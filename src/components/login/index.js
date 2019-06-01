@@ -62,7 +62,8 @@ class LoginForm extends React.Component {
               sobrenome: res.data.user.sobrenome,
               telefone: res.data.user.telefone,
               permissoes: res.data.user.permissoes,
-              fotosChamado: res.data.user.fotosChamado
+              fotosChamado: res.data.user.fotosChamado,
+              unidades: res.data.user.unidades
             };
             this.props.dispatch(saveUser(objUser));
             const config = {

@@ -67,7 +67,7 @@ class AberturaChamadoForm extends React.Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        let unidades = '';
+        ('');
         this.setState({
           uploading: true,
           enviando: true
@@ -77,151 +77,77 @@ class AberturaChamadoForm extends React.Component {
         const config = {
           headers: { Authorization: `Bearer ${auth}` }
         };
-        if (values.unidades !== undefined || values.unidades) {
-          unidades = values.unidade.split('_');
-          axios
-            .post(
-              `${url}/chamados`,
-              {
-                condominio: values.condominios,
-                tipologia: values.tipologia,
-                unidade: unidades,
-                comentario: values.comentario,
-                contato: values.contato,
-                user:
-                  this.state.idUser ||
-                  this.props.user.id ||
-                  localStorage.getItem('id'),
-                data_visita: values.validade,
-                garantia: values.nome_item,
-                problema_repetido: this.state.problema_repetido,
-                status: VISITA_ANALISE_TECNICA
-              },
-              config
-            )
-            .then(res => {
-              const { fileList } = this.state;
-              const fotosChamado = new FormData();
-              fotosChamado.append('ref', 'chamados');
-              fotosChamado.append('refId', res.data.id);
-              fotosChamado.append('field', 'files');
-              fileList.forEach(file => {
-                fotosChamado.append('files', file, file.name);
-              });
 
-              const configUpload = {
-                headers: {
-                  Accept: 'multipart/form-data',
-                  'Content-Type': 'multipart/form-data',
-                  Authorization: `Bearer ${auth}`
-                }
-              };
-              axios
-                .post(`${url}/upload`, fotosChamado, configUpload)
-                .then(res => {
-                  this.setState({
-                    fileList: [],
-                    uploading: false,
-                    enviando: false,
-                    condominios: false,
-                    mostrarDados: false
-                  });
-                  this.props.form.resetFields();
-                  this.props.next();
-                  message.success('Chamado enviado com sucesso');
-                })
-                .catch(error => {
-                  this.setState({
-                    uploading: false,
-                    enviando: false,
-                    idUser: null
-                  });
-                  console.log(error);
-                  message.error('Erro ao enviar o arquivo.');
-                });
-            })
-            .catch(error => {
-              message.error('Erro ao abrir o chamado.');
-              console.log(error);
-              this.setState({
-                enviando: false,
-                uploading: false,
-                idUser: null
-              });
+        axios
+          .post(
+            `${url}/chamados`,
+            {
+              condominio: values.condominios,
+              tipologia: values.tipologia,
+              unidade: values.unidade,
+              comentario: values.comentario,
+              contato: values.contato,
+              user:
+                this.state.idUser ||
+                this.props.user.id ||
+                localStorage.getItem('id'),
+              data_visita: values.validade,
+              garantia: values.nome_item,
+              problema_repetido: this.state.problema_repetido,
+              status: VISITA_ANALISE_TECNICA
+            },
+            config
+          )
+          .then(res => {
+            const { fileList } = this.state;
+            const fotosChamado = new FormData();
+            fotosChamado.append('ref', 'chamados');
+            fotosChamado.append('refId', res.data.id);
+            fotosChamado.append('field', 'files');
+            fileList.forEach(file => {
+              fotosChamado.append('files', file, file.name);
             });
-        } else {
-          axios
-            .post(
-              `${url}/chamados`,
-              {
-                condominio: values.condominios,
-                areascomun: values.areas_comuns,
-                areasgerais: values.areas_gerais,
-                tipologia: values.tipologia,
-                comentario: values.comentario,
-                contato: values.contato,
-                user:
-                  this.state.idUser ||
-                  this.props.user.id ||
-                  localStorage.getItem('id'),
-                data_visita: values.validade,
-                garantia: values.nome_item,
-                problema_repetido: this.state.problema_repetido,
-                status: VISITA_ANALISE_TECNICA
-              },
-              config
-            )
-            .then(res => {
-              const { fileList } = this.state;
-              const fotosChamado = new FormData();
-              fotosChamado.append('ref', 'chamados');
-              fotosChamado.append('refId', res.data.id);
-              fotosChamado.append('field', 'files');
-              fileList.forEach(file => {
-                fotosChamado.append('files', file, file.name);
-              });
 
-              const configUpload = {
-                headers: {
-                  Accept: 'multipart/form-data',
-                  'Content-Type': 'multipart/form-data',
-                  Authorization: `Bearer ${auth}`
-                }
-              };
-              axios
-                .post(`${url}/upload`, fotosChamado, configUpload)
-                .then(res => {
-                  this.setState({
-                    fileList: [],
-                    uploading: false,
-                    enviando: false,
-                    condominios: false,
-                    mostrarDados: false
-                  });
-                  this.props.form.resetFields();
-                  this.props.next();
-                  message.success('Chamado enviado com sucesso');
-                })
-                .catch(error => {
-                  this.setState({
-                    uploading: false,
-                    enviando: false,
-                    idUser: null
-                  });
-                  console.log(error);
-                  message.error('Erro ao enviar o arquivo.');
+            const configUpload = {
+              headers: {
+                Accept: 'multipart/form-data',
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${auth}`
+              }
+            };
+            axios
+              .post(`${url}/upload`, fotosChamado, configUpload)
+              .then(() => {
+                this.setState({
+                  fileList: [],
+                  uploading: false,
+                  enviando: false,
+                  condominios: false,
+                  mostrarDados: false
                 });
-            })
-            .catch(error => {
-              message.error('Erro ao abrir o chamado.');
-              console.log(error);
-              this.setState({
-                enviando: false,
-                uploading: false,
-                idUser: null
+                this.props.form.resetFields();
+                this.props.next();
+                message.success('Chamado enviado com sucesso');
+              })
+              .catch(error => {
+                this.setState({
+                  uploading: false,
+                  enviando: false,
+                  idUser: null
+                });
+                console.log(error);
+                message.error('Erro ao enviar o arquivo.');
               });
+          })
+          .catch(error => {
+            message.error('Erro ao abrir o chamado.');
+            console.log(error);
+            this.setState({
+              enviando: false,
+              uploading: false,
+              idUser: null
             });
-        }
+          });
       }
     });
   };
@@ -232,27 +158,29 @@ class AberturaChamadoForm extends React.Component {
     const config = {
       headers: { Authorization: `Bearer ${auth}` }
     };
-    let cond = '';
+    let cond = [];
     axios
       .get(`${url}/users/me`, config)
       .then(res => {
         this.setState({ idUser: res.data._id });
         cond = res.data.condominios.filter(condominio => condominio._id === id);
-        cond.map(idCond => {
-          return this.setState({ idCond: idCond._id });
-        });
         axios
-          .get(`${url}/condominios/${this.state.idCond}`, config)
+          .get(`${url}/users/me`, config)
           .then(res => {
-            this.setState({
-              condominios: res.data,
-              garantiaArray: res.data.garantias,
-              tipologia: res.data.torres,
-              areas_gerais: res.data.areasgerais,
-              areas_comuns: res.data.areascomuns,
-              disabledTipologia: false,
-              enviando: false,
-              mostrarDados: true
+            res.data.tipologias.map(value => {
+              axios
+                .get(`${url}/tipologias/${value._id}`, config)
+                .then(tipologia => {
+                  this.setState({
+                    condominios: res.data.condominios,
+                    garantiaArray: tipologia.data.garantias,
+                    tipologia: res.data.tipologias,
+                    unidades: res.data.unidades,
+                    disabledTipologia: false,
+                    enviando: false,
+                    mostrarDados: true
+                  });
+                });
             });
           })
           .catch(error => {
@@ -546,18 +474,16 @@ class AberturaChamadoForm extends React.Component {
                             }
                             disabled={this.state.disabledUnidade}
                           >
-                            {this.state.unidades_condominios.map(
-                              (unidade, i) => {
-                                return (
-                                  <Option
-                                    value={unidade._id}
-                                    key={unidade._id + i}
-                                  >
-                                    {unidade.nome}
-                                  </Option>
-                                );
-                              }
-                            )}
+                            {this.state.unidades.map((unidade, i) => {
+                              return (
+                                <Option
+                                  value={unidade._id}
+                                  key={unidade._id + i}
+                                >
+                                  {unidade.nome}
+                                </Option>
+                              );
+                            })}
                           </Select>
                         )}
                       </FormItem>
@@ -565,7 +491,7 @@ class AberturaChamadoForm extends React.Component {
                   ) : null}
                 </Col>
                 <Col span={6}>
-                  {this.state.mostrarDados === true ? (
+                  {this.props.user.tipo_morador === false ? (
                     <Spin spinning={this.state.enviando}>
                       <FormItem
                         validateStatus={areas_comunsError ? 'error' : ''}
@@ -614,7 +540,7 @@ class AberturaChamadoForm extends React.Component {
                   ) : null}
                 </Col>
                 <Col span={6}>
-                  {this.state.mostrarDados === true ? (
+                  {this.props.user.tipo_morador === false ? (
                     <Spin spinning={this.state.enviando}>
                       <FormItem
                         validateStatus={areas_geraisError ? 'error' : ''}

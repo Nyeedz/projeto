@@ -25,34 +25,22 @@ class Chamados extends React.Component {
       status: 1
     },
     {
-      title: 'Laudo',
-      description: 'de vistoria',
-      content: 'laudo',
+      title: 'Parecer',
+      description: 'técnico',
+      content: 'parecer',
       status: 2
     },
     {
-      title: 'Abertura',
-      content: 'abertura-os',
-      description: 'de OS',
+      title: 'Execução',
+      content: 'do chamado',
+      description: 'do chamado',
       status: 3
     },
     {
-      title: 'Execução',
-      content: 'execucao-os',
-      description: 'de OS',
+      title: 'Análise',
+      content: 'do cliente',
+      description: 'do cliente',
       status: 4
-    },
-    {
-      title: 'Fechamento',
-      content: 'fechamento-chamado',
-      description: 'do chamado',
-      status: 5
-    },
-    {
-      title: 'Pesquisa',
-      content: <PesquisaSatisfacao />,
-      description: 'de satisfação',
-      status: 6
     }
   ];
 
@@ -78,7 +66,7 @@ class Chamados extends React.Component {
         config
       )
       .then(res => {
-        const chamado = res.data.chamado;
+        const chamado = res.data.chamados;
         if (chamado) {
           chamado.map(value => {
             this.setState({ current: value.status });

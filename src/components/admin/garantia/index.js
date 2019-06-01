@@ -39,7 +39,7 @@ class GarantiaForm extends React.Component {
     enviando: false,
     editar: null,
     condominios: [],
-    // tipologia: [],
+    tipologia: [],
     disabledCond: true,
     disabledTipo: true,
     statusPermissoes: [
@@ -96,8 +96,8 @@ class GarantiaForm extends React.Component {
       });
 
       this.props.form.setFieldsValue({
-        nome: dados.nome
-        // torre: dados.tipologia.id
+        nome: dados.nome,
+        torre: dados.tipologia.id
       });
 
       Object.keys(dados.subitem).forEach((value, i) => {
@@ -126,7 +126,9 @@ class GarantiaForm extends React.Component {
     this.setState({
       editar: false,
       id: null,
-      enviando: false
+      enviando: false,
+      disabledCond: true,
+      disabledTipo: true
     });
   };
 
@@ -155,12 +157,12 @@ class GarantiaForm extends React.Component {
               nome: values.nome,
               construtora: values.construtoras,
               condominio: values.condominios,
-              // tipologia: values.torre,
+              tipologia: values.torre,
               subitem: itens
             },
             config
           )
-          .then(res => {
+          .then(() => {
             this.props.dispatch(fetchGarantias());
             notification.open({
               message: 'Ok',
@@ -168,9 +170,13 @@ class GarantiaForm extends React.Component {
               icon: <Icon type="check" style={{ color: 'green' }} />
             });
             this.props.form.resetFields();
-            this.setState({ enviando: false });
+            this.setState({ enviando: false, disabledCond: true });
+            this.add();
+            this.props.form.setFieldsValue({
+              keys: []
+            });
           })
-          .catch(error => {
+          .catch(() => {
             notification.open({
               message: 'Opps!',
               description: 'Erro ao cadastrar a garantia!',
@@ -186,6 +192,7 @@ class GarantiaForm extends React.Component {
         });
         this.setState({ enviando: false });
       }
+      this.setState({ disabledCond: true, enviando: false });
     });
   };
 
@@ -212,12 +219,12 @@ class GarantiaForm extends React.Component {
               nome: values.nome,
               construtora: values.construtoras,
               condominio: values.condominios,
-              // tipologia: values.torre,
+              tipologia: values.torre,
               subitem: itens
             },
             config
           )
-          .then(res => {
+          .then(() => {
             this.props.dispatch(fetchGarantias());
             this.props.form.resetFields();
             this.setState({
@@ -266,7 +273,7 @@ class GarantiaForm extends React.Component {
     let tipo = this.props.condominios.filter(x => x.id === id);
     tipo.map(info => {
       return this.setState({
-        // tipologia: info.torres,
+        tipologia: info.torres,
         disabledTipo: false
       });
     });
@@ -327,7 +334,7 @@ class GarantiaForm extends React.Component {
       isFieldTouched('construtoras') && getFieldError('construtoras');
     const condominiosError =
       isFieldTouched('condominios') && getFieldError('condominios');
-    // const torreError = isFieldTouched('torre') && getFieldError('torre');
+    const torreError = isFieldTouched('torre') && getFieldError('torre');
     const nomeItemError = isFieldTouched('nome') && getFieldError('nome');
 
     getFieldDecorator('keys', { initialValue: [] });
@@ -536,7 +543,7 @@ class GarantiaForm extends React.Component {
                 </Spin>
                 <Spin spinning={this.state.enviando}>
                   <Row gutter={16}>
-                    {/* <Col span={12}>
+                    <Col span={12}>
                       <FormItem
                         validateStatus={torreError ? 'error' : ''}
                         help={torreError || ''}
@@ -577,7 +584,7 @@ class GarantiaForm extends React.Component {
                           </Select>
                         )}
                       </FormItem>
-                    </Col> */}
+                    </Col>
                     <Col span={12}>
                       <FormItem
                         validateStatus={nomeItemError ? 'error' : ''}
