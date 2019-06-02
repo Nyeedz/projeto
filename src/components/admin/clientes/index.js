@@ -657,7 +657,7 @@ class ClientesForm extends React.Component {
                               mode="multiple"
                               showSearch
                               //mode="tags"
-                              style={{ width: '350px' }}
+                              style={{ width: '100%' }}
                               placeholder={
                                 this.state.disabledTipo
                                   ? 'Escolha o condomínio para habilitar esta opção'
