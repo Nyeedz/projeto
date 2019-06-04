@@ -86,26 +86,11 @@ class ChamadosList extends Component {
     };
     let funcionarioId = '';
     axios
-      .get(
-        `${url}/users/${this.props.user.id || localStorage.getItem('id')}`,
-        config
-      )
+      .get(`${url}/users/me`, config)
       .then(res => {
-        res.data.funcionarios.map(value => {
-          return (funcionarioId = value._id);
+        res.data.condominios.map(condominio => {
+          return this.setState({ condominios_funcionario: condominio._id });
         });
-        axios
-          .get(`${url}/funcionarios/${funcionarioId}`, config)
-          .then(res => {
-            res.data.map(condominios => {
-              condominios.condominios.map(condominio => {
-                return this.setState({
-                  condominios_funcionario: condominio._id
-                });
-              });
-            });
-          })
-          .catch(error => console.log(error));
       })
       .catch(error => {
         message.error('Erro ao buscar dados do funcionário');
@@ -114,7 +99,6 @@ class ChamadosList extends Component {
   };
 
   chamadoChange = id => {
-    console.log(this.state.chamados, 'chamado');
     let chamado = this.state.chamados.filter(x => x.id === id);
     chamado.map(value => {
       this.setState({
@@ -185,7 +169,7 @@ class ChamadosList extends Component {
               </h2>
             </div>
             {this.state.condominios_funcionario === this.state.chamadosId ? (
-              <Form style={{ width: '90%' }}>
+              <Form style={{ width: '90%', marginTop: '1rem' }}>
                 <Row guter={16}>
                   <Col span={4} />
                   <Col span={20}>

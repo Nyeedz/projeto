@@ -175,6 +175,7 @@ class GarantiaForm extends React.Component {
             this.props.form.setFieldsValue({
               keys: []
             });
+            window.location.href = this.props.history.location.pathname;
           })
           .catch(() => {
             notification.open({

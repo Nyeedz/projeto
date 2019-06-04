@@ -105,8 +105,7 @@ class LoginForm extends React.Component {
       isFieldTouched
     } = this.props.form;
     const { user } = this.props;
-
-    if ((user.jwt && user.role === 'root') || user.role === 'funcionario') {
+    if ((user.jwt && user.role === 'root') || user.role === 'funcionarios') {
       message.success(
         'Escolha uma das opções do menu ao lado para navegação',
         3

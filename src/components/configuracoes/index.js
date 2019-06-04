@@ -14,7 +14,6 @@ import {
 import * as axios from 'axios';
 import { url } from '../../utilities/constants';
 import { saveUser } from '../../actions/userActions';
-import DadosCondominios from './table';
 import ModalAvatar from './avatar';
 
 const { Content } = Layout;
@@ -286,7 +285,6 @@ class Configuracao extends React.Component {
           <Divider />
           <Row type="flex" justify="center">
             <Col span={20}>
-              <DadosCondominios />
             </Col>
           </Row>
         </div>

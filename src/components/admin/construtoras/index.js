@@ -101,7 +101,6 @@ class ConstrutoraForm extends React.Component {
       id: dados.id,
       enviando: false
     });
-    this.props.form.validateFields();
   };
 
   cancelarEdicao = () => {

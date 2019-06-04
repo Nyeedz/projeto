@@ -22,6 +22,7 @@ import Configuracoes from './components/configuracoes';
 import Sobre from './components/sobre';
 import Chamados from './components/chamados';
 import ListaChamados from './components/chamados/listaChamados';
+import ListaChamadosClientes from './components/chamados/listaChamados';
 import Perfil from './components/perfil';
 
 class App extends React.Component {
@@ -34,15 +35,19 @@ class App extends React.Component {
             <Switch>
               <Route exact path="/" component={Login} />
               <Route path="/admin" component={requireAuth(Admin)} />
-              <Route path="/sobre" component={Sobre} />
+              {/* <Route path="/sobre" component={Sobre} /> */}
               <Route path="/chamados" component={requireAuth(Chamados)} />
+              <Route
+                path="/configuracoes"
+                component={requireAuth(Configuracoes)}
+              />
               <Route
                 path="/lista-chamados"
                 component={requireAuth(ListaChamados)}
               />
               <Route
-                path="/configuracoes"
-                component={requireAuth(Configuracoes)}
+                path="/lista-chamados-clientes"
+                component={requireAuth(ListaChamadosClientes)}
               />
               <Route path="/perfil" component={requireAuth(Perfil)} />
             </Switch>

@@ -99,7 +99,7 @@ class NormalLoginForm extends React.Component {
       isFieldTouched
     } = this.props.form;
     const { user } = this.props;
-
+    console.log(user.role)
     if ((user.jwt && user.role === 'root') || user.role === 'funcionario') {
       message.success(
         'Escolha uma das opções do menu ao lado para navegação',

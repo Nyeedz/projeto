@@ -55,7 +55,7 @@ class FuncionarioForm extends React.Component {
     imagem: null,
     ativo: 1,
     condominios: [],
-    file: null,
+    file: '',
     fileName: '',
     visible: false,
     download: true,
@@ -128,13 +128,12 @@ class FuncionarioForm extends React.Component {
 
   setFieldValue = dados => {
     this.setState({ loading: true });
-    console.log(dados);
 
-    const construtoras = dados.construtoras.map((construtora, i) => {
+    const construtoras = dados.construtoras.map(construtora => {
       return construtora._id;
     });
 
-    const condominios = dados.condominios.map((condominio, i) => {
+    const condominios = dados.condominios.map(condominio => {
       return condominio._id;
     });
 
@@ -149,7 +148,7 @@ class FuncionarioForm extends React.Component {
       nome: dados.nome,
       sobrenome: dados.sobrenome,
       telefone: dados.telefone,
-      funcao: dados.funcao,
+      funcao: dados.funcao
     });
 
     this.setState({
@@ -159,9 +158,13 @@ class FuncionarioForm extends React.Component {
       id: dados._id,
       assinatura: dados.file,
       downloadArquivo: true,
-      fileName: dados.file.name,
       statusPermissoes: dados.permissoes
     });
+    if (dados.file === null) {
+      this.setState({ fileName: 'Assinatura digital' });
+    } else {
+      this.setState({ fileName: dados.file.name });
+    }
 
     // this.props.form.validateFields();
   };
@@ -173,7 +176,7 @@ class FuncionarioForm extends React.Component {
       imagem: false,
       id: null,
       enviando: false,
-      file: null,
+      file: '',
       download: true,
       fileName: '',
       downloadArquivo: false,
@@ -184,7 +187,7 @@ class FuncionarioForm extends React.Component {
   handleUpdate = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
-      console.log(err)
+      console.log(err);
       if (!err) {
         this.setState({ enviando: true });
         const config = {
@@ -232,7 +235,7 @@ class FuncionarioForm extends React.Component {
               this.setState({
                 enviando: false,
                 imagem: null,
-                file: null,
+                file: '',
                 editar: false,
                 fileName: 'Assinatura Digital',
                 id: null,
@@ -321,19 +324,22 @@ class FuncionarioForm extends React.Component {
                 config
               )
               .then(res => {
-                let contrato = new FormData();
-                contrato.append('ref', 'user');
-                contrato.append('refId', res.data._id);
-                contrato.append('field', 'file');
-                contrato.append('source', 'users-permissions');
-                contrato.append('files', this.state.file);
+                if (this.state.file) {
+                  let contrato = new FormData();
+                  contrato.append('ref', 'user');
+                  contrato.append('refId', res.data._id);
+                  contrato.append('field', 'file');
+                  contrato.append('source', 'users-permissions');
+                  contrato.append('files', this.state.file);
 
-                axios
-                  .post(`${url}/upload`, contrato, config)
-                  .then(() => {
-                    this.props.dispatch(fetchFuncionarios());
-                  })
-                  .catch(error => console.log(error));
+                  axios
+                    .post(`${url}/upload`, contrato, config)
+                    .then(() => {
+                      this.props.dispatch(fetchFuncionarios());
+                    })
+                    .catch(error => console.log(error));
+                }
+                this.props.dispatch(fetchFuncionarios());
               })
               .catch(error => console.log(error));
 
@@ -395,6 +401,7 @@ class FuncionarioForm extends React.Component {
         });
         this.setState({ enviando: false });
       }
+      this.props.dispatch(fetchFuncionarios());
     });
   };
 
@@ -693,7 +700,9 @@ class FuncionarioForm extends React.Component {
                               message: 'Por favor entre com sua senha!'
                             }
                           ]
-                        })(<Input type="password" placeholder="Senha" />)}
+                        })(
+                          <Input.Password type="password" placeholder="Senha" />
+                        )}
                       </FormItem>
                     </Col>
                   </Row>

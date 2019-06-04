@@ -38,6 +38,7 @@ class AberturaChamadoForm extends React.Component {
     tipologia: [],
     areas_gerais: [],
     areas_comuns: [],
+    disabledGarantia: true,
     disabledTipologia: true,
     disabledUnidade: true,
     disabledAreaComum: true,
@@ -159,6 +160,7 @@ class AberturaChamadoForm extends React.Component {
       headers: { Authorization: `Bearer ${auth}` }
     };
     let cond = [];
+
     axios
       .get(`${url}/users/me`, config)
       .then(res => {
@@ -172,10 +174,8 @@ class AberturaChamadoForm extends React.Component {
                 .get(`${url}/tipologias/${value._id}`, config)
                 .then(tipologia => {
                   this.setState({
-                    condominios: res.data.condominios,
-                    garantiaArray: tipologia.data.garantias,
                     tipologia: res.data.tipologias,
-                    unidades: res.data.unidades,
+                    condominios: true,
                     disabledTipologia: false,
                     enviando: false,
                     mostrarDados: true
@@ -199,32 +199,26 @@ class AberturaChamadoForm extends React.Component {
     });
   };
 
-  getUnidade = () => {
+  getUnidade = id => {
     this.setState({ enviando: true });
     let auth = localStorage.getItem('jwt') || this.props.user.jwt;
     const config = {
       headers: { Authorization: `Bearer ${auth}` }
     };
-    this.state.tipologia.map(value => {
-      return axios
-        .get(`${url}/tipologias/${value._id}`, config)
-        .then(res => {
-          res.data.unidadesautonomas.map(unidade => {
-            return axios
-              .get(`${url}/unidadesautonomas/${unidade._id}`, config)
-              .then(res => {
-                this.setState({
-                  unidades_condominios: res.data.unidades,
-                  disabledUnidade: false,
-                  disabledAreaComum: false,
-                  disabledAreaGeral: false,
-                  enviando: false
-                });
-              });
-          });
-        })
-        .catch(error => console.log(error));
-    });
+    axios
+      .get(`${url}/tipologias/${id}`, config)
+      .then(res => {
+        this.setState({
+          unidades: res.data.unidades,
+          garantias: res.data.garantias,
+          disabledUnidade: false,
+          disabledGarantia: false,
+          disabledAreaComum: false,
+          disabledAreaGeral: false,
+          enviando: false
+        });
+      })
+      .catch(error => console.log(error));
   };
 
   onChange = e => {
@@ -255,7 +249,9 @@ class AberturaChamadoForm extends React.Component {
     });
   };
 
-  subItens = () => {
+  subItens = id => {
+    console.log(id)
+    return
     this.setState({
       disabledSubItens: false
     });
@@ -446,7 +442,7 @@ class AberturaChamadoForm extends React.Component {
                       <FormItem
                         validateStatus={unidadesError ? 'error' : ''}
                         help={unidadesError || ''}
-                        label="Onde"
+                        label="Unidade"
                       >
                         {getFieldDecorator('unidade', {
                           rules: [
@@ -474,16 +470,18 @@ class AberturaChamadoForm extends React.Component {
                             }
                             disabled={this.state.disabledUnidade}
                           >
-                            {this.state.unidades.map((unidade, i) => {
-                              return (
-                                <Option
-                                  value={unidade._id}
-                                  key={unidade._id + i}
-                                >
-                                  {unidade.nome}
-                                </Option>
-                              );
-                            })}
+                            {this.state.unidades
+                              ? this.state.unidades.map((unidade, i) => {
+                                  return (
+                                    <Option
+                                      value={unidade._id}
+                                      key={unidade._id + i}
+                                    >
+                                      {unidade.nome}
+                                    </Option>
+                                  );
+                                })
+                              : null}
                           </Select>
                         )}
                       </FormItem>
@@ -688,22 +686,25 @@ class AberturaChamadoForm extends React.Component {
                           placeholder="Nome do item"
                           optionFilterProp="children"
                           onChange={this.subItens}
+                          disabled={this.state.disabledGarantia}
                           filterOption={(input, option) =>
                             option.props.children
                               .toLowerCase()
                               .indexOf(input.toLowerCase()) >= 0
                           }
                         >
-                          {this.state.garantiaArray.map((garantia, i) => {
-                            return (
-                              <Option
-                                value={garantia._id}
-                                key={garantia._id + i}
-                              >
-                                {garantia.nome}
-                              </Option>
-                            );
-                          })}
+                          {this.state.garantias
+                            ? this.state.garantias.map((garantia, i) => {
+                                return (
+                                  <Option
+                                    value={garantia._id}
+                                    key={garantia._id + i}
+                                  >
+                                    {garantia.nome}
+                                  </Option>
+                                );
+                              })
+                            : null}
                         </Select>
                       )}
                     </FormItem>

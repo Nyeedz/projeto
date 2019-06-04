@@ -156,11 +156,11 @@ class TableClientes extends React.Component {
       {
         title: 'Foto',
         dataIndex: 'logo',
-        key: 'logo' + 'id',
-        render: text => (
+        key: 'logo',
+        render: (text, i) => (
           <a role="button">
             {typeof text === 'string' && (
-              <p key={text.id}>
+              <p key={text.id + i}>
                 <Avatar size="large" shape="square" src={text} />
               </p>
             )}
@@ -170,8 +170,8 @@ class TableClientes extends React.Component {
       {
         title: 'Nome',
         dataIndex: 'nome',
-        key: 'id' + 'nome',
-        render: text => <p key={text + 'id'}>{text}</p>,
+        key: 'nome',
+        render: (text, i) => <p key={text + i}>{text}</p>,
         onFilter: (value, record) => record.nome.indexOf(value) === 0,
         sorter: (a, b) => b.nome.length - a.nome.length,
         filterDropdown: (
@@ -207,24 +207,25 @@ class TableClientes extends React.Component {
       {
         title: 'Sobrenome',
         dataIndex: 'sobrenome',
-        key: 'sobrenome' + 'id',
-        render: text => <p key={text.id}>{text}</p>
+        key: 'sobrenome',
+        render: (text, i) => <p key={text.id + i}>{text}</p>
       },
       {
         title: 'Email',
         dataIndex: 'email',
-        key: 'email' + 'id',
-        render: text => <p key={text.id}>{text}</p>
+        key: 'email',
+        render: (text, i) => <p key={text.id + i}>{text}</p>
       },
       {
         title: 'Opções',
-        key: '_id',
+        key: 'opcoes',
         render: (text, record) => (
           <span>
             <Permissao
               codTela={this.props.codTela}
               permissaoNecessaria={CODE_EDITAR}
               segundaOpcao="Nenhuma opção disponível!"
+              key={text + record + 'opcao'}
             >
               <Tooltip title="Editar">
                 <Button
@@ -241,6 +242,7 @@ class TableClientes extends React.Component {
             <Permissao
               codTela={this.props.codTela}
               permissaoNecessaria={CODE_EDITAR}
+              key={text + record + '_opcao'}
             >
               <Popconfirm
                 title="Tem certeza que deseja excluir esta unidade ?"

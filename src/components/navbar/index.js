@@ -65,6 +65,11 @@ class Navbar extends React.Component {
             </Menu.Item>
           )}
           {user.jwt && user.role === 'authenticated' && (
+            <Menu.Item key="lista">
+              <Link to="/lista-chamados-clientes">Lista de chamados</Link>
+            </Menu.Item>
+          )}
+          {user.jwt && user.role === 'authenticated' && (
             <Menu.Item key="chamados">
               <Link to="/chamados">Chamados</Link>
             </Menu.Item>
@@ -74,9 +79,9 @@ class Navbar extends React.Component {
               <Link to="/lista-chamados">Lista de Chamados</Link>
             </Menu.Item>
           )}
-          <Menu.Item key="sobre">
+          {/* <Menu.Item key="sobre">
             <Link to="/sobre">Sobre</Link>
-          </Menu.Item>
+          </Menu.Item> */}
           {user.jwt && (
             <SubMenu
               style={{ float: 'right' }}
