@@ -1,6 +1,6 @@
 // export const url = 'http://191.252.59.98:7100';
 export const url = 'http://localhost:1337';
-export const funcionarioId = '5ce9614dc6771026707e9f11';
+export const funcionarioId = '5cfb202caea8cf2d544d8875';
 
 export const CODE_NENHUMA = 0;
 export const CODE_VISUALIZAR = 1;

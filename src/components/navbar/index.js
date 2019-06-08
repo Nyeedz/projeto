@@ -54,7 +54,7 @@ class Navbar extends React.Component {
               <Link to="/">Login</Link>
             </Menu.Item>
           )}
-          {user.jwt && user.role === 'root' && (
+          {user.jwt && user.role === 'administrator' && (
             <Menu.Item key="admin">
               <Link to="/admin"> Admin </Link>
             </Menu.Item>
