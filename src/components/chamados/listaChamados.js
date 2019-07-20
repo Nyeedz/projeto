@@ -12,8 +12,10 @@ import {
 import axios from 'axios';
 import { url } from '../../utilities/constants';
 import moment from 'moment';
+import { connect } from 'react-redux';
+import { selectChamado } from '../../actions/chamadosActions';
 
-export default class ListaChamadosClientes extends React.Component {
+class ListaChamadosClientes extends React.Component {
   state = {
     data: [],
     pagination: {},
@@ -25,10 +27,6 @@ export default class ListaChamadosClientes extends React.Component {
 
   componentDidMount = () => {
     this.fetch();
-  };
-
-  componentWillReceiveProps = nextProps => {
-    if (nextProps.chamados) this.setState({ data: nextProps.construtoras });
   };
 
   handleTableChange = (pagination, filters, sorter) => {
@@ -75,7 +73,7 @@ export default class ListaChamadosClientes extends React.Component {
     this.setState({
       filterDropdownVisible: false,
       filtered: !!searchText,
-      data: this.props.construtoras
+      data: this.props.chamados
         .map(record => {
           const match = record.nome.match(reg);
           if (!match) {
@@ -102,12 +100,25 @@ export default class ListaChamadosClientes extends React.Component {
     });
   };
 
-  updateConstrutora = id => {
-    this.props.chamados.map(chamado => {
-      if (chamado.id === id) {
-        return this.props.setFieldValue(chamado);
-      }
-    });
+  updateChamados = id => {
+    let auth = localStorage.getItem('jwt') || this.props.user.jwt;
+
+    const config = {
+      headers: { Authorization: `Bearer ${auth}` }
+    };
+    axios
+      .get(`${url}/chamados/${id}`, config)
+      .then(res => {
+        if (res.data._id === id) {
+          // this.props.dispatch(selectChamado(res.data));
+        }
+      })
+      .catch(error => console.log(error));
+    // this.props.chamados.map(chamado => {
+    //   if (chamado.id === id) {
+    //     return this.props.setFieldValue(chamado);
+    //   }
+    // });
     this.fetch();
   };
 
@@ -180,7 +191,7 @@ export default class ListaChamadosClientes extends React.Component {
             <Tooltip title="Editar">
               <Button
                 type="primary"
-                onClick={() => this.updateConstrutora(record.id)}
+                onClick={() => this.updateChamados(record.id)}
               >
                 <Icon type="edit" />
               </Button>
@@ -223,3 +234,9 @@ export default class ListaChamadosClientes extends React.Component {
     );
   }
 }
+
+export default (ListaChamadosClientes = connect(store => {
+  return {
+    chamados: store.chamados
+  };
+})(ListaChamadosClientes));

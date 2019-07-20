@@ -115,16 +115,17 @@ class Chamados extends React.Component {
           <Col span={24} />
         </Row>
         <div style={{ background: '#fff' }}>
-          <Steps current={current}>
-            {this.steps.map((item, i) => (
+          <AberturaChamado />
+          {/* <Steps current={current}> */}
+            {/* {this.steps.map((item, i) => (
               <Step
                 key={item.title + i}
                 title={item.title}
                 description={item.description}
               />
-            ))}
-          </Steps>
-          <div className="steps-content">{this.renderContent}</div>
+            ))} */}
+          {/* </Steps> */}
+          {/* <div className="steps-content">{this.renderContent}</div> */}
           {/* <div className="steps-action">
             {this.state.current < steps.length - 1 && (
               <Button type="primary" onClick={() => this.next()}>

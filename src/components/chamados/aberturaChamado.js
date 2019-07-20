@@ -19,7 +19,8 @@ import {
 import moment from 'moment';
 import axios from 'axios';
 import { url, VISITA_ANALISE_TECNICA } from '../../utilities/constants.js';
-import { saveUser } from '../../actions/userActions';
+import { saveUser, getMe } from '../../actions/userActions';
+import { selectChamado } from '../../actions/chamadosActions.js';
 
 const { Content } = Layout;
 const FormItem = Form.Item;
@@ -51,6 +52,12 @@ class AberturaChamadoForm extends React.Component {
     idUser: null,
     problema_repetido: 0,
     garantia: {}
+  };
+
+  componentDidMount = () => {
+    this.props.dispatch(getMe())
+    this.props.dispatch(selectChamado())
+    console.log(this.props.user, 'aiaiai');
   };
 
   onChangeData = (date, dateString) => {
@@ -692,8 +699,6 @@ class AberturaChamadoForm extends React.Component {
                       {getFieldDecorator('nome_item')(
                         <Select
                           showSearch
-                          //mode="tags"
-                          // style={{ width: '49.4%' }}
                           placeholder="Nome do item"
                           optionFilterProp="children"
                           onChange={this.subItens}
@@ -744,22 +749,16 @@ class AberturaChamadoForm extends React.Component {
                             {this.state.garantiaArray === undefined
                               ? null
                               : this.state.garantiaArray.map(garantia => {
-                                  console.log(garantia);
-                                  return Object.keys(garantia.subitem).map(
-                                    (key, i) => {
-                                      return (
-                                        <Option
-                                          value={garantia._id + '_' + i}
-                                          key={
-                                            garantia._id +
-                                            garantia.subitem[key].subitem
-                                          }
-                                        >
-                                          {garantia.subitem[key].subitem}
-                                        </Option>
-                                      );
-                                    }
-                                  );
+                                  return garantia.subitems.map((subitem, i) => {
+                                    return (
+                                      <Option
+                                        value={subitem._id}
+                                        key={subitem._id + i}
+                                      >
+                                        {subitem.nome}
+                                      </Option>
+                                    );
+                                  });
                                 })}
                           </Select>
                         )}
@@ -917,6 +916,7 @@ class AberturaChamadoForm extends React.Component {
 let AberturaChamado = Form.create()(AberturaChamadoForm);
 export default (AberturaChamado = connect(store => {
   return {
-    user: store.user
+    user: store.user,
+    chamados: store.chamados
   };
 })(AberturaChamado));
