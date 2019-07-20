@@ -249,10 +249,25 @@ class TableGarantia extends React.Component {
         title: 'Fim',
         dataIndex: 'subitems',
         key: 'subitems' + 'fim',
-        render: text =>
-          Object.keys(text).map((x, i) => {
-            return <p key={text[x] + i}>{console.log(moment(text[x].data_inicio))}</p>;
-          })
+        render: text => {
+          return Object.keys(text).map((x, i) => {
+            return (
+              <p key={text[x] + i}>
+                {
+                  text[x].tempo_garantia !== null
+                  ? moment(text[x].data_inicio, 'DD/MM/YYYY')
+                  .add(
+                    text[x].tempo_garantia,
+                    text[x].unidade_garantia
+                  )
+                  .format('DD/MM/YYYY')
+                  .toString()
+                  : 'ato da entrega'
+                }
+              </p>
+            );
+          });
+        }
       },
       {
         title: 'Opções',

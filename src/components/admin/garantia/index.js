@@ -57,6 +57,7 @@ class GarantiaForm extends React.Component {
       { status: 0 }
     ],
     codTela: null,
+    subitens: [],
     disabled: true
   };
 
@@ -76,11 +77,6 @@ class GarantiaForm extends React.Component {
 
   setFieldValue = dados => {
     this.setState({ enviando: true });
-
-    // console.log(dados);
-    // return;
-
-    let subitemArray = [];
     uuid = 0;
 
     this.props.form.setFieldsValue({
@@ -103,15 +99,20 @@ class GarantiaForm extends React.Component {
         torre: dados.tipologia.id
       });
 
-      Object.keys(dados.subitems).forEach((value, i) => {
+      this.setState({
+        subitens: dados.subitems
+      });
+
+      const subItemArray = dados.subitems.map(subitem => {
         this.add();
-        subitemArray[i] = dados.subitems[value];
+        return subitem;
       });
 
       this.props.form.setFieldsValue({
-        secondary: subitemArray.map(x => x.nome),
-        tempo: subitemArray.map(x => x.tempo_garantia),
-        prefix: subitemArray.map(x => x.unidade_garantia)
+        secondary: subItemArray.map(x => x.nome),
+        tempo: subItemArray.map(x => x.tempo_garantia),
+        prefix: subItemArray.map(x => x.unidade_garantia),
+        ids: subItemArray.map(x => x._id)
       });
 
       this.setState({
@@ -192,7 +193,7 @@ class GarantiaForm extends React.Component {
                 this.props.form.setFieldsValue({
                   keys: []
                 });
-                // window.location.href = this.props.history.location.pathname;
+                window.location.href = this.props.history.location.pathname;
               })
               .catch(error => console.log(error));
           })
@@ -220,7 +221,41 @@ class GarantiaForm extends React.Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        this.setState({ enviando: true });
+        // this.setState({ enviando: true });
+
+        console.log(values);
+
+        const subitensCriar = [];
+
+        const subitensEditar = values.ids
+          .map((id, i) => {
+            if (!id) {
+              subitensCriar.push({
+                nome: values.secondary[i],
+                tempo_garantia:
+                  values.prefix[i] == 'a' ? null : values.tempo[i],
+                unidade_garantia: values.prefix[i],
+                data_inicio: moment(this.state.validadeCondominio).format(
+                  'DD/MM/YYYY'
+                )
+              });
+              return null;
+            }
+
+            return {
+              _id: id,
+              nome: values.secondary[i],
+              tempo_garantia: values.tempo[i],
+              unidade_garantia: values.prefix[i]
+            };
+          })
+          .filter(value => value);
+
+        const subitensExcluir = this.state.subitens.filter(subitem => {
+          return !subitensEditar.find(
+            subitensEditar => subitensEditar._id === subitem._id
+          );
+        });
 
         const subitems = values.keys.map(k => {
           return {
@@ -232,12 +267,13 @@ class GarantiaForm extends React.Component {
             )
           };
         });
+
         const config = {
           headers: { Authorization: 'bearer ' + localStorage.getItem('jwt') }
         };
         axios
-          .post(
-            `${url}/garantias`,
+          .put(
+            `${url}/garantias/${this.state.id}`,
             {
               nome: values.nome,
               construtora: values.construtoras,
@@ -247,19 +283,37 @@ class GarantiaForm extends React.Component {
             config
           )
           .then(res => {
-            const fila = subitems.map(subitem => {
+            const filaEditar = subitensEditar.map(subitem => {
               return axios.put(
-                `${url}/subitems/${res.data._id}`,
+                `${url}/subitems/${subitem._id}`,
                 {
                   nome: subitem.nome,
                   tempo_garantia: subitem.tempo_garantia,
-                  unidade_garantia: subitem.unidade_garantia,
-                  data_inicio: subitem.data_inicio
+                  unidade_garantia: subitem.unidade_garantia
                 },
                 config
               );
             });
-            Promise.all(fila)
+
+            const filaCriar = subitensCriar.map(subitem => {
+              return axios.post(
+                `${url}/subitems`,
+                {
+                  nome: subitem.nome,
+                  tempo_garantia: subitem.tempo_garantia,
+                  unidade_garantia: subitem.unidade_garantia,
+                  data_inicio: subitem.data_inicio,
+                  garantia: res.data._id
+                },
+                config
+              );
+            });
+
+            const filaExcluir = subitensExcluir.map(subitem => {
+              return axios.delete(`${url}/subitems/${subitem._id}`, config);
+            });
+
+            Promise.all([...filaEditar, ...filaCriar, ...filaExcluir])
               .then(() => {
                 this.props.dispatch(fetchGarantias());
                 notification.open({
@@ -394,19 +448,24 @@ class GarantiaForm extends React.Component {
       );
     });
 
-    const nomeItems = keys.map(k => {
+    const nomeItems = keys.map((k, index) => {
       return (
-        <FormItem required={false} key={`nome${k}`}>
-          {getFieldDecorator(`secondary[${k}]`, {
-            validateTrigger: ['onChange', 'onBlur'],
-            rules: [
-              {
-                required: true,
-                message: 'Entre com o item secundário ou remova este campo'
-              }
-            ]
-          })(<Input placeholder="Item Secundário" />)}
-        </FormItem>
+        <React.Fragment key={k + index + 'fragment'}>
+          {getFieldDecorator(`ids[${k}]`)(
+            <div key={`ids${k + index + 'ids'}`} />
+          )}
+          <FormItem required={false} key={`nome${k}`}>
+            {getFieldDecorator(`secondary[${k}]`, {
+              validateTrigger: ['onChange', 'onBlur'],
+              rules: [
+                {
+                  required: true,
+                  message: 'Entre com o item secundário ou remova este campo'
+                }
+              ]
+            })(<Input placeholder="Item Secundário" />)}
+          </FormItem>
+        </React.Fragment>
       );
     });
 
@@ -435,7 +494,17 @@ class GarantiaForm extends React.Component {
 
     const previewData = keys.map((k, i) => {
       return getFieldValue(`prefix[${k}]`) == 'a' ? (
-        <div style={{ height: 40, marginBottom: 24 }} key={`preview${k + i}`} />
+        <div style={{ height: 40, marginBottom: 24 }} key={`preview${k + i}`}>
+          {keys.length > 1 ? (
+            <Icon
+              className="dynamic-delete-button"
+              style={{ marginLeft: '15px' }}
+              type="minus-circle-o"
+              disabled={keys.length === 1}
+              onClick={() => this.remove(k)}
+            />
+          ) : null}
+        </div>
       ) : (
         <FormItem key={`preview${k + i}`}>
           <span

@@ -334,6 +334,7 @@ class UnidadeForm extends React.Component {
         unidadeArray.push(unidade.nome);
         unidadeIdsArray.push(unidade._id);
       });
+
       this.props.form.setFieldsValue({
         names: unidadeArray,
         ids: unidadeIdsArray,
