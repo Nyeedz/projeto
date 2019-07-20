@@ -183,34 +183,34 @@ class ListaChamadosClientes extends React.Component {
         id: 'status' + '_id',
         render: (text, i) => <p key={text + i}>{text}</p>
       },
-      {
-        title: 'Opções',
-        key: 'id',
-        render: record => (
-          <span>
-            <Tooltip title="Editar">
-              <Button
-                type="primary"
-                onClick={() => this.updateChamados(record.id)}
-              >
-                <Icon type="edit" />
-              </Button>
-            </Tooltip>
+      // {
+      //   title: 'Opções',
+      //   key: 'id',
+      //   render: record => (
+      //     <span>
+      //       <Tooltip title="Editar">
+      //         <Button
+      //           type="primary"
+      //           onClick={() => this.updateChamados(record.id)}
+      //         >
+      //           <Icon type="edit" />
+      //         </Button>
+      //       </Tooltip>
 
-            <Divider type="vertical" />
-            <Popconfirm
-              title="Está ação irá excluir todos os dados conectados a esta construtora, tem certeza que deseja excluir esta construtora ?"
-              onConfirm={() => this.deleteConstrutora(record.id)}
-            >
-              <Tooltip title="Deletar">
-                <Button type="danger">
-                  <Icon type="delete" />
-                </Button>
-              </Tooltip>
-            </Popconfirm>
-          </span>
-        )
-      }
+      //       <Divider type="vertical" />
+      //       <Popconfirm
+      //         title="Está ação irá excluir todos os dados conectados a esta construtora, tem certeza que deseja excluir esta construtora ?"
+      //         onConfirm={() => this.deleteConstrutora(record.id)}
+      //       >
+      //         <Tooltip title="Deletar">
+      //           <Button type="danger">
+      //             <Icon type="delete" />
+      //           </Button>
+      //         </Tooltip>
+      //       </Popconfirm>
+      //     </span>
+      //   )
+      // }
     ];
 
     return (

@@ -134,7 +134,7 @@ class AberturaChamadoForm extends React.Component {
                   mostrarDados: false
                 });
                 this.props.form.resetFields();
-                this.props.next();
+                // this.props.next();
                 message.success('Chamado enviado com sucesso');
               })
               .catch(error => {
