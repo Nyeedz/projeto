@@ -134,6 +134,7 @@ class TableGarantia extends React.Component {
           icon: <icon type="check" style={{ color: 'green' }} />
         });
         this.props.dispatchGarantias();
+        window.location.href = this.props.history.location.pathname;
       })
       .catch(error => {
         notification.open({
@@ -196,11 +197,11 @@ class TableGarantia extends React.Component {
       },
       {
         title: 'Itens secundários',
-        dataIndex: 'subitem',
-        key: 'item_secundario',
+        dataIndex: 'subitems',
+        key: 'subitems',
         render: text =>
           Object.keys(text).map((x, i) => {
-            return <p key={text[x] + i}>{text[x].subitem}</p>;
+            return <p key={text[x] + i}>{text[x].nome}</p>;
           })
       },
       {
@@ -223,8 +224,8 @@ class TableGarantia extends React.Component {
       },
       {
         title: 'Tempo garantia',
-        dataIndex: 'subitem',
-        key: 'tempo_garantia',
+        dataIndex: 'subitems',
+        key: 'subitems' + 'tempo',
         render: text =>
           Object.keys(text).map((x, i) => {
             return (
@@ -237,8 +238,8 @@ class TableGarantia extends React.Component {
       },
       {
         title: 'Início',
-        dataIndex: 'subitem',
-        key: 'data_inicio',
+        dataIndex: 'subitems',
+        key: 'subitems' + 'data_inicio',
         render: text =>
           Object.keys(text).map((x, i) => {
             return <p key={text[x] + i}>{text[x].data_inicio}</p>;
@@ -246,20 +247,11 @@ class TableGarantia extends React.Component {
       },
       {
         title: 'Fim',
-        dataIndex: 'subitem',
-        key: 'fim',
+        dataIndex: 'subitems',
+        key: 'subitems' + 'fim',
         render: text =>
           Object.keys(text).map((x, i) => {
-            return (
-              <p key={text[x] + i}>
-                {!text[x].tempo_garantia
-                  ? '--'
-                  : moment(text[x].data_inicio, 'DD/MM/YYYY')
-                      .add(text[x].tempo_garantia, text[x].unidade_garantia)
-                      .format('DD/MM/YYYY')
-                      .toString()}
-              </p>
-            );
+            return <p key={text[x] + i}>{console.log(moment(text[x].data_inicio))}</p>;
           })
       },
       {

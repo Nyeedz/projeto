@@ -250,8 +250,19 @@ class AberturaChamadoForm extends React.Component {
   };
 
   subItens = id => {
-    console.log(id)
-    return
+    let auth = localStorage.getItem('jwt') || this.props.user.jwt;
+    const config = {
+      headers: { Authorization: `Bearer ${auth}` }
+    };
+
+    axios
+      .get(`${url}/garantias`, config)
+      .then(res => {
+        this.setState({
+          garantiaArray: res.data
+        });
+      })
+      .catch(error => console.log(error));
     this.setState({
       disabledSubItens: false
     });
@@ -730,23 +741,26 @@ class AberturaChamadoForm extends React.Component {
                                 .indexOf(input.toLowerCase()) >= 0
                             }
                           >
-                            {this.state.garantiaArray.map(garantia => {
-                              return Object.keys(garantia.subitem).map(
-                                (key, i) => {
-                                  return (
-                                    <Option
-                                      value={garantia._id + '_' + i}
-                                      key={
-                                        garantia._id +
-                                        garantia.subitem[key].subitem
-                                      }
-                                    >
-                                      {garantia.subitem[key].subitem}
-                                    </Option>
+                            {this.state.garantiaArray === undefined
+                              ? null
+                              : this.state.garantiaArray.map(garantia => {
+                                  console.log(garantia);
+                                  return Object.keys(garantia.subitem).map(
+                                    (key, i) => {
+                                      return (
+                                        <Option
+                                          value={garantia._id + '_' + i}
+                                          key={
+                                            garantia._id +
+                                            garantia.subitem[key].subitem
+                                          }
+                                        >
+                                          {garantia.subitem[key].subitem}
+                                        </Option>
+                                      );
+                                    }
                                   );
-                                }
-                              );
-                            })}
+                                })}
                           </Select>
                         )}
                       </FormItem>

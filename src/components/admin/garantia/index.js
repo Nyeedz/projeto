@@ -77,6 +77,9 @@ class GarantiaForm extends React.Component {
   setFieldValue = dados => {
     this.setState({ enviando: true });
 
+    // console.log(dados);
+    // return;
+
     let subitemArray = [];
     uuid = 0;
 
@@ -100,13 +103,13 @@ class GarantiaForm extends React.Component {
         torre: dados.tipologia.id
       });
 
-      Object.keys(dados.subitem).forEach((value, i) => {
+      Object.keys(dados.subitems).forEach((value, i) => {
         this.add();
-        subitemArray[i] = dados.subitem[value];
+        subitemArray[i] = dados.subitems[value];
       });
 
       this.props.form.setFieldsValue({
-        secondary: subitemArray.map(x => x.subitem),
+        secondary: subitemArray.map(x => x.nome),
         tempo: subitemArray.map(x => x.tempo_garantia),
         prefix: subitemArray.map(x => x.unidade_garantia)
       });
@@ -137,10 +140,10 @@ class GarantiaForm extends React.Component {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         this.setState({ enviando: true });
-        const itens = values.keys.map((k, i) => {
+        const subitems = values.keys.map(k => {
           return {
-            subitem: values.secondary[k],
-            tempo_garantia: values.prefix[k] == 'a' ? null : values.tempo[k],
+            nome: values.secondary[k],
+            tempo_garantia: values.prefix[k] === 'a' ? null : values.tempo[k],
             unidade_garantia: values.prefix[k],
             data_inicio: moment(this.state.validadeCondominio).format(
               'DD/MM/YYYY'
@@ -157,25 +160,41 @@ class GarantiaForm extends React.Component {
               nome: values.nome,
               construtora: values.construtoras,
               condominio: values.condominios,
-              tipologia: values.torre,
-              subitem: itens
+              tipologia: values.torre
             },
             config
           )
-          .then(() => {
-            this.props.dispatch(fetchGarantias());
-            notification.open({
-              message: 'Ok',
-              description: 'Garantia cadastrada com sucesso!',
-              icon: <Icon type="check" style={{ color: 'green' }} />
+          .then(res => {
+            const fila = subitems.map(subitem => {
+              return axios.post(
+                `${url}/subitems`,
+                {
+                  nome: subitem.nome,
+                  tempo_garantia: subitem.tempo_garantia,
+                  unidade_garantia: subitem.unidade_garantia,
+                  data_inicio: subitem.data_inicio,
+                  garantia: res.data._id
+                },
+                config
+              );
             });
-            this.props.form.resetFields();
-            this.setState({ enviando: false, disabledCond: true });
-            this.add();
-            this.props.form.setFieldsValue({
-              keys: []
-            });
-            window.location.href = this.props.history.location.pathname;
+            Promise.all(fila)
+              .then(() => {
+                this.props.dispatch(fetchGarantias());
+                notification.open({
+                  message: 'Ok',
+                  description: 'Garantia cadastrada com sucesso!',
+                  icon: <Icon type="check" style={{ color: 'green' }} />
+                });
+                this.props.form.resetFields();
+                this.setState({ enviando: false, disabledCond: true });
+                this.add();
+                this.props.form.setFieldsValue({
+                  keys: []
+                });
+                // window.location.href = this.props.history.location.pathname;
+              })
+              .catch(error => console.log(error));
           })
           .catch(() => {
             notification.open({
@@ -202,51 +221,70 @@ class GarantiaForm extends React.Component {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         this.setState({ enviando: true });
-        const itens = values.keys.map((k, i) => {
+
+        const subitems = values.keys.map(k => {
           return {
-            subitem: values.secondary[k],
-            tempo_garantia: values.tempo[k],
+            nome: values.secondary[k],
+            tempo_garantia: values.prefix[k] == 'a' ? null : values.tempo[k],
             unidade_garantia: values.prefix[k],
-            data_inicio: moment().format('DD/MM/YYYY')
+            data_inicio: moment(this.state.validadeCondominio).format(
+              'DD/MM/YYYY'
+            )
           };
         });
         const config = {
           headers: { Authorization: 'bearer ' + localStorage.getItem('jwt') }
         };
         axios
-          .put(
-            `${url}/garantias/${this.state.id}`,
+          .post(
+            `${url}/garantias`,
             {
               nome: values.nome,
               construtora: values.construtoras,
               condominio: values.condominios,
-              tipologia: values.torre,
-              subitem: itens
+              tipologia: values.torre
             },
             config
           )
-          .then(() => {
-            this.props.dispatch(fetchGarantias());
-            this.props.form.resetFields();
-            this.setState({
-              enviando: false,
-              editar: false,
-              id: null
+          .then(res => {
+            const fila = subitems.map(subitem => {
+              return axios.put(
+                `${url}/subitems/${res.data._id}`,
+                {
+                  nome: subitem.nome,
+                  tempo_garantia: subitem.tempo_garantia,
+                  unidade_garantia: subitem.unidade_garantia,
+                  data_inicio: subitem.data_inicio
+                },
+                config
+              );
             });
-            notification.open({
-              message: 'Ok',
-              description: 'Garantia editada com sucesso!',
-              icon: <Icon type="check" style={{ color: 'green' }} />
-            });
-          })
-          .catch(error => {
-            console.log(error);
-            notification.open({
-              message: 'Opps!',
-              description: 'Erro ao editar a garantia!',
-              icon: <Icon type="close" style={{ color: 'red' }} />
-            });
-            this.setState({ enviando: false });
+            Promise.all(fila)
+              .then(() => {
+                this.props.dispatch(fetchGarantias());
+                notification.open({
+                  message: 'Ok',
+                  description: 'Garantia editada com sucesso!',
+                  icon: <Icon type="check" style={{ color: 'green' }} />
+                });
+                this.props.form.resetFields();
+                this.setState({ enviando: false, disabledCond: true });
+                this.add();
+                this.props.form.setFieldsValue({
+                  keys: []
+                });
+                window.location.href = this.props.history.location.pathname;
+              })
+              .catch(error => {
+                console.log(error);
+                notification.open({
+                  message: 'Opps!',
+                  description: 'Erro ao editar a garantia!',
+                  icon: <Icon type="close" style={{ color: 'red' }} />
+                });
+                this.setState({ enviando: false });
+              })
+              .catch(error => console.log(error));
           });
       } else {
         notification.open({

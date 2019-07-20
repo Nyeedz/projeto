@@ -225,7 +225,6 @@ class UnidadeForm extends React.Component {
       this.setState({ enviando: true });
       if (!err) {
         const unidades = values.names.map(unidade => unidade);
-
         let auth = localStorage.getItem('jwt');
 
         const config = {
