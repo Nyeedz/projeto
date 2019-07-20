@@ -75,6 +75,16 @@ export default function(
         chamado: [],
         permissoes: null
       };
+    case 'GET_ME_SUCCESS':
+      return {
+        ...state,
+        data: action.payload
+      };
+    case 'GET_ME_ERROR':
+      return {
+        ...state,
+        error: action.payload
+      };
     default:
       return state;
   }

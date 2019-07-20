@@ -3,11 +3,17 @@ export default function(
     data: [],
     fetching: null,
     fetched: null,
-    error: null
+    error: null,
+    selected: null
   },
   action
 ) {
   switch (action.type) {
+    case 'SELECT_CHAMADOS':
+      return {
+        ...state,
+        selected: action.payload
+      };
     case 'GET_CHAMADOS':
       return {
         ...state,

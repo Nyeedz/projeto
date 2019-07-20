@@ -19,7 +19,8 @@ import {
 import moment from 'moment';
 import axios from 'axios';
 import { url, VISITA_ANALISE_TECNICA } from '../../utilities/constants.js';
-import { saveUser } from '../../actions/userActions';
+import { saveUser, getMe } from '../../actions/userActions';
+import { selectChamado } from '../../actions/chamadosActions.js';
 
 const { Content } = Layout;
 const FormItem = Form.Item;
@@ -51,6 +52,12 @@ class AberturaChamadoForm extends React.Component {
     idUser: null,
     problema_repetido: 0,
     garantia: {}
+  };
+
+  componentDidMount = () => {
+    this.props.dispatch(getMe());
+    this.props.dispatch(selectChamado());
+    console.log(this.props.user, 'aiaiai');
   };
 
   onChangeData = (date, dateString) => {
@@ -127,7 +134,7 @@ class AberturaChamadoForm extends React.Component {
                   mostrarDados: false
                 });
                 this.props.form.resetFields();
-                this.props.next();
+                // this.props.next();
                 message.success('Chamado enviado com sucesso');
               })
               .catch(error => {
@@ -694,8 +701,6 @@ class AberturaChamadoForm extends React.Component {
                       {getFieldDecorator('nome_item')(
                         <Select
                           showSearch
-                          //mode="tags"
-                          // style={{ width: '49.4%' }}
                           placeholder="Nome do item"
                           optionFilterProp="children"
                           onChange={this.subItens}
@@ -910,6 +915,7 @@ class AberturaChamadoForm extends React.Component {
 let AberturaChamado = Form.create()(AberturaChamadoForm);
 export default (AberturaChamado = connect(store => {
   return {
-    user: store.user
+    user: store.user,
+    chamados: store.chamados
   };
 })(AberturaChamado));

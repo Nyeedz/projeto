@@ -2,7 +2,7 @@ import axios from 'axios';
 import { url } from '../utilities/constants';
 
 export function fetchChamados() {
-  return function (dispatch) {
+  return function(dispatch) {
     dispatch({
       type: 'GET_CHAMADOS',
       payload: {}
@@ -26,5 +26,14 @@ export function fetchChamados() {
           payload: 'deu erro'
         });
       });
+  };
+}
+
+export function selectChamado(chamado) {
+  return function(dispatch) {
+    dispatch({
+      type: 'SELECT_CHAMADOS',
+      payload: chamado
+    });
   };
 }
