@@ -202,23 +202,27 @@ class AberturaChamadoForm extends React.Component {
   getUnidade = id => {
     this.setState({ enviando: true });
     let auth = localStorage.getItem('jwt') || this.props.user.jwt;
+
     const config = {
       headers: { Authorization: `Bearer ${auth}` }
     };
-    axios
-      .get(`${url}/tipologias/${id}`, config)
-      .then(res => {
-        this.setState({
-          unidades: res.data.unidades,
-          garantias: res.data.garantias,
-          disabledUnidade: false,
-          disabledGarantia: false,
-          disabledAreaComum: false,
-          disabledAreaGeral: false,
-          enviando: false
-        });
-      })
-      .catch(error => console.log(error));
+
+    Promise.all([
+      axios.get(`${url}/unidades?tipologia=${id}`, config),
+      axios.get(`${url}/garantias?tipologia=${id}`, config)
+    ]).then(([unidades, garantias]) => {
+      this.setState({
+        unidades: unidades.data.filter(unidade =>
+          unidade.users.find(user => user._id === this.props.user.id)
+        ),
+        garantias: garantias.data,
+        disabledUnidade: false,
+        disabledGarantia: false,
+        disabledAreaComum: false,
+        disabledAreaGeral: false,
+        enviando: false
+      });
+    });
   };
 
   onChange = e => {
@@ -256,16 +260,14 @@ class AberturaChamadoForm extends React.Component {
     };
 
     axios
-      .get(`${url}/garantias`, config)
+      .get(`${url}/garantias/${id}`, config)
       .then(res => {
         this.setState({
-          garantiaArray: res.data
+          garantia: res.data,
+          disabledSubItens: false
         });
       })
       .catch(error => console.log(error));
-    this.setState({
-      disabledSubItens: false
-    });
   };
 
   render() {
@@ -734,31 +736,22 @@ class AberturaChamadoForm extends React.Component {
                             // style={{ width: '49.4%' }}
                             placeholder="Nome do item"
                             optionFilterProp="children"
-                            onChange={this.subItens}
                             filterOption={(input, option) =>
                               option.props.children
                                 .toLowerCase()
                                 .indexOf(input.toLowerCase()) >= 0
                             }
                           >
-                            {this.state.garantiaArray === undefined
+                            {this.state.garantia === undefined
                               ? null
-                              : this.state.garantiaArray.map(garantia => {
-                                  console.log(garantia);
-                                  return Object.keys(garantia.subitem).map(
-                                    (key, i) => {
-                                      return (
-                                        <Option
-                                          value={garantia._id + '_' + i}
-                                          key={
-                                            garantia._id +
-                                            garantia.subitem[key].subitem
-                                          }
-                                        >
-                                          {garantia.subitem[key].subitem}
-                                        </Option>
-                                      );
-                                    }
+                              : this.state.garantia.subitems.map(subItem => {
+                                  return (
+                                    <Option
+                                      value={subItem._id}
+                                      key={subItem._id}
+                                    >
+                                      {subItem.nome}
+                                    </Option>
                                   );
                                 })}
                           </Select>

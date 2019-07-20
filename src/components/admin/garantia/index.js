@@ -79,6 +79,8 @@ class GarantiaForm extends React.Component {
     this.setState({ enviando: true });
     uuid = 0;
 
+    console.log(dados);
+
     this.props.form.setFieldsValue({
       keys: []
     });
@@ -118,6 +120,7 @@ class GarantiaForm extends React.Component {
       this.setState({
         editar: true,
         id: dados.id,
+        data: dados.data_inicio,
         disabledCond: false,
         disabledTipo: false,
         enviando: false
@@ -146,9 +149,7 @@ class GarantiaForm extends React.Component {
             nome: values.secondary[k],
             tempo_garantia: values.prefix[k] === 'a' ? null : values.tempo[k],
             unidade_garantia: values.prefix[k],
-            data_inicio: moment(this.state.validadeCondominio).format(
-              'DD/MM/YYYY'
-            )
+            data_inicio: moment(this.state.data).format('DD/MM/YYYY')
           };
         });
         const config = {
@@ -235,7 +236,7 @@ class GarantiaForm extends React.Component {
                 tempo_garantia:
                   values.prefix[i] == 'a' ? null : values.tempo[i],
                 unidade_garantia: values.prefix[i],
-                data_inicio: moment(this.state.validadeCondominio).format(
+                data_inicio: moment(this.state.validadeTipologia, 'DD/MM/YYYY').format(
                   'DD/MM/YYYY'
                 )
               });
@@ -262,7 +263,7 @@ class GarantiaForm extends React.Component {
             nome: values.secondary[k],
             tempo_garantia: values.prefix[k] == 'a' ? null : values.tempo[k],
             unidade_garantia: values.prefix[k],
-            data_inicio: moment(this.state.validadeCondominio).format(
+            data_inicio: moment(this.state.validadeTipologia, 'DD/MM/YYYY').format(
               'DD/MM/YYYY'
             )
           };
@@ -363,22 +364,26 @@ class GarantiaForm extends React.Component {
   };
 
   selectInfoTipo = id => {
-    let tipo = this.props.condominios.filter(x => x.id === id);
-    tipo.map(info => {
-      return this.setState({
-        tipologia: info.torres,
-        disabledTipo: false
-      });
-    });
-    {
-      this.state.condominios
-        ? this.state.condominios.map(condominio => {
-            return this.setState({
-              validadeCondominio: condominio.validade
-            });
-          })
-        : null;
+    let condominio = this.props.condominios.find(x => x.id === id);
+
+    if (!condominio) {
+      return;
     }
+
+    this.setState({
+      tipologia: condominio.torres,
+      disabledTipo: false
+    });
+  };
+
+  setValidadeDate = id => {
+    const tipologia = this.state.tipologia.find(
+      tipologia => tipologia.id === id
+    );
+
+    this.setState({
+      validadeTipologia: moment(tipologia.validade.substring(0, 10), 'YYYY-MM-DD').format('DD/MM/YYYY')
+    });
   };
 
   remove = k => {
@@ -514,7 +519,7 @@ class GarantiaForm extends React.Component {
           >
             <Icon type="calendar" style={{ marginRight: '.5rem' }} />
             Data de término:&nbsp;
-            {moment(this.state.validadeCondominio)
+            {moment(this.state.validadeTipologia, 'DD/MM/YYYY')
               .add(getFieldValue(`tempo[${k}]`), getFieldValue(`prefix[${k}]`))
               .format('DD/MM/YYYY')
               .toString()}
@@ -675,7 +680,7 @@ class GarantiaForm extends React.Component {
                             }
                             disabled={this.state.disabledTipo}
                             optionFilterProp="children"
-                            onChange={this.handleChange}
+                            onChange={this.setValidadeDate}
                             filterOption={(input, option) =>
                               option.props.children
                                 .toLowerCase()
