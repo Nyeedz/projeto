@@ -56,7 +56,7 @@ class LoginForm extends React.Component {
               email: res.data.user.email,
               role: res.data.user.role.type,
               ativo: res.data.user.ativo ? 1 : 0,
-              tipo_morador: res.data.tipo_morador,
+              tipo_morador: res.data.user.tipo_morador,
               username: res.data.user.username,
               nome: res.data.user.nome,
               sobrenome: res.data.user.sobrenome,
@@ -105,7 +105,10 @@ class LoginForm extends React.Component {
       isFieldTouched
     } = this.props.form;
     const { user } = this.props;
-    if ((user.jwt && user.role === 'administrator') || user.role === 'funcionarios') {
+    if (
+      (user.jwt && user.role === 'administrator') ||
+      user.role === 'funcionarios'
+    ) {
       message.success(
         'Escolha uma das opções do menu ao lado para navegação',
         3

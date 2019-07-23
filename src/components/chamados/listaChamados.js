@@ -52,13 +52,13 @@ class ListaChamadosClientes extends React.Component {
       headers: { Authorization: `Bearer ${auth}` }
     };
     axios
-      .get(`${url}/chamados`, config)
+      .get(`${url}/users/me`, config)
       .then(res => {
         const pagination = { ...this.state.pagination };
-        pagination.total = res.data.length;
+        pagination.total = res.data.chamados.length;
         this.setState({
           loading: false,
-          data: res.data,
+          data: res.data.chamados,
           pagination
         });
       })
@@ -182,7 +182,7 @@ class ListaChamadosClientes extends React.Component {
         dataIndex: 'status',
         id: 'status' + '_id',
         render: (text, i) => <p key={text + i}>{text}</p>
-      },
+      }
       // {
       //   title: 'Opções',
       //   key: 'id',

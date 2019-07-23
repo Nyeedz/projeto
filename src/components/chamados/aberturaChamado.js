@@ -57,7 +57,7 @@ class AberturaChamadoForm extends React.Component {
   componentDidMount = () => {
     this.props.dispatch(getMe());
     this.props.dispatch(selectChamado());
-    console.log(this.props.user, 'aiaiai');
+    console.log(this.props.user.tipo_morador, 'aiaiai');
   };
 
   onChangeData = (date, dateString) => {
@@ -85,7 +85,8 @@ class AberturaChamadoForm extends React.Component {
         const config = {
           headers: { Authorization: `Bearer ${auth}` }
         };
-
+        console.log(values);
+        return;
         axios
           .post(
             `${url}/chamados`,
@@ -93,6 +94,8 @@ class AberturaChamadoForm extends React.Component {
               condominio: values.condominios,
               tipologia: values.tipologia,
               unidade: values.unidade,
+              areascomun: '',
+              areasgerais: '',
               comentario: values.comentario,
               contato: values.contato,
               user:
@@ -173,26 +176,26 @@ class AberturaChamadoForm extends React.Component {
       .then(res => {
         this.setState({ idUser: res.data._id });
         cond = res.data.condominios.filter(condominio => condominio._id === id);
+        res.data.tipologias.map(value => {
+          axios.get(`${url}/tipologias/${value._id}`, config).then(() => {
+            this.setState({
+              tipologia: res.data.tipologias,
+              condominios: true,
+              disabledTipologia: false,
+              enviando: false,
+              mostrarDados: true
+            });
+            res.data.tipologias.areascomun;
+          });
+        });
         axios
-          .get(`${url}/users/me`, config)
-          .then(res => {
-            res.data.tipologias.map(value => {
-              axios
-                .get(`${url}/tipologias/${value._id}`, config)
-                .then(tipologia => {
-                  this.setState({
-                    tipologia: res.data.tipologias,
-                    condominios: true,
-                    disabledTipologia: false,
-                    enviando: false,
-                    mostrarDados: true
-                  });
-                });
+          .get(`${url}/condominios/${id}`, config)
+          .then(result => {
+            result.data.areasgerais.map(area_geral => {
+              this.setState({ areaGeral: area_geral });
             });
           })
-          .catch(error => {
-            console.log(error);
-          });
+          .catch(error => console.log(error));
       })
       .catch(error => {
         console.log(error);
@@ -216,19 +219,22 @@ class AberturaChamadoForm extends React.Component {
 
     Promise.all([
       axios.get(`${url}/unidades?tipologia=${id}`, config),
-      axios.get(`${url}/garantias?tipologia=${id}`, config)
-    ]).then(([unidades, garantias]) => {
+      axios.get(`${url}/garantias?tipologia=${id}`, config),
+      axios.get(`${url}/areascomuns?tipologia=${id}`, config)
+    ]).then(([unidades, garantias, comuns]) => {
       this.setState({
         unidades: unidades.data.filter(unidade =>
           unidade.users.find(user => user._id === this.props.user.id)
         ),
         garantias: garantias.data,
+        comuns: comuns.data,
         disabledUnidade: false,
         disabledGarantia: false,
         disabledAreaComum: false,
         disabledAreaGeral: false,
         enviando: false
       });
+      console.log(this.state.comuns);
     });
   };
 
@@ -253,6 +259,7 @@ class AberturaChamadoForm extends React.Component {
   };
 
   changeUnidadeAreaComum = id => {
+    console.log(id, 'areaComum');
     if (id === '' || id === undefined) return false;
     return this.props.form.setFieldsValue({
       unidade: undefined,
@@ -311,6 +318,7 @@ class AberturaChamadoForm extends React.Component {
     const { uploading } = this.state;
 
     const props = {
+      multiple: true,
       onRemove: file => {
         this.setState(({ fileList }) => {
           const index = fileList.indexOf(file);
@@ -405,209 +413,205 @@ class AberturaChamadoForm extends React.Component {
                 </Spin>
               </Col>
             </Row>
-            {localStorage.getItem('tipo_morador') ||
-            this.props.user.tipo_morador ? (
-              <Row gutter={16}>
-                <Col span={6}>
-                  {this.state.mostrarDados === true ? (
-                    <Spin spinning={this.state.enviando}>
-                      <FormItem
-                        validateStatus={tipologiaError ? 'error' : ''}
-                        help={tipologiaError || ''}
-                        label="Tipologia"
+            <Row gutter={16}>
+              <Col span={6}>
+                <Spin spinning={this.state.enviando}>
+                  <FormItem
+                    validateStatus={tipologiaError ? 'error' : ''}
+                    help={tipologiaError || ''}
+                    label="Tipologia"
+                  >
+                    {getFieldDecorator('tipologia', {
+                      rules: [
+                        {
+                          required: false,
+                          message: 'Entre com a tipologia'
+                        }
+                      ]
+                    })(
+                      <Select
+                        showSearch
+                        placeholder={
+                          this.state.disabledUnidade
+                            ? 'Escolha o condomínio'
+                            : 'Tipologia'
+                        }
+                        optionFilterProp="children"
+                        onChange={this.getUnidade}
+                        filterOption={(input, option) =>
+                          option.props.children
+                            .toLowerCase()
+                            .indexOf(input.toLowerCase()) >= 0
+                        }
+                        disabled={this.state.disabledTipologia}
                       >
-                        {getFieldDecorator('tipologia', {
-                          rules: [
-                            {
-                              required: false,
-                              message: 'Entre com a tipologia'
-                            }
-                          ]
-                        })(
-                          <Select
-                            showSearch
-                            placeholder={
-                              this.state.disabledUnidade
-                                ? 'Escolha o condomínio'
-                                : 'Tipologia'
-                            }
-                            optionFilterProp="children"
-                            onChange={this.getUnidade}
-                            filterOption={(input, option) =>
-                              option.props.children
-                                .toLowerCase()
-                                .indexOf(input.toLowerCase()) >= 0
-                            }
-                            disabled={this.state.disabledTipologia}
-                          >
-                            {this.state.tipologia.map((tipologias, i) => {
-                              return (
-                                <Option
-                                  value={tipologias._id}
-                                  key={tipologias._id + i}
-                                >
-                                  {tipologias.nome}
-                                </Option>
-                              );
-                            })}
-                          </Select>
-                        )}
-                      </FormItem>
-                    </Spin>
-                  ) : null}
-                </Col>
-                <Col span={6}>
-                  {this.state.mostrarDados === true ? (
-                    <Spin spinning={this.state.enviando}>
-                      <FormItem
-                        validateStatus={unidadesError ? 'error' : ''}
-                        help={unidadesError || ''}
-                        label="Unidade"
-                      >
-                        {getFieldDecorator('unidade', {
-                          rules: [
-                            {
-                              required: false,
-                              message: 'Entre com a unidade'
-                            }
-                          ]
-                        })(
-                          <Select
-                            showSearch
-                            //mode="tags"
-                            // style={{ width: '49.4%' }}
-                            placeholder={
-                              this.state.disabledUnidade
-                                ? 'Escolha a tipologia'
-                                : 'Unidade autônoma'
-                            }
-                            optionFilterProp="children"
-                            onChange={this.chandeAreaTipologiaAreaGeral}
-                            filterOption={(input, option) =>
-                              option.props.children
-                                .toLowerCase()
-                                .indexOf(input.toLowerCase()) >= 0
-                            }
-                            disabled={this.state.disabledUnidade}
-                          >
-                            {this.state.unidades
-                              ? this.state.unidades.map((unidade, i) => {
-                                  return (
-                                    <Option
-                                      value={unidade._id}
-                                      key={unidade._id + i}
-                                    >
-                                      {unidade.nome}
-                                    </Option>
-                                  );
-                                })
-                              : null}
-                          </Select>
-                        )}
-                      </FormItem>
-                    </Spin>
-                  ) : null}
-                </Col>
-                <Col span={6}>
-                  {this.props.user.tipo_morador === false ? (
-                    <Spin spinning={this.state.enviando}>
-                      <FormItem
-                        validateStatus={areas_comunsError ? 'error' : ''}
-                        help={areas_comunsError || ''}
-                        label="Área comum da tipologia"
-                      >
-                        {getFieldDecorator('areas_comuns')(
-                          <Select
-                            showSearch
-                            //mode="tags"
-                            // style={{ width: '49.4%' }}
-                            placeholder={
-                              this.state.disabledAreaComum
-                                ? 'Escolha a tipologia'
-                                : 'Área comum da tipologia'
-                            }
-                            optionFilterProp="children"
-                            onChange={this.changeUnidadeAreaTipologia}
-                            filterOption={(input, option) =>
-                              option.props.children
-                                .toLowerCase()
-                                .indexOf(input.toLowerCase()) >= 0
-                            }
-                            disabled={this.state.disabledAreaComum}
-                          >
-                            {this.state.areas_comuns.map(
-                              (areasTipologia, i) => {
+                        {this.state.tipologia.map((tipologias, i) => {
+                          return (
+                            <Option
+                              value={tipologias._id}
+                              key={tipologias._id + i}
+                            >
+                              {tipologias.nome}
+                            </Option>
+                          );
+                        })}
+                      </Select>
+                    )}
+                  </FormItem>
+                </Spin>
+              </Col>
+              <Col span={6}>
+                {this.state.mostrarDados === true ? (
+                  <Spin spinning={this.state.enviando}>
+                    <FormItem
+                      validateStatus={unidadesError ? 'error' : ''}
+                      help={unidadesError || ''}
+                      label="Unidade"
+                    >
+                      {getFieldDecorator('unidade', {
+                        rules: [
+                          {
+                            required: false,
+                            message: 'Entre com a unidade'
+                          }
+                        ]
+                      })(
+                        <Select
+                          showSearch
+                          //mode="tags"
+                          // style={{ width: '49.4%' }}
+                          placeholder={
+                            this.state.disabledUnidade
+                              ? 'Escolha a tipologia'
+                              : 'Unidade autônoma'
+                          }
+                          optionFilterProp="children"
+                          onChange={this.chandeAreaTipologiaAreaGeral}
+                          filterOption={(input, option) =>
+                            option.props.children
+                              .toLowerCase()
+                              .indexOf(input.toLowerCase()) >= 0
+                          }
+                          disabled={this.state.disabledUnidade}
+                        >
+                          {this.state.unidades
+                            ? this.state.unidades.map((unidade, i) => {
                                 return (
                                   <Option
-                                    value={areasTipologia._id}
-                                    key={
-                                      areasTipologia._id +
-                                      areasTipologia.areas_tipologias[i] +
-                                      i
-                                    }
+                                    value={unidade._id}
+                                    key={unidade._id + i}
                                   >
-                                    {areasTipologia.areas_tipologias[i]}
+                                    {unidade.nome}
                                   </Option>
                                 );
-                              }
-                            )}
-                          </Select>
-                        )}
-                      </FormItem>
-                    </Spin>
-                  ) : null}
-                </Col>
-                <Col span={6}>
-                  {this.props.user.tipo_morador === false ? (
-                    <Spin spinning={this.state.enviando}>
-                      <FormItem
-                        validateStatus={areas_geraisError ? 'error' : ''}
-                        help={areas_geraisError || ''}
-                        label="Área comum geral"
-                      >
-                        {getFieldDecorator('areas_gerais')(
-                          <Select
-                            showSearch
-                            //mode="tags"
-                            // style={{ width: '49.4%' }}
-                            placeholder={
-                              this.state.disabledAreaGeral
-                                ? 'Escolha a tipologia'
-                                : 'Área comum geral'
-                            }
-                            optionFilterProp="children"
-                            onChange={this.changeUnidadeAreaComum}
-                            filterOption={(input, option) =>
-                              option.props.children
-                                .toLowerCase()
-                                .indexOf(input.toLowerCase()) >= 0
-                            }
-                            disabled={this.state.disabledAreaGeral}
-                          >
-                            {this.state.areas_gerais.map((areasComuns, i) => {
-                              return (
-                                <Option
-                                  value={areasComuns._id}
-                                  key={
-                                    areasComuns._id +
-                                    areasComuns.areas_gerais[i] +
-                                    i
-                                  }
-                                >
-                                  {areasComuns.areas_gerais[i]}
-                                </Option>
-                              );
-                            })}
-                          </Select>
-                        )}
-                      </FormItem>
-                    </Spin>
-                  ) : null}
-                </Col>
-              </Row>
-            ) : (
-              <Row gutter={16}>
-                <Col span={6}>
+                              })
+                            : null}
+                        </Select>
+                      )}
+                    </FormItem>
+                  </Spin>
+                ) : null}
+              </Col>
+              <Col span={6}>
+                {(localStorage.getItem('tipo_morador') === false ||
+                  this.props.user.tipo_morador === false) &&
+                this.state.mostrarDados === true ? (
+                  <Spin spinning={this.state.enviando}>
+                    <FormItem
+                      validateStatus={areas_comunsError ? 'error' : ''}
+                      help={areas_comunsError || ''}
+                      label="Área comum da tipologia"
+                    >
+                      {getFieldDecorator('areas_comuns')(
+                        <Select
+                          showSearch
+                          //mode="tags"
+                          // style={{ width: '49.4%' }}
+                          placeholder={
+                            this.state.disabledAreaComum
+                              ? 'Escolha a tipologia'
+                              : 'Área comum da tipologia'
+                          }
+                          optionFilterProp="children"
+                          onChange={this.changeUnidadeAreaTipologia}
+                          filterOption={(input, option) =>
+                            option.props.children
+                              .toLowerCase()
+                              .indexOf(input.toLowerCase()) >= 0
+                          }
+                          disabled={this.state.disabledAreaComum}
+                        >
+                          {this.state.comuns
+                            ? this.state.comuns.map((areas_tipologias, i) => {
+                                return (
+                                  <Option
+                                    value={areas_tipologias._id}
+                                    key={areas_tipologias._id + i}
+                                  >
+                                    {Object.keys(areas_tipologias).map(
+                                      (val, i) => {
+                                        return areas_tipologias.areas_tipologias[i];
+                                      }
+                                    )}
+                                  </Option>
+                                );
+                              })
+                            : null}
+                        </Select>
+                      )}
+                    </FormItem>
+                  </Spin>
+                ) : null}
+              </Col>
+              <Col span={6}>
+                {this.props.user.tipo_morador === false &&
+                this.state.mostrarDados === true ? (
+                  <Spin spinning={this.state.enviando}>
+                    <FormItem
+                      validateStatus={areas_geraisError ? 'error' : ''}
+                      help={areas_geraisError || ''}
+                      label="Área comum geral"
+                    >
+                      {getFieldDecorator('areas_gerais')(
+                        <Select
+                          showSearch
+                          //mode="tags"
+                          // style={{ width: '49.4%' }}
+                          placeholder={
+                            this.state.disabledAreaGeral
+                              ? 'Escolha a tipologia'
+                              : 'Área comum geral'
+                          }
+                          optionFilterProp="children"
+                          onChange={this.changeUnidadeAreaComum}
+                          filterOption={(input, option) =>
+                            option.props.children
+                              .toLowerCase()
+                              .indexOf(input.toLowerCase()) >= 0
+                          }
+                          disabled={this.state.disabledAreaGeral}
+                        >
+                          {this.state.areaGeral ? (
+                            <Option
+                              value={this.state.areaGeral._id}
+                              key={this.state.areaGeral._id}
+                            >
+                              {Object.keys(
+                                this.state.areaGeral.areas_gerais
+                              ).map((area_tipologia, i) => {
+                                return this.state.areaGeral.areas_gerais[i];
+                              })}
+                            </Option>
+                          ) : null}
+                        </Select>
+                      )}
+                    </FormItem>
+                  </Spin>
+                ) : null}
+              </Col>
+            </Row>
+            {/* <Row gutter={16}> */}
+            {/* <Col span={6}>
                   {this.state.mostrarDados === true ? (
                     <Spin spinning={this.state.enviando}>
                       <FormItem
@@ -645,8 +649,8 @@ class AberturaChamadoForm extends React.Component {
                       </FormItem>
                     </Spin>
                   ) : null}
-                </Col>
-                <Col span={6}>
+                </Col> */}
+            {/* <Col span={6}>
                   {this.state.mostrarDados === true ? (
                     <Spin spinning={this.state.enviando}>
                       <FormItem
@@ -686,9 +690,8 @@ class AberturaChamadoForm extends React.Component {
                       </FormItem>
                     </Spin>
                   ) : null}
-                </Col>
-              </Row>
-            )}
+                </Col> */}
+            {/* </Row> */}
             {this.state.condominios ? (
               <div>
                 <Row gutter={16}>
