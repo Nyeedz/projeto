@@ -261,16 +261,16 @@ class AreasGeraisForm extends React.Component {
             });
 
             Promise.all(fila)
-              .then(x => {
+              .then(() => {
                 notification.open({
                   message: 'Ok!',
                   description: 'Área comum geral cadastrada com sucesso!',
                   icon: <Icon type="check" style={{ color: 'green' }} />
                 });
-                this.setState({ enviando: false });
                 this.dispatchAreasGerais();
                 this.props.form.resetFields();
                 uuid = 0;
+                this.setState({ enviando: false });
               })
               .catch(error => console.log(error));
           })

@@ -104,41 +104,90 @@ class AreasComunsForm extends React.Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        let areasTipologias = {};
         this.setState({ enviando: true });
+        let areatipologias = [];
+        const areaGeralCriar = [];
         let auth = localStorage.getItem('jwt');
         const config = {
           headers: { Authorization: `Bearer ${auth}` }
         };
-        values.names.map((areaTipologia, i) => {
-          return JSON.stringify((areasTipologias[i] = areaTipologia));
+
+        const areaGeralEditar = values.ids
+          .map((id, i) => {
+            if (!id) {
+              areaGeralCriar.push(values.names[i]);
+              return null;
+            }
+
+            return { _id: id, name: values.names[i] };
+          })
+          .filter(value => value);
+
+        const areaGeralExcluir = this.state.areasGerais.filter(are_geral => {
+          return !areaGeralEditar.find(
+            areaGeralEditar => areaGeralEditar._id === are_geral._id
+          );
         });
 
         axios
           .put(
             `${url}/areascomuns/${this.state.id}`,
             {
-              areas_tipologias: areasTipologias,
               condominio: values.condominio,
               construtora: values.construtoras,
               tipologia: values.torre
             },
             config
           )
-          .then(() => {
-            notification.open({
-              message: 'Ok',
-              description: 'Área comum da tipologia editada com sucesso!',
-              icon: <Icon type="check" style={{ color: 'green' }} />
+          .then(res => {
+            const filaEditar = areaGeralEditar.map(unidade => {
+              return axios.put(
+                `${url}/areatipologias/${unidade._id}`,
+                {
+                  nome: unidade.name
+                },
+                config
+              );
             });
-            this.dispatchAreasComuns();
-            this.props.form.resetFields();
-            uuid = 0;
-            this.setState({
-              enviando: false,
-              editar: false,
-              id: null
+
+            const filaCriar = areaGeralCriar.map(unidade => {
+              return axios.post(
+                `${url}/areatipologias`,
+                {
+                  nome: unidade,
+                  areasgerais: {
+                    _id: res.data._id
+                  }
+                },
+                config
+              );
             });
+
+            const filaExcluir = areaGeralExcluir.map(unidade => {
+              return axios.delete(
+                `${url}/areatipologias/${unidade._id}`,
+                config
+              );
+            });
+
+            Promise.all([...filaEditar, ...filaCriar, ...filaExcluir])
+              .then(values => {
+                notification.open({
+                  message: 'Ok',
+                  description: 'Área comum da tipologia editada com sucesso!',
+                  icon: <Icon type="check" style={{ color: 'green' }} />
+                });
+                this.dispatchAreasComuns();
+                this.props.form.resetFields();
+                uuid = 0;
+                this.setState({
+                  enviando: false,
+                  editar: false,
+                  id: null,
+                  areasGerais: []
+                });
+              })
+              .catch(error => console.log(error));
           })
           .catch(() => {
             notification.open({
@@ -170,9 +219,7 @@ class AreasComunsForm extends React.Component {
       if (!err) {
         let areasTipologias = {};
         this.setState({ enviando: true });
-        values.names.map((areaTipologia, i) => {
-          return JSON.stringify((areasTipologias[i] = areaTipologia));
-        });
+        const areas_gerais = values.names.map(areaTipologia => areaTipologia);
 
         let auth = localStorage.getItem('jwt') || this.props.user.jwt;
         const config = {
@@ -183,23 +230,38 @@ class AreasComunsForm extends React.Component {
           .post(
             `${url}/areascomuns`,
             {
-              areas_tipologias: areasTipologias,
               condominio: values.condominios,
               construtora: values.construtoras,
               tipologia: values.torre
             },
             config
           )
-          .then(() => {
-            notification.open({
-              message: 'Ok!',
-              description: 'Área comum da tipologia cadastrada com sucesso!',
-              icon: <Icon type="check" style={{ color: 'green' }} />
+          .then(res => {
+            const fila = areas_gerais.map(area_geral => {
+              return axios.post(
+                `${url}/areatipologias`,
+                {
+                  nome: area_geral,
+                  areascomun: res.data._id
+                },
+                config
+              );
             });
-            this.dispatchAreasComuns();
-            this.props.form.resetFields();
-            uuid = 0;
-            this.setState({ enviando: false });
+
+            Promise.all(fila)
+              .then(() => {
+                notification.open({
+                  message: 'Ok!',
+                  description:
+                    'Área comum da tipologia cadastrada com sucesso!',
+                  icon: <Icon type="check" style={{ color: 'green' }} />
+                });
+                this.dispatchAreasComuns();
+                this.props.form.resetFields();
+                uuid = 0;
+                this.setState({ enviando: false });
+              })
+              .catch(error => console.log(error));
           })
           .catch(() => {
             notification.open({
@@ -223,7 +285,8 @@ class AreasComunsForm extends React.Component {
   setFieldValue = dados => {
     this.setState({ enviando: true });
 
-    let areasGeraisArray = [];
+    let areaGeralArray = [];
+    let areaGeralIdsArray = [];
     uuid = 0;
 
     this.props.form.setFieldsValue({
@@ -242,7 +305,10 @@ class AreasComunsForm extends React.Component {
       });
 
       this.props.form.setFieldsValue({
-        names: areasGeraisArray,
+        names: areaGeralArray
+      });
+
+      this.props.form.setFieldsValue({
         torre: dados.tipologia._id
       });
 
@@ -252,16 +318,19 @@ class AreasComunsForm extends React.Component {
         disabled: false,
         disabledTipo: false,
         disabledCond: false,
-        enviando: false
+        enviando: false,
+        areasGerais: dados.areatipologias
       });
 
-      Object.keys(dados.areas_tipologias).forEach((area_tipologia, i) => {
+      dados.areatipologias.map(area_geral => {
         this.add();
-        areasGeraisArray[i] = dados.areas_tipologias[area_tipologia];
+        areaGeralArray.push(area_geral.nome);
+        areaGeralIdsArray.push(area_geral._id);
       });
 
       this.props.form.setFieldsValue({
-        names: areasGeraisArray,
+        names: areaGeralArray,
+        ids: areaGeralIdsArray,
         torre: dados.tipologia._id
       });
     }, 1500);
@@ -323,37 +392,41 @@ class AreasComunsForm extends React.Component {
         sm: { span: 20 }
       }
     };
-
     getFieldDecorator('keys', { initialValue: [] });
     const keys = getFieldValue('keys');
 
     const areaComumTipologia = keys.map((k, index) => {
       return (
-        <FormItem required={false} key={`nome${k + index}`}>
-          {getFieldDecorator(`names[${k}]`, {
-            validateTrigger: ['onChange', 'onBlur'],
-            rules: [
-              {
-                required: true,
-                whitespace: true,
-                message: `Por favor insira a àrea comum ${k + 1}`
-              }
-            ]
-          })(
-            <Input
-              placeholder={`Área comum da tipologia ${k + 1}`}
-              style={{ width: '90%', marginRight: 8 }}
-            />
+        <React.Fragment key={k + index + 'fragment'}>
+          {getFieldDecorator(`ids[${k}]`)(
+            <div key={`ids${k + index + 'ids'}`} />
           )}
-          {keys.length > 1 ? (
-            <Icon
-              className="dynamic-delete-button"
-              type="minus-circle-o"
-              disabled={keys.length === 1}
-              onClick={() => this.remove(k)}
-            />
-          ) : null}
-        </FormItem>
+          <FormItem required={false} key={`nome${k + index}`}>
+            {getFieldDecorator(`names[${k}]`, {
+              validateTrigger: ['onChange', 'onBlur'],
+              rules: [
+                {
+                  required: true,
+                  whitespace: true,
+                  message: `Por favor insira a área comum ${k + 1}`
+                }
+              ]
+            })(
+              <Input
+                placeholder={`Área comum da tipologia ${k + 1}`}
+                style={{ width: '90%', marginRight: 8 }}
+              />
+            )}
+            {keys.length > 1 ? (
+              <Icon
+                className="dynamic-delete-button"
+                type="minus-circle-o"
+                disabled={keys.length === 1}
+                onClick={() => this.remove(k)}
+              />
+            ) : null}
+          </FormItem>
+        </React.Fragment>
       );
     });
 

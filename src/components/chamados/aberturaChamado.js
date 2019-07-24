@@ -550,7 +550,8 @@ class AberturaChamadoForm extends React.Component {
                                   >
                                     {Object.keys(areas_tipologias).map(
                                       (val, i) => {
-                                        return areas_tipologias.areas_tipologias[i];
+                                        return areas_tipologias
+                                          .areas_tipologias[i];
                                       }
                                     )}
                                   </Option>
