@@ -331,7 +331,7 @@ class AberturaChamadoForm extends React.Component {
     };
 
     return (
-      <Content style={{ padding: '0 50px' }}>
+      <Content>
         <Form
           onSubmit={e => {
             this.state.condominios ? this.handleUpload(e) : null;

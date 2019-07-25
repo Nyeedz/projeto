@@ -37,6 +37,7 @@ class App extends React.Component {
               <Route path="/admin" component={requireAuth(Admin)} />
               {/* <Route path="/sobre" component={Sobre} /> */}
               <Route path="/chamados" component={requireAuth(Chamados)} />
+              <Route path="/chamado/:id" component={requireAuth(Chamados)} />
               <Route
                 path="/configuracoes"
                 component={requireAuth(Configuracoes)}

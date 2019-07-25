@@ -12,6 +12,7 @@ import {
   Input,
   DatePicker,
   Upload,
+  PageHeader,
   Icon,
   Modal
 } from 'antd';
@@ -28,7 +29,9 @@ class ChamadosList extends Component {
     enviando: false,
     codTela: null,
     chamados: [],
-    showContent: false,
+    condominios: [],
+    selectedCondominio: null,
+    selectedChamado: null,
     previewVisible: false,
     previewImage: '',
     fotosChamados: []
@@ -49,33 +52,25 @@ class ChamadosList extends Component {
       codTela: getCodePath(path)
     });
     this.getFuncionario();
-    this.getChamados();
+    this.loadCondominios();
   };
 
-  getChamados = () => {
-    this.setState({ enviando: true });
-    let auth = localStorage.getItem('jwt');
-    const config = {
-      headers: { Authorization: `Bearer ${auth}` }
-    };
-
-    axios
-      .get(`${url}/chamados`, config)
-      .then(res => {
-        this.setState({
-          chamados: res.data,
-          enviando: false
-        });
-        res.data.map(value => {
-          return this.setState({
-            chamadosId: value.condominio._id
-          });
-        });
-      })
-      .catch(error => {
-        message.error('Erro ao buscar dados do chamado!');
-        console.log(error);
+  loadCondominios = async () => {
+    try {
+      this.setState({ enviando: true });
+      const jwt = localStorage.getItem('jwt');
+      const res = await axios.get(`${url}/users/me`, {
+        headers: { Authorization: `Bearer ${jwt}` }
       });
+
+      this.setState({
+        condominios: res.data.condominios,
+        enviando: false
+      });
+    } catch (err) {
+      message.error('Erro ao buscar dados do chamado!');
+      console.log(err);
+    }
   };
 
   getFuncionario = () => {
@@ -99,34 +94,56 @@ class ChamadosList extends Component {
   };
 
   chamadoChange = id => {
-    let chamado = this.state.chamados.filter(x => x.id === id);
-    chamado.map(value => {
-      this.setState({
-        condominios: value.condominio,
-        comentario: value.comentario,
-        data_visita: value.data_visita,
-        garantia: value.garantia,
-        // data_abertura: value.garantia.data_inicio,
-        problema_repetido: value.problema_repetido,
-        torre: value.tipologia,
-        unidades: value.unidade,
-        user: value.user,
-        showContent: true
-      });
+    const chamado = this.state.chamados.find(chamado => chamado.id === id);
+    this.setState({
+      selectedChamado: chamado
     });
-    chamado.map(chamado => {
-      const fotosChamados = chamado.files.map(file => {
-        return {
-          uid: file._id,
-          name: file.name,
-          status: 'done',
-          url: `${url}${file.url}`
-        };
+    console.log(chamado);
+    // chamado.map(value => {
+    //   this.setState({
+    //     condominios: value.condominio,
+    //     comentario: value.comentario,
+    //     data_visita: value.data_visita,
+    //     garantia: value.garantia,
+    //     // data_abertura: value.garantia.data_inicio,
+    //     problema_repetido: value.problema_repetido,
+    //     torre: value.tipologia,
+    //     unidades: value.unidade,
+    //     user: value.user,
+    //     showContent: true
+    //   });
+    // });
+    // chamado.map(chamado => {
+    //   const fotosChamados = chamado.files.map(file => {
+    //     return {
+    //       uid: file._id,
+    //       name: file.name,
+    //       status: 'done',
+    //       url: `${url}${file.url}`
+    //     };
+    //   });
+    //   this.setState({
+    //     fotosChamados
+    //   });
+    // });
+  };
+
+  condominioChange = async id => {
+    try {
+      this.setState({ enviando: true });
+      const jwt = localStorage.getItem('jwt');
+      const res = await axios.get(`${url}/chamados?condominio=${id}`, {
+        headers: { Authorization: `Bearer ${jwt}` }
       });
+
       this.setState({
-        fotosChamados
+        selectedCondominio: id,
+        chamados: res.data
       });
-    });
+    } catch (err) {
+      message.error('Erro ao buscar dados do chamado!');
+      console.log(err);
+    }
   };
 
   render() {
@@ -137,6 +154,7 @@ class ChamadosList extends Component {
     } = this.props.form;
 
     const clienteError = isFieldTouched('cliente') && getFieldError('cliente');
+    const contatoError = isFieldTouched('contato') && getFieldError('contato');
     const condominioError =
       isFieldTouched('condominio') && getFieldError('condominio');
     const enderecoError =
@@ -153,224 +171,137 @@ class ChamadosList extends Component {
     const { previewVisible, previewImage } = this.state;
 
     return (
-      <Content>
-        <div style={{ background: '#fff' }}>
-          <Permissao codTela={this.state.codTela} permissaoNecessaria={[1, 2]}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                borderBottom: '1px solid rgba(0, 0, 0, .1)',
-                padding: 5
-              }}
-            >
-              <h2>
-                <span>Chamados</span>
-              </h2>
-            </div>
-            {this.state.condominios_funcionario === this.state.chamadosId ? (
-              <Form style={{ width: '90%', marginTop: '1rem' }}>
-                <Row guter={16}>
-                  <Col span={4} />
-                  <Col span={20}>
+      <Permissao codTela={this.state.codTela} permissaoNecessaria={[1, 2]}>
+        <div style={{ background: '#fff', borderRadius: '4px' }}>
+          <div
+            style={{
+              display: 'flex',
+              borderBottom: '1px solid rgba(0, 0, 0, .1)',
+              padding: '5px 1rem'
+            }}
+          >
+            <h2>Chamados</h2>
+          </div>
+          {/* fim do header */}
+          <div
+            style={{
+              padding: '1rem',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              textAlign: 'center',
+              flexDirection: 'column'
+            }}
+          >
+            {this.state.condominios.length > 0 ? (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center'
+                }}
+              >
+                <div>
+                  <p>Condomínio: </p>
+                  <Select
+                    showSearch
+                    placeholder="Escolha o condomínio"
+                    optionFilterProp="children"
+                    style={{ width: 200 }}
+                    onChange={this.condominioChange}
+                    filterOption={(input, option) =>
+                      option.props.children
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    }
+                  >
+                    {this.state.condominios.map((condominio, i) => {
+                      return (
+                        <Option value={condominio.id} key={condominio.id + i}>
+                          {condominio.nome}
+                        </Option>
+                      );
+                    })}
+                  </Select>
+                </div>
+                <div style={{ marginLeft: 10 }}>
+                  <p>Chamado: </p>
+                  <Select
+                    showSearch
+                    placeholder="Escolha o chamado"
+                    optionFilterProp="children"
+                    style={{ width: 200 }}
+                    disabled={!this.state.selectedCondominio}
+                    onChange={this.chamadoChange}
+                    filterOption={(input, option) =>
+                      option.props.children
+                        .toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    }
+                  >
+                    {this.state.chamados.map((chamado, i) => {
+                      return (
+                        <Option value={chamado.id} key={chamado.id + i}>
+                          {chamado.user.username}
+                        </Option>
+                      );
+                    })}
+                  </Select>
+                </div>
+              </div>
+            ) : (
+              <p>
+                Para acessar os chamados é necessário ser responsável por ao
+                menos um condomínio
+              </p>
+            )}
+          </div>
+          {this.state.selectedChamado && (
+            <div className="chamado-form">
+              <Form
+                onSubmit={e => {
+                  console.log(e);
+                }}
+                style={{ padding: '1rem' }}
+              >
+                <Row gutter={16}>
+                  <Col span={12}>
                     <FormItem
                       validateStatus={clienteError ? 'error' : ''}
                       help={clienteError || ''}
+                      label="Cliente"
                     >
                       {getFieldDecorator('cliente', {
                         rules: [
                           {
                             required: true,
-                            message: 'Escolha o chamado'
+                            message: 'Escolha o cliente'
                           }
                         ]
-                      })(
-                        <Select
-                          showSearch
-                          // mode="tags"
-                          style={{ width: '100%' }}
-                          placeholder="Escolha o chamado"
-                          optionFilterProp="children"
-                          onChange={this.chamadoChange}
-                          filterOption={(input, option) =>
-                            option.props.children
-                              .toLowerCase()
-                              .indexOf(input.toLowerCase()) >= 0
+                      })(<Input placeholder="Cliente" disabled />)}
+                    </FormItem>
+                  </Col>
+                  <Col span={12}>
+                    <FormItem
+                      validateStatus={contatoError ? 'error' : ''}
+                      help={contatoError || ''}
+                      label="Contato"
+                    >
+                      {getFieldDecorator('contato', {
+                        rules: [
+                          {
+                            required: true,
+                            message: 'Contato é necessário'
                           }
-                        >
-                          {this.state.chamados.map((chamado, i) => {
-                            return (
-                              <Option value={chamado.id} key={chamado.id + i}>
-                                {chamado.user.username}
-                              </Option>
-                            );
-                          })}
-                        </Select>
-                      )}
+                        ]
+                      })(<Input placeholder="Contato" disabled />)}
                     </FormItem>
                   </Col>
                 </Row>
-                {this.state.showContent ? (
-                  <div>
-                    <Row gutter={16}>
-                      <Col span={4} />
-                      <Col span={10}>
-                        <FormItem
-                          validateStatus={condominioError ? 'error' : ''}
-                          help={condominioError || ''}
-                        >
-                          {getFieldDecorator('condominio')(
-                            <strong>
-                              <label>{this.state.condominios.nome}</label>
-                            </strong>
-                          )}
-                        </FormItem>
-                      </Col>
-                      <Col span={10}>
-                        <FormItem
-                          validateStatus={enderecoError ? 'error' : ''}
-                          help={enderecoError || ''}
-                        >
-                          {getFieldDecorator('endereco')(
-                            <strong>
-                              <label>
-                                {this.state.condominios.endereco} -{' '}
-                                {this.state.condominios.bairro} -{' '}
-                                {this.state.condominios.cidade} /{' '}
-                                {this.state.condominios.estado}
-                              </label>
-                            </strong>
-                          )}
-                        </FormItem>
-                      </Col>
-                    </Row>
-                    <Row gutter={16}>
-                      <Col span={4} />
-                      <Col span={10}>
-                        <FormItem
-                          validadeStatus={garantiaError ? 'error' : ''}
-                          help={garantiaError || ''}
-                        >
-                          {getFieldDecorator('garantia')(
-                            <strong>
-                              <label>{this.state.garantia.nome}</label>
-                            </strong>
-                          )}
-                        </FormItem>
-                      </Col>
-                      <Col span={10}>
-                        <FormItem
-                          validadeStatus={problemaError ? 'error' : ''}
-                          help={problemaError || ''}
-                        >
-                          {getFieldDecorator('problema', {
-                            initialValue: this.state.comentario
-                          })(
-                            <Input.TextArea
-                              placeholder="Problema"
-                              rows={4}
-                              disabled
-                            />
-                          )}
-                        </FormItem>
-                      </Col>
-                    </Row>
-                    <Row gutter={16}>
-                      <Col span={4} />
-                      <Col span={10}>
-                        <FormItem
-                          validateStatus={dataAberturaError ? 'error' : ''}
-                          help={dataAberturaError || ''}
-                        >
-                          {getFieldDecorator('data_abertura', {
-                            initialValue: moment(this.state.data_abertura),
-                            rules: [
-                              {
-                                required: true,
-                                message: 'Entre com a data de abertuda'
-                              }
-                            ]
-                          })(
-                            <DatePicker
-                              showTime
-                              placeholder="Dia para visita"
-                              format="DD/MM/YYYY HH:mm:ss"
-                              style={{ width: '320px' }}
-                              disabled={true}
-                            />
-                          )}
-                        </FormItem>
-                      </Col>
-                      <Col span={10}>
-                        <FormItem
-                          validateStatus={dataAgendamentoError ? 'error' : ''}
-                          help={dataAgendamentoError || ''}
-                        >
-                          {getFieldDecorator('data_agendamento', {
-                            initialValue: moment(this.state.data_visita),
-                            rules: [
-                              {
-                                required: true,
-                                message: 'Entre com a data de agendamento'
-                              }
-                            ]
-                          })(
-                            <DatePicker
-                              showTime
-                              placeholder="Dia para visita"
-                              format="DD/MM/YYYY HH:mm:ss"
-                              style={{ width: '320px' }}
-                            />
-                          )}
-                        </FormItem>
-                      </Col>
-                    </Row>
-                    <Row>
-                      <Col span={4} />
-                      <Col span={12}>
-                        <FormItem>
-                          <div className="clearfix">
-                            <Upload
-                              action="//jsonplaceholder.typicode.com/posts/"
-                              listType="picture-card"
-                              fileList={this.state.fotosChamados}
-                              onPreview={this.handlePreview}
-                              onChange={this.handleChange}
-                            />
-                            <Modal
-                              visible={previewVisible}
-                              footer={null}
-                              onCancel={this.handleCancel}
-                            >
-                              <img
-                                alt="example"
-                                style={{ width: '100%' }}
-                                src={previewImage}
-                              />
-                            </Modal>
-                          </div>
-                        </FormItem>
-                      </Col>
-                    </Row>
-                  </div>
-                ) : null}
               </Form>
-            ) : (
-              <FormItem>
-                <Row gutter={16}>
-                  <Col span={6} />
-                  <Col span={12}>
-                    <span>
-                      Não há chamados em aberto para os condomínios no qual você
-                      é responsável
-                    </span>
-                  </Col>
-                </Row>
-              </FormItem>
-            )}
-          </Permissao>
+            </div>
+          )}
         </div>
-      </Content>
+      </Permissao>
     );
   }
 }

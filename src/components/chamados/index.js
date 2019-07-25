@@ -1,11 +1,13 @@
 import React from 'react';
-import { Row, Col, Layout, Steps, Popover } from 'antd';
+import { Row, Col, Layout, Steps, Popover, Button, message } from 'antd';
 import './style.css';
 import axios from 'axios';
 
 import AberturaChamado from './aberturaChamado';
+import VisitaTecnica from './visitaTecnica';
 import PesquisaSatisfacao from './pesquisaSatisfacao';
 import { ABERTURA_CHAMADO, url } from '../../utilities/constants';
+import { runInThisContext } from 'vm';
 
 const { Content } = Layout;
 const Step = Steps.Step;
@@ -21,7 +23,7 @@ class Chamados extends React.Component {
     {
       title: 'Visita para',
       description: 'análise técnica',
-      content: 'visita',
+      content: null,
       status: 1
     },
     {
@@ -47,12 +49,46 @@ class Chamados extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      current: ABERTURA_CHAMADO
+      current: 0,
+      chamado: null
     };
+
+    if (props.match.params.id) {
+      this.loadChamado(props.match.params.id);
+    }
   }
 
   componentDidMount = () => {
-    this.getChamadosUser();
+    this.setState({
+      current: 0
+    });
+    // this.getChamadosUser();
+  };
+
+  loadChamado = async id => {
+    try {
+      let auth = localStorage.getItem('jwt') || this.props.user.jwt;
+      const config = {
+        headers: { Authorization: `Bearer ${auth}` }
+      };
+      const res = await axios.get(`${url}/chamados/${id}`, config);
+      this.selectStep(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  selectStep = async chamado => {
+    switch (chamado.status) {
+      case 1:
+        this.steps[1].content = <VisitaTecnica chamado={chamado} />;
+        this.setState({
+          current: 1
+        });
+        break;
+      default:
+        break;
+    }
   };
 
   getChamadosUser = () => {
@@ -88,13 +124,6 @@ class Chamados extends React.Component {
     this.setState({ current });
   };
 
-  get renderContent() {
-    switch (this.state.current) {
-      case ABERTURA_CHAMADO:
-        return <AberturaChamado next={this.next} />;
-    }
-  }
-
   render() {
     const { current } = this.state;
     const customDot = (dot, { status, index }) => (
@@ -111,41 +140,19 @@ class Chamados extends React.Component {
 
     return (
       <Content className="content">
-        <Row type="flex" justify="space-around" align="middle">
-          <Col span={24} />
-        </Row>
-        <div style={{ background: '#fff' }}>
-          <AberturaChamado />
-          {/* <Steps current={current}> */}
-            {/* {this.steps.map((item, i) => (
-              <Step
-                key={item.title + i}
-                title={item.title}
-                description={item.description}
-              />
-            ))} */}
-          {/* </Steps> */}
-          {/* <div className="steps-content">{this.renderContent}</div> */}
-          {/* <div className="steps-action">
-            {this.state.current < steps.length - 1 && (
-              <Button type="primary" onClick={() => this.next()}>
-                Next
-                  </Button>
-            )}
-            {this.state.current === steps.length - 1 && (
-              <Button
-                type="primary"
-                onClick={() => message.success('Processing complete!')}
-              >
-                Done
-                  </Button>
-            )}
-            {this.state.current > 0 && (
-              <Button style={{ marginLeft: 8 }} onClick={() => this.prev()}>
-                Previous
-              </Button>
-            )}
-          </div> */}
+        <Steps current={current}>
+          {this.steps.map(item => (
+            <Step
+              key={item.title}
+              title={item.title}
+              description={item.description}
+            />
+          ))}
+        </Steps>
+        <div
+          style={{ background: '#fff', borderRadius: '4px', padding: '1em' }}
+        >
+          {this.steps[current].content}
         </div>
       </Content>
     );

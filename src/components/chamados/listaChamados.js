@@ -100,26 +100,8 @@ class ListaChamadosClientes extends React.Component {
     });
   };
 
-  updateChamados = id => {
-    let auth = localStorage.getItem('jwt') || this.props.user.jwt;
-
-    const config = {
-      headers: { Authorization: `Bearer ${auth}` }
-    };
-    axios
-      .get(`${url}/chamados/${id}`, config)
-      .then(res => {
-        if (res.data._id === id) {
-          // this.props.dispatch(selectChamado(res.data));
-        }
-      })
-      .catch(error => console.log(error));
-    // this.props.chamados.map(chamado => {
-    //   if (chamado.id === id) {
-    //     return this.props.setFieldValue(chamado);
-    //   }
-    // });
-    this.fetch();
+  updateChamados = async chamado => {
+    this.props.history.push(`/chamado/${chamado.id}`);
   };
 
   onInputChange = e => {
@@ -183,34 +165,34 @@ class ListaChamadosClientes extends React.Component {
         id: 'status' + '_id',
         render: (text, i) => <p key={text + i}>{text}</p>
       },
-      // {
-      //   title: 'Opções',
-      //   key: 'id',
-      //   render: record => (
-      //     <span>
-      //       <Tooltip title="Editar">
-      //         <Button
-      //           type="primary"
-      //           onClick={() => this.updateChamados(record.id)}
-      //         >
-      //           <Icon type="edit" />
-      //         </Button>
-      //       </Tooltip>
+      {
+        title: 'Opções',
+        key: 'id',
+        render: record => (
+          <span>
+            <Tooltip title="Editar">
+              <Button
+                type="primary"
+                onClick={() => this.updateChamados(record)}
+              >
+                <Icon type="edit" />
+              </Button>
+            </Tooltip>
 
-      //       <Divider type="vertical" />
-      //       <Popconfirm
-      //         title="Está ação irá excluir todos os dados conectados a esta construtora, tem certeza que deseja excluir esta construtora ?"
-      //         onConfirm={() => this.deleteConstrutora(record.id)}
-      //       >
-      //         <Tooltip title="Deletar">
-      //           <Button type="danger">
-      //             <Icon type="delete" />
-      //           </Button>
-      //         </Tooltip>
-      //       </Popconfirm>
-      //     </span>
-      //   )
-      // }
+            <Divider type="vertical" />
+            <Popconfirm
+              title="Está ação irá excluir todos os dados conectados a esta construtora, tem certeza que deseja excluir esta construtora ?"
+              onConfirm={() => this.deleteConstrutora(record.id)}
+            >
+              <Tooltip title="Deletar">
+                <Button type="danger">
+                  <Icon type="delete" />
+                </Button>
+              </Tooltip>
+            </Popconfirm>
+          </span>
+        )
+      }
     ];
 
     return (
