@@ -81,8 +81,8 @@ class TableAreaComum extends React.Component {
       filtered: !!searchText,
       data: this.props.areasComuns
         .map(record => {
-          const match = Object.keys(record.areas_tipologias).map(key => {
-            return record.areas_tipologias[key].match(reg);
+          const match = record.areatipologias.map(key => {
+            return key.nome.match(reg);
           });
 
           const igual = match.some(el => {
@@ -96,12 +96,8 @@ class TableAreaComum extends React.Component {
           if (searchText === '') return this.fetch();
           return {
             ...record,
-            unidade: Object.keys(record.areas_tipologias).map((key, index) => {
-              return (
-                <p key={record.areas_tipologias[key] + index}>
-                  {record.areas_tipologias[key]}
-                </p>
-              );
+            unidade: record.areatipologias.map((key, index) => {
+              return <p key={key.id + index}>{key.nome}</p>;
             })
           };
         })
@@ -150,16 +146,13 @@ class TableAreaComum extends React.Component {
     const columns = [
       {
         title: 'Áreas das tipologias',
-        dataIndex: 'areas_tipologias',
-        key: 'areas_tipologias',
+        dataIndex: 'areatipologias',
+        key: 'id',
         render: text =>
-          Object.keys(text).map((areas_tipologias, i) => {
-            return (
-              <p key={text[areas_tipologias] + i}>{text[areas_tipologias]}</p>
-            );
+          text.map((areas_tipologias, i) => {
+            return <p key={areas_tipologias + i}>{areas_tipologias.nome}</p>;
           }),
-        onFilter: (value, record) =>
-          record.areas_tipologias.indexOf(value) === 0,
+        onFilter: (value, record) => record.areatipologias.indexOf(value) === 0,
         filterDropdown: (
           <div className="custom-filter-dropdown">
             <Input

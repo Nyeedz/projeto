@@ -52,7 +52,8 @@ class AreasGeraisForm extends React.Component {
       { status: 0 },
       { status: 0 }
     ],
-    codTela: null
+    codTela: null,
+    areacomumgerals: []
   };
 
   componentDidMount = () => {
@@ -68,6 +69,8 @@ class AreasGeraisForm extends React.Component {
 
   dispatchAreasGerais = () => {
     this.props.dispatch(fetchAreasGerais());
+    this.props.dispatch(fetchCondominios());
+    this.props.dispatch(fetchConstrutoras());
   };
 
   remove = k => {
@@ -99,46 +102,108 @@ class AreasGeraisForm extends React.Component {
 
   handleUpdate = e => {
     e.preventDefault();
+
     this.props.form.validateFields((err, values) => {
-      let areasGerais = {};
+      let areacomumgerals = [];
       if (!err) {
-        this.setState({ enviando: true });
-        values.names.map((areaGeral, i) => {
-          return JSON.stringify((areasGerais[i] = areaGeral));
-        });
+        const areaGeralCriar = [];
+
+        const areaGeralEditar = values.ids
+          .map((id, i) => {
+            if (!id) {
+              areaGeralCriar.push(values.names[i]);
+              return null;
+            }
+
+            return { _id: id, name: values.names[i] };
+          })
+          .filter(value => value);
+
+        const areaGeralExcluir = this.state.areacomumgerals.filter(
+          are_geral => {
+            return !areaGeralEditar.find(
+              areaGeralEditar => areaGeralEditar._id === are_geral._id
+            );
+          }
+        );
+
         let auth = localStorage.getItem('jwt');
         const config = {
           headers: { Authorization: `Bearer ${auth}` }
         };
+
         axios
           .put(
             `${url}/areasgerais/${this.state.id}`,
             {
-              areas_gerais: areasGerais,
-              condominio: values.condominio,
-              construtora: values.construtoras
+              construtoras: values.construtoras,
+              condominios: values.condominios
             },
             config
           )
           .then(res => {
-            notification.open({
-              message: 'Ok',
-              description: 'Área comum geral editada com sucesso!',
-              icon: <Icon type="check" style={{ color: 'green' }} />
+            const filaEditar = areaGeralEditar.map(unidade => {
+              return axios.put(
+                `${url}/areacomumgerals/${unidade._id}`,
+                {
+                  nome: unidade.name
+                },
+                config
+              );
             });
-            this.dispatchAreasGerais();
-            this.props.form.resetFields();
-            uuid = 0;
-            this.setState({
-              enviando: false,
-              editar: false,
-              id: null
+
+            const filaCriar = areaGeralCriar.map(unidade => {
+              return axios.post(
+                `${url}/areacomumgerals`,
+                {
+                  nome: unidade,
+                  areasgerais: {
+                    _id: res.data._id
+                  }
+                },
+                config
+              );
             });
+
+            const filaExcluir = areaGeralExcluir.map(unidade => {
+              return axios.delete(
+                `${url}/areacomumgerals/${unidade._id}`,
+                config
+              );
+            });
+
+            Promise.all([...filaEditar, ...filaCriar, ...filaExcluir])
+              .then(values => {
+                notification.open({
+                  message: 'Ok',
+                  description: 'Área geral editada com sucesso!',
+                  icon: <Icon type="check" style={{ color: 'green' }} />
+                });
+                this.props.dispatch(
+                  fetchAreasGerais({
+                    areacomumgerals: areacomumgerals,
+                    construtoras: values.construtoras,
+                    condominios: values.condominios,
+                    areasgerais: values.areasgerais
+                  })
+                );
+                this.props.form.resetFields();
+                uuid = 0;
+                this.setState({
+                  enviando: false,
+                  editar: false,
+                  id: null,
+                  areacomumgerals: []
+                });
+              })
+              .catch(err => {
+                console.log(err, 'erro aqui men');
+              });
           })
           .catch(error => {
             notification.open({
               message: 'Opps!',
-              description: 'Erro ao editar a área comum geral!',
+              description: 'Erro ao editar a área geral!',
               icon: <Icon type="check" style={{ color: 'red' }} />
             });
             this.setState({
@@ -147,12 +212,8 @@ class AreasGeraisForm extends React.Component {
               id: null
             });
           });
-        this.setState({
-          enviando: false,
-          editar: false,
-          id: null
-        });
       } else {
+        this.setState({ enviando: false });
         notification.open({
           message: 'Opps',
           description: 'Por favor, preencha todos os campos',
@@ -170,9 +231,7 @@ class AreasGeraisForm extends React.Component {
       let areasGerais = {};
       if (!err) {
         this.setState({ enviando: true });
-        values.names.map((areaGeral, i) => {
-          return JSON.stringify((areasGerais[i] = areaGeral));
-        });
+        const areas_gerais = values.names.map(unidade => unidade);
 
         let auth = localStorage.getItem('jwt');
 
@@ -184,22 +243,36 @@ class AreasGeraisForm extends React.Component {
           .post(
             `${url}/areasgerais`,
             {
-              areas_gerais: areasGerais,
               condominio: values.condominio,
               construtora: values.construtoras
             },
             config
           )
-          .then(() => {
-            notification.open({
-              message: 'Ok!',
-              description: 'Área comum geral cadastrada com sucesso!',
-              icon: <Icon type="check" style={{ color: 'green' }} />
+          .then(res => {
+            const fila = areas_gerais.map(area_geral => {
+              return axios.post(
+                `${url}/areacomumgerals`,
+                {
+                  nome: area_geral,
+                  areasgerais: res.data._id
+                },
+                config
+              );
             });
-            this.setState({ enviando: false });
-            this.dispatchAreasGerais();
-            this.props.form.resetFields();
-            uuid = 0;
+
+            Promise.all(fila)
+              .then(() => {
+                notification.open({
+                  message: 'Ok!',
+                  description: 'Área comum geral cadastrada com sucesso!',
+                  icon: <Icon type="check" style={{ color: 'green' }} />
+                });
+                this.dispatchAreasGerais();
+                this.props.form.resetFields();
+                uuid = 0;
+                this.setState({ enviando: false });
+              })
+              .catch(error => console.log(error));
           })
           .catch(() => {
             notification.open({
@@ -224,6 +297,7 @@ class AreasGeraisForm extends React.Component {
     this.setState({ enviando: true });
 
     let areaGeralArray = [];
+    let areaGeralIdsArray = [];
     uuid = 0;
 
     this.props.form.setFieldsValue({
@@ -236,20 +310,32 @@ class AreasGeraisForm extends React.Component {
         construtoras: dados.construtora._id
       });
 
-      Object.keys(dados.areas_gerais).forEach((area_geral, i) => {
-        this.add();
-        areaGeralArray[i] = dados.areas_gerais[area_geral];
+      this.props.form.setFieldsValue({
+        names: areaGeralArray
       });
 
-      this.props.form.setFieldsValue({
-        names: areaGeralArray,
-        condominio: dados.condominio._id
-      });
       this.setState({
         enviando: false,
         editar: true,
         id: dados.id,
+        areasGerais: dados.areacomumgerals,
         disabled: false
+      });
+
+      this.setState({
+        areacomumgerals: dados.areacomumgerals
+      });
+
+      dados.areacomumgerals.map(area_geral => {
+        this.add();
+        areaGeralArray.push(area_geral.nome);
+        areaGeralIdsArray.push(area_geral._id);
+      });
+
+      this.props.form.setFieldsValue({
+        names: areaGeralArray,
+        ids: areaGeralIdsArray,
+        condominio: dados.condominio._id
       });
     }, 1500);
   };
@@ -300,31 +386,36 @@ class AreasGeraisForm extends React.Component {
 
     const areasComumGeral = keys.map((k, index) => {
       return (
-        <FormItem required={false} key={`nome${k + index}`}>
-          {getFieldDecorator(`names[${k}]`, {
-            validateTrigger: ['onChange', 'onBlur'],
-            rules: [
-              {
-                required: true,
-                whitespace: true,
-                message: `Por favor insira a àrea comum ${k + 1}`
-              }
-            ]
-          })(
-            <Input
-              placeholder={`Área comum ${k + 1}`}
-              style={{ width: '90%', marginRight: 8 }}
-            />
+        <React.Fragment key={k + index + 'fragment'}>
+          {getFieldDecorator(`ids[${k}]`)(
+            <div key={`ids${k + index + 'ids'}`} />
           )}
-          {keys.length > 1 ? (
-            <Icon
-              className="dynamic-delete-button"
-              type="minus-circle-o"
-              disabled={keys.length === 1}
-              onClick={() => this.remove(k)}
-            />
-          ) : null}
-        </FormItem>
+          <FormItem required={false} key={`nome${k + index}`}>
+            {getFieldDecorator(`names[${k}]`, {
+              validateTrigger: ['onChange', 'onBlur'],
+              rules: [
+                {
+                  required: true,
+                  whitespace: true,
+                  message: `Por favor insira a área comum ${k + 1}`
+                }
+              ]
+            })(
+              <Input
+                placeholder={`Área comum ${k + 1}`}
+                style={{ width: '90%', marginRight: 8 }}
+              />
+            )}
+            {keys.length > 1 ? (
+              <Icon
+                className="dynamic-delete-button"
+                type="minus-circle-o"
+                disabled={keys.length === 1}
+                onClick={() => this.remove(k)}
+              />
+            ) : null}
+          </FormItem>
+        </React.Fragment>
       );
     });
 
