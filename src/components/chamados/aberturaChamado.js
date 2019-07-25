@@ -57,7 +57,6 @@ class AberturaChamadoForm extends React.Component {
   componentDidMount = () => {
     this.props.dispatch(getMe());
     this.props.dispatch(selectChamado());
-    console.log(this.props.user.tipo_morador, 'aiaiai');
   };
 
   onChangeData = (date, dateString) => {
@@ -85,8 +84,6 @@ class AberturaChamadoForm extends React.Component {
         const config = {
           headers: { Authorization: `Bearer ${auth}` }
         };
-        console.log(values);
-        return;
         axios
           .post(
             `${url}/chamados`,
@@ -191,8 +188,13 @@ class AberturaChamadoForm extends React.Component {
         axios
           .get(`${url}/condominios/${id}`, config)
           .then(result => {
-            result.data.areasgerais.map(area_geral => {
-              this.setState({ areaGeral: area_geral });
+            result.data.areasgerais.map(areasgerais => {
+              axios
+                .get(`${url}/areasgerais/${areasgerais._id}`, config)
+                .then(res => {
+                  this.setState({ areaGeral: res.data.areacomumgerals });
+                })
+                .catch(error => console.log(error));
             });
           })
           .catch(error => console.log(error));
@@ -234,7 +236,6 @@ class AberturaChamadoForm extends React.Component {
         disabledAreaGeral: false,
         enviando: false
       });
-      console.log(this.state.comuns);
     });
   };
 
@@ -259,7 +260,6 @@ class AberturaChamadoForm extends React.Component {
   };
 
   changeUnidadeAreaComum = id => {
-    console.log(id, 'areaComum');
     if (id === '' || id === undefined) return false;
     return this.props.form.setFieldsValue({
       unidade: undefined,
@@ -282,6 +282,27 @@ class AberturaChamadoForm extends React.Component {
         });
       })
       .catch(error => console.log(error));
+  };
+
+  disabledDate = current => {
+    return current && current < moment().endOf('day');
+  };
+
+  range = (start, end) => {
+    const result = [];
+    for (let i = start; i < end; i++) {
+      result.push(i);
+    }
+
+    return result;
+  };
+
+  disabledDateTime = () => {
+    return {
+      disabledHours: () => this.range(0, 24).splice(4, 20),
+      disabledMinutes: () => this.range(30, 60),
+      disabledSeconds: () => [55, 56]
+    };
   };
 
   render() {
@@ -542,19 +563,18 @@ class AberturaChamadoForm extends React.Component {
                           disabled={this.state.disabledAreaComum}
                         >
                           {this.state.comuns
-                            ? this.state.comuns.map((areas_tipologias, i) => {
-                                return (
-                                  <Option
-                                    value={areas_tipologias._id}
-                                    key={areas_tipologias._id + i}
-                                  >
-                                    {Object.keys(areas_tipologias).map(
-                                      (val, i) => {
-                                        return areas_tipologias
-                                          .areas_tipologias[i];
-                                      }
-                                    )}
-                                  </Option>
+                            ? this.state.comuns.map(areas_tipologias => {
+                                return areas_tipologias.areatipologias.map(
+                                  (area, i) => {
+                                    return (
+                                      <Option
+                                        value={area._id}
+                                        key={area._id + i}
+                                      >
+                                        {area.nome}
+                                      </Option>
+                                    );
+                                  }
                                 );
                               })
                             : null}
@@ -592,18 +612,18 @@ class AberturaChamadoForm extends React.Component {
                           }
                           disabled={this.state.disabledAreaGeral}
                         >
-                          {this.state.areaGeral ? (
-                            <Option
-                              value={this.state.areaGeral._id}
-                              key={this.state.areaGeral._id}
-                            >
-                              {Object.keys(
-                                this.state.areaGeral.areas_gerais
-                              ).map((area_tipologia, i) => {
-                                return this.state.areaGeral.areas_gerais[i];
-                              })}
-                            </Option>
-                          ) : null}
+                          {this.state.areaGeral
+                            ? this.state.areaGeral.map((area_geral, i) => {
+                                return (
+                                  <Option
+                                    value={area_geral._id}
+                                    key={area_geral._id + i}
+                                  >
+                                    {area_geral.nome}
+                                  </Option>
+                                );
+                              })
+                            : null}
                         </Select>
                       )}
                     </FormItem>
@@ -801,12 +821,20 @@ class AberturaChamadoForm extends React.Component {
                 >
                   {getFieldDecorator('validade')(
                     <DatePicker
-                      showTime
-                      onChange={this.onChangeData}
-                      placeholder="Dia para visita"
-                      format="DD/MM/YYYY HH:mm:ss"
-                      style={{ width: '320px' }}
+                      format="YYYY-MM-DD HH:mm:ss"
+                      disabledDate={this.disabledDate}
+                      disabledTime={this.disabledDateTime}
+                      showTime={{
+                        defaultValue: moment('00:00:00', 'HH:mm:ss')
+                      }}
                     />
+                    // <DatePicker
+                    //   showTime
+                    //   onChange={this.onChangeData}
+                    //   placeholder="Dia para visita"
+                    //   format="DD/MM/YYYY HH:mm:ss"
+                    //   style={{ width: '320px' }}
+                    // />
                   )}
                 </FormItem>
               </Col>
