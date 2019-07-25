@@ -105,7 +105,6 @@ class AreasComunsForm extends React.Component {
     this.props.form.validateFields((err, values) => {
       if (!err) {
         this.setState({ enviando: true });
-        let areatipologias = [];
         const areaGeralCriar = [];
         let auth = localStorage.getItem('jwt');
         const config = {

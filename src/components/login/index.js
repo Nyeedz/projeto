@@ -117,7 +117,7 @@ class LoginForm extends React.Component {
     }
 
     if (user.jwt && user.role === 'authenticated') {
-      return <Redirect to="/configuracoes" />;
+      return <Redirect to="/lista-chamados-clientes" />;
     }
 
     const userNameError = isFieldTouched('email') && getFieldError('email');
