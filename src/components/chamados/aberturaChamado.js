@@ -91,15 +91,18 @@ class AberturaChamadoForm extends React.Component {
               condominio: values.condominios,
               tipologia: values.tipologia,
               unidade: values.unidade,
-              areascomun: values.areas_comuns,
-              areasgerais: values.areas_gerais,
+              areatipologia: values.areas_comuns,
+              areacomumgeral: values.areas_gerais,
               comentario: values.comentario,
+              subitem: values.sub_item,
               contato: values.contato,
+              data_abertura: moment(),
               user:
                 this.state.idUser ||
                 this.props.user.id ||
                 localStorage.getItem('id'),
               data_visita: values.validade,
+              data_abertura: moment,
               garantia: values.nome_item,
               problema_repetido: this.state.problema_repetido,
               status: VISITA_ANALISE_TECNICA
