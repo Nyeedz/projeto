@@ -74,7 +74,6 @@ class AberturaChamadoForm extends React.Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        ('');
         this.setState({
           uploading: true,
           enviando: true
@@ -84,6 +83,7 @@ class AberturaChamadoForm extends React.Component {
         const config = {
           headers: { Authorization: `Bearer ${auth}` }
         };
+
         axios
           .post(
             `${url}/chamados`,
@@ -91,8 +91,8 @@ class AberturaChamadoForm extends React.Component {
               condominio: values.condominios,
               tipologia: values.tipologia,
               unidade: values.unidade,
-              areascomun: '',
-              areasgerais: '',
+              areascomun: values.areas_comuns,
+              areasgerais: values.areas_gerais,
               comentario: values.comentario,
               contato: values.contato,
               user:

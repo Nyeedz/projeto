@@ -236,9 +236,10 @@ class GarantiaForm extends React.Component {
                 tempo_garantia:
                   values.prefix[i] == 'a' ? null : values.tempo[i],
                 unidade_garantia: values.prefix[i],
-                data_inicio: moment(this.state.validadeTipologia, 'DD/MM/YYYY').format(
+                data_inicio: moment(
+                  this.state.validadeTipologia,
                   'DD/MM/YYYY'
-                )
+                ).format('DD/MM/YYYY')
               });
               return null;
             }
@@ -263,9 +264,10 @@ class GarantiaForm extends React.Component {
             nome: values.secondary[k],
             tempo_garantia: values.prefix[k] == 'a' ? null : values.tempo[k],
             unidade_garantia: values.prefix[k],
-            data_inicio: moment(this.state.validadeTipologia, 'DD/MM/YYYY').format(
+            data_inicio: moment(
+              this.state.validadeTipologia,
               'DD/MM/YYYY'
-            )
+            ).format('DD/MM/YYYY')
           };
         });
 
@@ -382,7 +384,10 @@ class GarantiaForm extends React.Component {
     );
 
     this.setState({
-      validadeTipologia: moment(tipologia.validade.substring(0, 10), 'YYYY-MM-DD').format('DD/MM/YYYY')
+      validadeTipologia: moment(
+        tipologia.validade.substring(0, 10),
+        'YYYY-MM-DD'
+      ).format('DD/MM/YYYY')
     });
   };
 
@@ -518,7 +523,7 @@ class GarantiaForm extends React.Component {
             }}
           >
             <Icon type="calendar" style={{ marginRight: '.5rem' }} />
-            Data de término:&nbsp;
+            Data término:&nbsp;
             {moment(this.state.validadeTipologia, 'DD/MM/YYYY')
               .add(getFieldValue(`tempo[${k}]`), getFieldValue(`prefix[${k}]`))
               .format('DD/MM/YYYY')
@@ -527,7 +532,7 @@ class GarantiaForm extends React.Component {
           {keys.length > 1 ? (
             <Icon
               className="dynamic-delete-button"
-              style={{ marginLeft: '15px' }}
+              style={{ marginLeft: '5px' }}
               type="minus-circle-o"
               disabled={keys.length === 1}
               onClick={() => this.remove(k)}

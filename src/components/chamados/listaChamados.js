@@ -101,7 +101,7 @@ class ListaChamadosClientes extends React.Component {
   };
 
   updateChamados = async chamado => {
-    this.props.history.push(`/chamado/${chamado.id}`);
+    this.props.history.push(`/chamado/${chamado._id}`);
   };
 
   onInputChange = e => {
@@ -113,51 +113,53 @@ class ListaChamadosClientes extends React.Component {
       {
         title: 'Data de abertura ',
         dataIndex: 'data_abertura',
-        key: 'data_abertura' + 'id',
+        key: '_id',
         render: text => <p key={text}>{moment(text).format('LLLL')}</p>,
         onFilter: (value, record) => record.nome.indexOf(value) === 0,
-        sorter: (a, b) => b.nome.length - a.nome.length,
-        filterDropdown: (
-          <div className="custom-filter-dropdown">
-            <Input
-              ref={ele => (this.searchInput = ele)}
-              placeholder="Data de abertura"
-              value={this.state.searchText}
-              onChange={this.onInputChange}
-              onPressEnter={this.onSearch}
-            />
-            <Button type="primary" onClick={this.onSearch}>
-              Pesquisar
-            </Button>
-          </div>
-        ),
-        filterIcon: (
-          <Icon
-            type="search"
-            style={{ color: this.state.filtered ? '#108ee9' : '#aaa' }}
-          />
-        ),
-        filterDropdownVisible: this.state.filterDropdownVisible,
-        onFilterDropdownVisibleChange: visible => {
-          this.setState(
-            {
-              filterDropdownVisible: visible
-            },
-            () => this.searchInput && this.searchInput.focus()
-          );
-        }
+        // sorter: (a, b) => b.nome.length - a.nome.length
+        // filterDropdown: (
+        //   <div className="custom-filter-dropdown">
+        //     <Input
+        //       ref={ele => (this.searchInput = ele)}
+        //       placeholder="Data de abertura"
+        //       value={this.state.searchText}
+        //       onChange={this.onInputChange}
+        //       onPressEnter={this.onSearch}
+        //     />
+        //     <Button type="primary" onClick={this.onSearch}>
+        //       Pesquisar
+        //     </Button>
+        //   </div>
+        // ),
+        // filterIcon: (
+        //   <Icon
+        //     type="search"
+        //     style={{ color: this.state.filtered ? '#108ee9' : '#aaa' }}
+        //   />
+        // ),
+        // filterDropdownVisible: this.state.filterDropdownVisible,
+        // onFilterDropdownVisibleChange: visible => {
+        //   this.setState(
+        //     {
+        //       filterDropdownVisible: visible
+        //     },
+        //     () => this.searchInput && this.searchInput.focus()
+        //   );
+        // }
       },
+      // {
+      //   title: 'Condomínio',
+      //   dataIndex: 'condominio',
+      //   key: 'condominio',
+      //   render: condominio => {
+      //     console.log(condominio, 'adasdasd');
+      //   }
+      // },
       {
-        title: 'Problema principal',
-        dataIndex: 'tipologia',
-        id: 'tipologia._id',
-        render: text => <p key={text._id}>{text.nome}</p>
-      },
-      {
-        title: 'Subitem do problema',
-        dataIndex: 'garantia',
-        id: 'garantia',
-        render: text => <p key={text._id}>{text.nome}</p>
+        title: 'Criado em',
+        dataIndex: 'createdAt',
+        id: 'createdAt' + '_id',
+        render: text => <p key={text}>{moment(text).format('LLLL')}</p>
       },
       {
         title: 'Status',
@@ -167,7 +169,7 @@ class ListaChamadosClientes extends React.Component {
       },
       {
         title: 'Opções',
-        key: 'id',
+        key: 'id' + 'condominio.id' + 'data_abertura',
         render: record => (
           <span>
             <Tooltip title="Editar">
@@ -179,7 +181,7 @@ class ListaChamadosClientes extends React.Component {
               </Button>
             </Tooltip>
 
-            <Divider type="vertical" />
+            {/* <Divider type="vertical" />
             <Popconfirm
               title="Está ação irá excluir todos os dados conectados a esta construtora, tem certeza que deseja excluir esta construtora ?"
               onConfirm={() => this.deleteConstrutora(record.id)}
@@ -189,7 +191,7 @@ class ListaChamadosClientes extends React.Component {
                   <Icon type="delete" />
                 </Button>
               </Tooltip>
-            </Popconfirm>
+            </Popconfirm> */}
           </span>
         )
       }
