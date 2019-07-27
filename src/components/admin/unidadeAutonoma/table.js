@@ -108,7 +108,7 @@ class TableUnidade extends React.Component {
   updateUnidade = id => {
     this.props.unidade.map(unidade => {
       if (unidade.id === id) {
-        this.props.setFieldValue(unidade);
+        return this.props.setFieldValue(unidade);
       }
     });
     this.fetch();
@@ -124,7 +124,7 @@ class TableUnidade extends React.Component {
       .get(`${url}/unidadesautonomas/${id}`, config)
       .then(res => {
         res.data.unidades.map(unidade => {
-          axios
+          return axios
             .delete(`${url}/unidades/${unidade._id}`, config)
             .then(() => {})
             .catch(error => console.log(error));

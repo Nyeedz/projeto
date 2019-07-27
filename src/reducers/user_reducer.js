@@ -19,7 +19,7 @@ export default function(
     tipologias: [],
     unidades: [],
     fotosChamados: [],
-    chamado: [],
+    chamados: [],
     permissoes: null
   },
   action
@@ -46,7 +46,7 @@ export default function(
         tipologias: action.payload.tipologias || state.tipologias,
         unidades: action.payload.unidades || state.unidades,
         fotosChamado: action.payload.fotosChamado || state.fotosChamado,
-        chamado: action.payload.chamado || state.chamado,
+        chamados: action.payload.chamados || state.chamados,
         username: action.payload.username || state.username,
         permissoes: action.payload.permissoes || state.permissoes,
         jwt: action.payload.jwt || state.jwt

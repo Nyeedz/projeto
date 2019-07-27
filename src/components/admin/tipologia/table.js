@@ -109,7 +109,7 @@ class TableTipologia extends React.Component {
   updateTorre = id => {
     this.props.torre.map(torre => {
       if (torre.id === id) {
-        this.props.setFieldValue(torre);
+        return this.props.setFieldValue(torre);
       }
     });
     this.fetch();
