@@ -111,7 +111,7 @@ class AberturaChamadoForm extends React.Component {
             const fotosChamado = new FormData();
             fotosChamado.append('ref', 'chamados');
             fotosChamado.append('refId', res.data.id);
-            fotosChamado.append('field', 'files');
+            fotosChamado.append('field', 'fotos');
             fileList.forEach(file => {
               fotosChamado.append('files', file, file.name);
             });

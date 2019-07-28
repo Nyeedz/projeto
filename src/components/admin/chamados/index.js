@@ -1,15 +1,35 @@
-import { Col, Form, Input, Layout, message, Row, Select, Spin } from 'antd';
+import {
+  Col,
+  Form,
+  Input,
+  Layout,
+  message,
+  Row,
+  Button,
+  Icon,
+  Select,
+  Upload,
+  Spin,
+  DatePicker,
+  Checkbox
+} from 'antd';
 import * as axios from 'axios';
+import * as moment from 'moment';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { url } from '../../../utilities/constants';
 import { getCodePath } from '../../../utilities/functions';
 import Permissao from '../permissoes/permissoes';
+import './style.css';
 
 const { Content } = Layout;
 const FormItem = Form.Item;
 const { TextArea } = Input;
 const Option = Select.Option;
+
+function hasErrors(fieldsError) {
+  return Object.keys(fieldsError).some(field => fieldsError[field]);
+}
 
 class ChamadosList extends Component {
   state = {
@@ -24,6 +44,10 @@ class ChamadosList extends Component {
     areasgerais: [],
     selectedCondominio: null,
     selectedChamado: null,
+    problema_repetido: false,
+    fileList: [],
+    fotos: [],
+    fotosToRemove: [],
     loading: false
   };
 
@@ -77,7 +101,12 @@ class ChamadosList extends Component {
         garantias,
         subitems,
         areascomun,
-        areasgerais
+        areasgerais,
+        selectedChamado: chamado._id,
+        problema_repetido: chamado.problema_repetido,
+        fotos: chamado.fotos,
+        fileList: [],
+        fotosToRemove: []
       });
 
       console.log({
@@ -96,10 +125,15 @@ class ChamadosList extends Component {
         garantia: chamado.garantia._id,
         unidade: chamado.unidade._id,
         subitem: chamado.subitem._id,
-        data_visita: chamado.data_visita,
+        data_visita: moment(
+          chamado.data_visita.substring(0, 10) +
+            '' +
+            chamado.data_visita.substring(11, 19),
+          'YYYY-MM-DD HH:mm:ss'
+        ),
         comentario: chamado.comentario,
-        areas_comuns: chamado.areatipologia.id,
-        areas_gerais: chamado.areacomumgeral.id,
+        areas_comuns: chamado.areatipologia ? chamado.areatipologia.id : null,
+        areas_gerais: chamado.areacomumgeral ? chamado.areacomumgeral.id : null
       });
 
       this.loading(false);
@@ -166,38 +200,12 @@ class ChamadosList extends Component {
   chamadoChange = id => {
     const chamado = this.state.chamados.find(chamado => chamado.id === id);
     this.loadChamado(chamado);
-    // chamado.map(value => {
-    //   this.setState({
-    //     condominios: value.condominio,
-    //     comentario: value.comentario,
-    //     data_visita: value.data_visita,
-    //     garantia: value.garantia,
-    //     // data_abertura: value.garantia.data_inicio,
-    //     problema_repetido: value.problema_repetido,
-    //     torre: value.tipologia,
-    //     unidades: value.unidade,
-    //     user: value.user,
-    //     showContent: true
-    //   });
-    // });
-    // chamado.map(chamado => {
-    //   const fotosChamados = chamado.files.map(file => {
-    //     return {
-    //       uid: file._id,
-    //       name: file.name,
-    //       status: 'done',
-    //       url: `${url}${file.url}`
-    //     };
-    //   });
-    //   this.setState({
-    //     fotosChamados
-    //   });
-    // });
   };
 
   condominioChange = async id => {
     try {
-      this.setState({ enviando: true });
+      this.props.form.resetFields();
+      this.setState({ selectedCondominio: '' });
       const jwt = localStorage.getItem('jwt');
       const chamadoRes = await axios.get(`${url}/chamados?condominio=${id}`, {
         headers: { Authorization: `Bearer ${jwt}` }
@@ -205,10 +213,12 @@ class ChamadosList extends Component {
       const condominioRes = await axios.get(`${url}/condominios/${id}`, {
         headers: { Authorization: `Bearer ${jwt}` }
       });
+      const areasgerais = await this.fetchAreasGerais(id);
 
       this.setState({
         selectedCondominio: id,
-        chamados: chamadoRes.data
+        chamados: chamadoRes.data,
+        areasgerais
       });
     } catch (err) {
       message.error('Erro ao buscar dados do chamado!');
@@ -216,12 +226,181 @@ class ChamadosList extends Component {
     }
   };
 
+  tipologiaChange = async id => {
+    const unidades = await this.fetchUnidades(id);
+    const garantias = await this.fetchGarantias(id);
+    const areascomun = await this.fetchAreasComuns(id);
+    this.setState({ unidades, garantias, areascomun, subitems: [] });
+    this.props.form.resetFields([
+      'unidade',
+      'garantia',
+      'subitem',
+      'areas_comuns'
+    ]);
+  };
+
+  garantiaChange = async id => {
+    const subitems = await this.fetchItensGarantia(id);
+    this.setState({ subitems });
+    this.props.form.resetFields(['subitem']);
+  };
+
+  areaTipologiaChange = id => {
+    this.props.form.resetFields(['unidade', 'areas_gerais']);
+  };
+
+  areaGeralChange = id => {
+    this.props.form.resetFields(['unidade', 'areas_comuns']);
+  };
+
+  unidadeChange = id => {
+    this.props.form.resetFields(['areas_gerais', 'areas_comuns']);
+  };
+
+  seeFoto = url => {
+    window.open(url, '_blank');
+  };
+
+  removeFoto = id => {
+    const { fotos, fotosToRemove } = this.state;
+    const fotoIndex = fotos.findIndex(foto => foto._id === id);
+    const newFotoArray = fotos.filter(foto => foto._id !== id);
+    const remove = [...fotosToRemove, fotos[fotoIndex]];
+
+    this.setState({
+      fotos: newFotoArray,
+      fotosToRemove: remove
+    });
+  };
+
+  saveChamado = async e => {
+    e.preventDefault();
+
+    this.props.form.validateFields(async (err, values) => {
+      if (err) {
+        return console.log(err);
+      }
+
+      console.log(values);
+      const response = await this.updateChamado(values);
+      const exclusao = await Promise.all(
+        this.state.fotosToRemove.map(foto => this.excluirFoto(foto._id))
+      );
+
+      if (this.state.fileList.length > 0) {
+        const adicao = await this.adicionarFotos();
+        console.log(adicao);
+      }
+
+      console.log(response);
+      console.log(exclusao);
+    });
+  };
+
+  updateChamado = values => {
+    const jwt = localStorage.getItem('jwt');
+    return axios
+      .put(
+        `${url}/chamados/${this.state.selectedChamado}`,
+        {
+          areacomumgeral: values.areas_gerais || null,
+          areatipologia: values.areas_comuns || null,
+          contato: values.contato,
+          garantia: values.garantia,
+          subitem: values.subitem,
+          comentario: values.comentario,
+          tipologia: values.tipologia,
+          unidade: values.unidade || null,
+          data_visita: values.data_visita.format('YYYY-MM-DD HH:mm:ss')
+        },
+        {
+          headers: { Authorization: `Bearer ${jwt}` }
+        }
+      )
+      .then(res => res.data);
+  };
+
+  disabledDate = current => {
+    return current && current < moment().endOf('day');
+  };
+
+  range = (start, end) => {
+    const result = [];
+    for (let i = start; i < end; i++) {
+      result.push(i);
+    }
+
+    return result;
+  };
+
+  disabledDateTime = () => {
+    return {
+      disabledHours: () => this.range(0, 24).splice(4, 20),
+      disabledMinutes: () => this.range(30, 60),
+      disabledSeconds: () => [55, 56]
+    };
+  };
+
+  excluirFoto = id => {
+    const jwt = localStorage.getItem('jwt');
+    return axios
+      .delete(`${url}/upload/files/${id}`, {
+        headers: { Authorization: `Bearer ${jwt}` }
+      })
+      .then(res => res.data);
+  };
+
+  adicionarFotos = () => {
+    const { fileList, selectedChamado } = this.state;
+    const jwt = localStorage.getItem('jwt');
+    const fotosChamado = new FormData();
+
+    fotosChamado.append('ref', 'chamados');
+    fotosChamado.append('refId', selectedChamado);
+    fotosChamado.append('field', 'files');
+    fileList.forEach(file => {
+      fotosChamado.append('files', file, file.name);
+    });
+
+    const configUpload = {
+      headers: {
+        Accept: 'multipart/form-data',
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${jwt}`
+      }
+    };
+    return axios.post(`${url}/upload`, fotosChamado, configUpload);
+  };
+
   render() {
     const {
       getFieldDecorator,
+      getFieldsError,
       getFieldError,
       isFieldTouched
     } = this.props.form;
+
+    const uploadProps = {
+      multiple: true,
+      onRemove: file => {
+        this.setState(({ fileList }) => {
+          const index = fileList.indexOf(file);
+          const newFileList = fileList.slice();
+          newFileList.splice(index, 1);
+          return {
+            fileList: newFileList
+          };
+        });
+      },
+      beforeUpload: file => {
+        console.log(file);
+        this.setState(({ fileList }) => ({
+          fileList: [...fileList, file]
+        }));
+        return false;
+      },
+      fileList: this.state.fileList
+    };
 
     const clienteError = isFieldTouched('cliente') && getFieldError('cliente');
     const contatoError = isFieldTouched('contato') && getFieldError('contato');
@@ -333,12 +512,7 @@ class ChamadosList extends Component {
             //       : 'none'
             // }}
           >
-            <Form
-              onSubmit={e => {
-                console.log(e);
-              }}
-              style={{ padding: '1rem' }}
-            >
+            <Form onSubmit={this.saveChamado} style={{ padding: '1rem' }}>
               <Row gutter={16}>
                 <Col span={12}>
                   <FormItem
@@ -392,7 +566,7 @@ class ChamadosList extends Component {
                         showSearch
                         placeholder="Tipologia"
                         optionFilterProp="children"
-                        onChange={this.getUnidade}
+                        onChange={this.tipologiaChange}
                         filterOption={(input, option) =>
                           option.props.children
                             .toLowerCase()
@@ -432,7 +606,7 @@ class ChamadosList extends Component {
                         showSearch
                         placeholder="Unidade"
                         optionFilterProp="children"
-                        // onChange={this.getUnidade}
+                        onChange={this.unidadeChange}
                         filterOption={(input, option) =>
                           option.props.children
                             .toLowerCase()
@@ -470,7 +644,7 @@ class ChamadosList extends Component {
                         showSearch
                         placeholder="Garantia"
                         optionFilterProp="children"
-                        // onChange={this.getUnidade}
+                        onChange={this.garantiaChange}
                         filterOption={(input, option) =>
                           option.props.children
                             .toLowerCase()
@@ -525,80 +699,88 @@ class ChamadosList extends Component {
                   </FormItem>
                 </Col>
               </Row>
-              <Row gutter={16}>
-                <Col span={12}>
-                  <FormItem
-                    validateStatus={areasComunsError ? 'error' : ''}
-                    help={areasComunsError || ''}
-                    label="Área comum da tipologia"
-                  >
-                    {getFieldDecorator('areas_comuns')(
-                      <Select
-                        showSearch
-                        placeholder="Área comum da tipologia"
-                        optionFilterProp="children"
-                        // onChange={this.changeUnidadeAreaTipologia}
-                        filterOption={(input, option) =>
-                          option.props.children
-                            .toLowerCase()
-                            .indexOf(input.toLowerCase()) >= 0
-                        }
-                        disabled={this.state.disabledAreaComum}
-                      >
-                        {this.state.areascomun
-                          ? this.state.areascomun.map((area, i) => {
-                              return area.areatipologias.map(
-                                (area_tipologia, i) => {
-                                  return (
-                                    <Option value={area_tipologia._id} key={area_tipologia._id + i}>
-                                      {area_tipologia.nome}
-                                    </Option>
-                                  );
-                                }
-                              );
-                            })
-                          : null}
-                      </Select>
-                    )}
-                  </FormItem>
-                </Col>
-                <Col span={12}>
-                  <FormItem
-                    validateStatus={areasComunsError ? 'error' : ''}
-                    help={areasComunsError || ''}
-                    label="Área comum geral"
-                  >
-                    {getFieldDecorator('areas_gerais')(
-                      <Select
-                        showSearch
-                        placeholder="Área comum geral"
-                        optionFilterProp="children"
-                        // onChange={this.changeUnidadeAreaTipologia}
-                        filterOption={(input, option) =>
-                          option.props.children
-                            .toLowerCase()
-                            .indexOf(input.toLowerCase()) >= 0
-                        }
-                        disabled={this.state.disabledAreaComum}
-                      >
-                        {this.state.areasgerais
-                          ? this.state.areasgerais.map((area, i) => {
-                              return area.areacomumgerals.map(
-                                (area_comum, i) => {
-                                  return (
-                                    <Option value={area_comum._id} key={area_comum._id + i}>
-                                      {area_comum.nome}
-                                    </Option>
-                                  );
-                                }
-                              );
-                            })
-                          : null}
-                      </Select>
-                    )}
-                  </FormItem>
-                </Col>
-              </Row>
+              {this.props.user.tipo_morador === false ? (
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <FormItem
+                      validateStatus={areasComunsError ? 'error' : ''}
+                      help={areasComunsError || ''}
+                      label="Área comum da tipologia"
+                    >
+                      {getFieldDecorator('areas_comuns')(
+                        <Select
+                          showSearch
+                          placeholder="Área comum da tipologia"
+                          optionFilterProp="children"
+                          onChange={this.areaTipologiaChange}
+                          filterOption={(input, option) =>
+                            option.props.children
+                              .toLowerCase()
+                              .indexOf(input.toLowerCase()) >= 0
+                          }
+                          disabled={this.state.disabledAreaComum}
+                        >
+                          {this.state.areascomun
+                            ? this.state.areascomun.map((area, i) => {
+                                return area.areatipologias.map(
+                                  (area_tipologia, i) => {
+                                    return (
+                                      <Option
+                                        value={area_tipologia._id}
+                                        key={area_tipologia._id + i}
+                                      >
+                                        {area_tipologia.nome}
+                                      </Option>
+                                    );
+                                  }
+                                );
+                              })
+                            : null}
+                        </Select>
+                      )}
+                    </FormItem>
+                  </Col>
+                  <Col span={12}>
+                    <FormItem
+                      validateStatus={areasComunsError ? 'error' : ''}
+                      help={areasComunsError || ''}
+                      label="Área comum geral"
+                    >
+                      {getFieldDecorator('areas_gerais')(
+                        <Select
+                          showSearch
+                          placeholder="Área comum geral"
+                          optionFilterProp="children"
+                          onChange={this.areaGeralChange}
+                          filterOption={(input, option) =>
+                            option.props.children
+                              .toLowerCase()
+                              .indexOf(input.toLowerCase()) >= 0
+                          }
+                          disabled={this.state.disabledAreaComum}
+                        >
+                          {this.state.areasgerais
+                            ? this.state.areasgerais.map((area, i) => {
+                                return area.areacomumgerals.map(
+                                  (area_comum, i) => {
+                                    return (
+                                      <Option
+                                        value={area_comum._id}
+                                        key={area_comum._id + i}
+                                      >
+                                        {area_comum.nome}
+                                      </Option>
+                                    );
+                                  }
+                                );
+                              })
+                            : null}
+                        </Select>
+                      )}
+                    </FormItem>
+                  </Col>
+                </Row>
+              ) : null}
               <Row gutter={16}>
                 <Col span={12}>
                   <FormItem
@@ -613,7 +795,16 @@ class ChamadosList extends Component {
                           message: 'Data para visita é necessária'
                         }
                       ]
-                    })(<Input placeholder="Dia para visita" disabled />)}
+                    })(
+                      <DatePicker
+                        format="YYYY-MM-DD HH:mm:ss"
+                        disabledDate={this.disabledDate}
+                        disabledTime={this.disabledDateTime}
+                        showTime={{
+                          defaultValue: moment('00:00:00', 'HH:mm:ss')
+                        }}
+                      />
+                    )}
                   </FormItem>
                 </Col>
               </Row>
@@ -640,9 +831,16 @@ class ChamadosList extends Component {
                       )}
                     </FormItem>
                     <FormItem>
-                      {/* <Checkbox onChange={this.onChange}>
+                      <Checkbox
+                        checked={this.state.problema_repetido}
+                        onChange={() => {
+                          this.setState({
+                            problema_repetido: !this.state.problema_repetido
+                          });
+                        }}
+                      >
                         Marque se já teve este mesmo problema
-                      </Checkbox> */}
+                      </Checkbox>
                     </FormItem>
                   </Col>
                 </Row>
@@ -658,6 +856,66 @@ class ChamadosList extends Component {
                   </Col>
                 </Row>
               )}
+              <Row gutter={16}>
+                <Col span={9}>
+                  <Upload {...uploadProps}>
+                    {this.state.fileList.length + this.state.fotos.length ==
+                    4 ? (
+                      'Máximo 4 fotos'
+                    ) : (
+                      <Button>
+                        <Icon type="upload" /> Você pode carregar até 4 fotos
+                      </Button>
+                    )}
+                  </Upload>
+                  {this.state.fotos.length > 0 && (
+                    <div className="fotosGrid">
+                      {this.state.fotos.map(foto => {
+                        return (
+                          <div className="foto" key={foto._id}>
+                            <img
+                              src={'http://localhost:1337' + foto.url}
+                              alt=""
+                            />
+                            <div className="foto-options">
+                              <Button
+                                onClick={() =>
+                                  this.seeFoto(
+                                    'http://localhost:1337' + foto.url
+                                  )
+                                }
+                                ghost
+                                shape="circle"
+                                icon="eye"
+                              />
+                              <Button
+                                onClick={() => this.removeFoto(foto._id)}
+                                ghost
+                                shape="circle"
+                                icon="delete"
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </Col>
+              </Row>
+              <Button
+                type="primary"
+                htmlType="submit"
+                style={{
+                  marginTop: '2rem'
+                }}
+                disabled={
+                  this.state.fileList.length + this.state.fotos.length === 0 ||
+                  hasErrors(getFieldsError()) ||
+                  this.state.enviando
+                }
+              >
+                Salvar
+              </Button>
             </Form>
           </div>
 
