@@ -124,7 +124,7 @@ class ChamadosList extends Component {
         contato: chamado.contato,
         tipologia: chamado.tipologia._id,
         garantia: chamado.garantia._id,
-        unidade: chamado.unidade._id,
+        unidade: chamado.unidade ? chamado.unidade._id : null,
         subitem: chamado.subitem._id,
         data_visita: moment(
           chamado.data_visita.substring(0, 10) +
