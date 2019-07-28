@@ -11,7 +11,8 @@ import {
   Upload,
   Spin,
   DatePicker,
-  Checkbox
+  Checkbox,
+  notification
 } from 'antd';
 import * as axios from 'axios';
 import * as moment from 'moment';
@@ -276,25 +277,36 @@ class ChamadosList extends Component {
   saveChamado = async e => {
     e.preventDefault();
 
-    this.props.form.validateFields(async (err, values) => {
-      if (err) {
-        return console.log(err);
-      }
+    try {
+      this.props.form.validateFields(async (err, values) => {
+        if (err) {
+          return console.log(err);
+        }
 
-      console.log(values);
-      const response = await this.updateChamado(values);
-      const exclusao = await Promise.all(
-        this.state.fotosToRemove.map(foto => this.excluirFoto(foto._id))
-      );
+        const chamado = await this.updateChamado(values);
+        const exclusao = await Promise.all(
+          this.state.fotosToRemove.map(foto => this.excluirFoto(foto._id))
+        );
 
-      if (this.state.fileList.length > 0) {
-        const adicao = await this.adicionarFotos();
-        console.log(adicao);
-      }
+        if (this.state.fileList.length > 0) {
+          const adicao = await this.adicionarFotos();
+        }
 
-      console.log(response);
-      console.log(exclusao);
-    });
+        this.setState({
+          selectedCondominio: null,
+          selectedChamado: null,
+          problema_repetido: false,
+          fileList: [],
+          fotos: chamado.fotos,
+          fotosToRemove: []
+        });
+
+        notification.success({
+          message: 'Sucesso!',
+          description: `Status do chamado alterado para 'Parecer Técnico'. Você pode visualizar o status do chamado no seu perfil. Aguarde enquanto o laudo é gerado`
+        });
+      });
+    } catch (err) {}
   };
 
   updateChamado = values => {
@@ -311,7 +323,8 @@ class ChamadosList extends Component {
           comentario: values.comentario,
           tipologia: values.tipologia,
           unidade: values.unidade || null,
-          data_visita: values.data_visita.format('YYYY-MM-DD HH:mm:ss')
+          data_visita: values.data_visita.format('YYYY-MM-DD HH:mm:ss'),
+          status: 3
         },
         {
           headers: { Authorization: `Bearer ${jwt}` }
@@ -357,7 +370,7 @@ class ChamadosList extends Component {
 
     fotosChamado.append('ref', 'chamados');
     fotosChamado.append('refId', selectedChamado);
-    fotosChamado.append('field', 'files');
+    fotosChamado.append('field', 'fotos');
     fileList.forEach(file => {
       fotosChamado.append('files', file, file.name);
     });
