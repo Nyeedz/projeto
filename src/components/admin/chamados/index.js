@@ -206,7 +206,7 @@ class ChamadosList extends Component {
   condominioChange = async id => {
     try {
       this.props.form.resetFields();
-      this.setState({ selectedCondominio: '' });
+      this.setState({ selectedCondominio: null, selectedChamado: null });
       const jwt = localStorage.getItem('jwt');
       const chamadoRes = await axios.get(`${url}/chamados?condominio=${id}`, {
         headers: { Authorization: `Bearer ${jwt}` }
@@ -291,6 +291,8 @@ class ChamadosList extends Component {
         if (this.state.fileList.length > 0) {
           const adicao = await this.adicionarFotos();
         }
+
+        console.log(chamado);
 
         this.setState({
           selectedCondominio: null,
@@ -518,12 +520,12 @@ class ChamadosList extends Component {
 
           <div
             className="chamado-form"
-            // style={{
-            //   display:
-            //     this.state.selectedChamado && !this.state.loading
-            //       ? 'block'
-            //       : 'none'
-            // }}
+            style={{
+              display:
+                this.state.selectedChamado && !this.state.loading
+                  ? 'block'
+                  : 'none'
+            }}
           >
             <Form onSubmit={this.saveChamado} style={{ padding: '1rem' }}>
               <Row gutter={16}>
@@ -932,7 +934,16 @@ class ChamadosList extends Component {
             </Form>
           </div>
 
-          {this.state.loading && <Spin />}
+          {this.state.loading && (
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: '2em'
+            }}>
+              <Spin />
+            </div>
+          )}
         </div>
       </Permissao>
     );
