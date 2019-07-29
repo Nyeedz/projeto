@@ -16,6 +16,7 @@ import {
   DatePicker,
   Progress
 } from 'antd';
+import { Redirect } from 'react-router-dom';
 import moment from 'moment';
 import axios from 'axios';
 import { url, VISITA_ANALISE_TECNICA } from '../../utilities/constants.js';
@@ -51,7 +52,8 @@ class AberturaChamadoForm extends React.Component {
     mostrarDados: false,
     idUser: null,
     problema_repetido: 0,
-    garantia: {}
+    garantia: {},
+    validadeTipologia: {}
   };
 
   componentDidMount = () => {
@@ -139,6 +141,7 @@ class AberturaChamadoForm extends React.Component {
                 this.props.form.resetFields();
                 // this.props.next();
                 message.success('Chamado enviado com sucesso');
+                this.props.history.push('/lista-chamados-clientes');
               })
               .catch(error => {
                 this.setState({
@@ -225,11 +228,18 @@ class AberturaChamadoForm extends React.Component {
     Promise.all([
       axios.get(`${url}/unidades?tipologia=${id}`, config),
       axios.get(`${url}/garantias?tipologia=${id}`, config),
-      axios.get(`${url}/areascomuns?tipologia=${id}`, config)
-    ]).then(([unidades, garantias, comuns]) => {
+      axios.get(`${url}/areascomuns?tipologia=${id}`, config),
+      axios.get(`${url}/tipologias/${id}`, config)
+    ]).then(([unidades, garantias, comuns, tipologias]) => {
       this.setState({
         unidades: unidades.data.filter(unidade =>
           unidade.users.find(user => user._id === this.props.user.id)
+        ),
+        validadeTipologia: moment(
+          tipologias.data.validade.substring(0, 10) +
+            '' +
+            tipologias.data.validade.substring(11, 19),
+          'YYYY-MM-DD HH:mm:ss'
         ),
         garantias: garantias.data,
         comuns: comuns.data,
@@ -287,25 +297,11 @@ class AberturaChamadoForm extends React.Component {
       .catch(error => console.log(error));
   };
 
-  disabledDate = current => {
-    return current && current < moment().endOf('day');
-  };
+  disabledDate = endValue => {
+    const { validadeTipologia } = this.state;
+    if (!validadeTipologia || !endValue) return false;
 
-  range = (start, end) => {
-    const result = [];
-    for (let i = start; i < end; i++) {
-      result.push(i);
-    }
-
-    return result;
-  };
-
-  disabledDateTime = () => {
-    return {
-      disabledHours: () => this.range(0, 24).splice(4, 20),
-      disabledMinutes: () => this.range(30, 60),
-      disabledSeconds: () => [55, 56]
-    };
+    return endValue.valueOf() <= validadeTipologia.valueOf();
   };
 
   render() {
@@ -634,88 +630,6 @@ class AberturaChamadoForm extends React.Component {
                 ) : null}
               </Col>
             </Row>
-            {/* <Row gutter={16}> */}
-            {/* <Col span={6}>
-                  {this.state.mostrarDados === true ? (
-                    <Spin spinning={this.state.enviando}>
-                      <FormItem
-                        validateStatus={tipologiaError ? 'error' : ''}
-                        help={tipologiaError || ''}
-                        label="Tipologia"
-                      >
-                        {getFieldDecorator('tipologia')(
-                          <Select
-                            showSearch
-                            //mode="tags"
-                            // style={{ width: '49.4%' }}
-                            placeholder="Tipolgia"
-                            optionFilterProp="children"
-                            onChange={this.getUnidade}
-                            filterOption={(input, option) =>
-                              option.props.children
-                                .toLowerCase()
-                                .indexOf(input.toLowerCase()) >= 0
-                            }
-                            disabled={this.state.disabledTipologia}
-                          >
-                            {this.state.tipologia.map((tipologias, i) => {
-                              return (
-                                <Option
-                                  value={tipologias._id}
-                                  key={tipologias._id + i}
-                                >
-                                  {tipologias.nome}
-                                </Option>
-                              );
-                            })}
-                          </Select>
-                        )}
-                      </FormItem>
-                    </Spin>
-                  ) : null}
-                </Col> */}
-            {/* <Col span={6}>
-                  {this.state.mostrarDados === true ? (
-                    <Spin spinning={this.state.enviando}>
-                      <FormItem
-                        validateStatus={unidadesError ? 'error' : ''}
-                        help={unidadesError || ''}
-                        label="Onde"
-                      >
-                        {getFieldDecorator('unidade')(
-                          <Select
-                            showSearch
-                            //mode="tags"
-                            // style={{ width: '49.4%' }}
-                            placeholder="Unidade autônoma"
-                            optionFilterProp="children"
-                            onChange={this.handleChange}
-                            filterOption={(input, option) =>
-                              option.props.children
-                                .toLowerCase()
-                                .indexOf(input.toLowerCase()) >= 0
-                            }
-                            disabled={this.state.disabledUnidade}
-                          >
-                            {this.state.unidades_condominios.map(
-                              (unidades, i) => {
-                                return (
-                                  <Option
-                                    value={unidades._id}
-                                    key={unidades._id + i}
-                                  >
-                                    {unidades.nome}
-                                  </Option>
-                                );
-                              }
-                            )}
-                          </Select>
-                        )}
-                      </FormItem>
-                    </Spin>
-                  ) : null}
-                </Col> */}
-            {/* </Row> */}
             {this.state.condominios ? (
               <div>
                 <Row gutter={16}>
@@ -826,18 +740,10 @@ class AberturaChamadoForm extends React.Component {
                     <DatePicker
                       format="YYYY-MM-DD HH:mm:ss"
                       disabledDate={this.disabledDate}
-                      disabledTime={this.disabledDateTime}
                       showTime={{
                         defaultValue: moment('00:00:00', 'HH:mm:ss')
                       }}
                     />
-                    // <DatePicker
-                    //   showTime
-                    //   onChange={this.onChangeData}
-                    //   placeholder="Dia para visita"
-                    //   format="DD/MM/YYYY HH:mm:ss"
-                    //   style={{ width: '320px' }}
-                    // />
                   )}
                 </FormItem>
               </Col>
