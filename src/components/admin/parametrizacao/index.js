@@ -38,7 +38,7 @@ class Parametrizacao extends React.Component {
     this.loadUnidades();
   }
 
-  loadUnidades() {
+  async loadUnidades() {
     const { teste } = this.state;
     const novo = teste.map(async construtora => {
       const unidadesFila = construtora.unidadesautonomas.map(unidade =>
@@ -49,9 +49,46 @@ class Parametrizacao extends React.Component {
       return { ...construtora, unidadesautonomas: unidades };
     });
 
-    Promise.all(novo).then(val => {
-      this.setState({ construtoras: val });
-    });
+    const construtoras = await Promise.all(novo);
+
+    const fixed_construtoras = await Promise.all(
+      construtoras.map(async construtora => {
+        const config = {
+          headers: { Authorization: `Bearer ${localStorage.getItem('jwt')}` }
+        };
+        const areascomuns = construtora.areascomuns.map(area => area.id);
+        const areasgerais = construtora.areasgerais.map(area => area.id);
+        const areasComunsArray = await Promise.all(
+          areascomuns.map(id => {
+            return axios
+              .get(`${url}/areatipologias?areascomun=${id}`, config)
+              .then(res => res.data);
+          })
+        );
+
+        const areasGeraisArray = await Promise.all(
+          areasgerais.map(id => {
+            return axios
+              .get(`${url}/areacomumgerals?areasgerais=${id}`, config)
+              .then(res => res.data);
+          })
+        );
+
+        const newConstrutora = {
+          ...construtora,
+          areas_tipologia: areasComunsArray.reduce((total, current) => {
+            return [...total, ...current];
+          }, []),
+          areas_gerais: areasGeraisArray.reduce((total, current) => {
+            return [...total, ...current];
+          }, [])
+        };
+
+        return newConstrutora;
+      })
+    );
+
+    this.setState({ construtoras: fixed_construtoras });
   }
 
   getUnidadeById(id) {

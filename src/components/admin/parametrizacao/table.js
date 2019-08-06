@@ -78,33 +78,25 @@ class TableParametrizacao extends React.Component {
           </div>
         )
       },
-      // {
-      //   title: 'Áreas comum da tipologia',
-      //   dataIndex: 'areasgerais',
-      //   key: 'areasgerais.id',
-      //   render: text => (
-      //     <div>
-      //       {text.map((area_geral, i) => {
-      //         return (
-      //           <p key={area_geral.id + i}>{area_geral.areas_gerais[i]}</p>
-      //         );
-      //       })}
-      //     </div>
-      //   )
-      // },
+      {
+        title: 'Áreas comum da tipologia',
+        dataIndex: 'areas_tipologia',
+        key: 'areas_tipologia.id',
+        render: text => {
+          return text.map(val => {
+            return <p key={val.id}>{val.nome}</p>;
+          });
+        }
+      },
       {
         title: 'Área comum geral',
-        dataIndex: 'areascomuns',
-        key: 'areascomuns.id',
-        render: text => (
-          <div>
-            {text.map((area_comum, i) => {
-              return (
-                <p key={area_comum.id + i}>{area_comum.areas_tipologias[i]}</p>
-              );
-            })}
-          </div>
-        )
+        dataIndex: 'areas_gerais',
+        key: 'areas_gerais.id',
+        render: text => {
+          return text.map(val => {
+            return <p key={val.id}>{val.nome}</p>;
+          });
+        }
       }
     ];
 
