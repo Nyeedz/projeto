@@ -14,6 +14,7 @@ import { url } from '../../utilities/constants';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { selectChamado } from '../../actions/chamadosActions';
+import { saveUser, getMe } from '../../actions/userActions';
 
 class ListaChamadosClientes extends React.Component {
   state = {
@@ -73,9 +74,9 @@ class ListaChamadosClientes extends React.Component {
     this.setState({
       filterDropdownVisible: false,
       filtered: !!searchText,
-      data: this.props.chamados
+      data: this.state.data
         .map(record => {
-          const match = record.nome.match(reg);
+          const match = record._id.match(reg);
           if (!match) {
             return null;
           }
@@ -84,12 +85,12 @@ class ListaChamadosClientes extends React.Component {
             ...record,
             nome: (
               <span>
-                {record.nome.toLowerCase() === searchText.toLowerCase() ? (
-                  <span key={record._id} className="highlight">
-                    {record.nome}
+                {record._id.toLowerCase() === searchText.toLowerCase() ? (
+                  <span key={record._id + record.contato} className="highlight">
+                    {record._id}
                   </span>
                 ) : (
-                  record.nome
+                  record._id
                 ) // eslint-disable-line
                 }
               </span>
@@ -109,43 +110,50 @@ class ListaChamadosClientes extends React.Component {
   };
 
   render() {
+    const status = ['Abertura chamado', 'Análise técnica', 'Parecer técnico'];
     const columns = [
+      {
+        title: 'Código chamado',
+        dataIndex: '_id',
+        key: '_id',
+        render: text => <p key={text}>{text}</p>,
+        onFilter: (value, record) => record._id.indexOf(value) === 0,
+        sorter: (a, b) => b._id.length - a._id.length,
+        filterDropdown: (
+          <div className="custom-filter-dropdown">
+            <Input
+              ref={ele => (this.searchInput = ele)}
+              placeholder="Data de abertura"
+              value={this.state.searchText}
+              onChange={this.onInputChange}
+              onPressEnter={this.onSearch}
+            />
+            <Button type="primary" onClick={this.onSearch}>
+              Pesquisar
+            </Button>
+          </div>
+        ),
+        filterIcon: (
+          <Icon
+            type="search"
+            style={{ color: this.state.filtered ? '#108ee9' : '#aaa' }}
+          />
+        ),
+        filterDropdownVisible: this.state.filterDropdownVisible,
+        onFilterDropdownVisibleChange: visible => {
+          this.setState(
+            {
+              filterDropdownVisible: visible
+            },
+            () => this.searchInput && this.searchInput.focus()
+          );
+        }
+      },
       {
         title: 'Data de abertura ',
         dataIndex: 'data_abertura',
-        key: '_id',
-        render: text => <p key={text}>{moment(text).format('LLLL')}</p>,
-        onFilter: (value, record) => record.nome.indexOf(value) === 0,
-        // sorter: (a, b) => b.nome.length - a.nome.length
-        // filterDropdown: (
-        //   <div className="custom-filter-dropdown">
-        //     <Input
-        //       ref={ele => (this.searchInput = ele)}
-        //       placeholder="Data de abertura"
-        //       value={this.state.searchText}
-        //       onChange={this.onInputChange}
-        //       onPressEnter={this.onSearch}
-        //     />
-        //     <Button type="primary" onClick={this.onSearch}>
-        //       Pesquisar
-        //     </Button>
-        //   </div>
-        // ),
-        // filterIcon: (
-        //   <Icon
-        //     type="search"
-        //     style={{ color: this.state.filtered ? '#108ee9' : '#aaa' }}
-        //   />
-        // ),
-        // filterDropdownVisible: this.state.filterDropdownVisible,
-        // onFilterDropdownVisibleChange: visible => {
-        //   this.setState(
-        //     {
-        //       filterDropdownVisible: visible
-        //     },
-        //     () => this.searchInput && this.searchInput.focus()
-        //   );
-        // }
+        key: 'data_abertura' + '_id',
+        render: text => <p key={text}>{moment(text).format('LLLL')}</p>
       },
       // {
       //   title: 'Condomínio',
@@ -165,7 +173,7 @@ class ListaChamadosClientes extends React.Component {
         title: 'Status',
         dataIndex: 'status',
         id: 'status' + '_id',
-        render: (text, i) => <p key={text + i}>{text}</p>
+        render: (text, i) => <p key={text + i}>{status[text]}</p>
       },
       {
         title: 'Opções',
@@ -207,7 +215,7 @@ class ListaChamadosClientes extends React.Component {
       >
         <Table
           columns={columns}
-          rowKey="id"
+          rowKey={record => record._id + record.garantia}
           dataSource={this.state.data}
           pagination={this.state.pagination}
           loading={this.state.loading}
@@ -221,6 +229,7 @@ class ListaChamadosClientes extends React.Component {
 
 export default (ListaChamadosClientes = connect(store => {
   return {
-    chamados: store.chamados
+    chamados: store.chamados,
+    user: store.user
   };
 })(ListaChamadosClientes));

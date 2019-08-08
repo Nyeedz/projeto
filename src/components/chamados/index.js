@@ -17,7 +17,9 @@ class Chamados extends React.Component {
     {
       title: 'Abertura',
       description: 'de chamado',
-      content: <AberturaChamado next={this.next} />,
+      content: (
+        <AberturaChamado history={this.props.history} next={this.next} />
+      ),
       status: 0
     },
     {
