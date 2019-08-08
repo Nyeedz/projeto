@@ -43,8 +43,8 @@ class ChamadosList extends Component {
     garantias: [],
     areascomun: [],
     areasgerais: [],
-    selectedCondominio: null,
-    selectedChamado: null,
+    selectedCondominio: undefined,
+    selectedChamado: undefined,
     problema_repetido: false,
     fileList: [],
     fotos: [],
@@ -206,7 +206,7 @@ class ChamadosList extends Component {
   condominioChange = async id => {
     try {
       this.props.form.resetFields();
-      this.setState({ selectedCondominio: null, selectedChamado: null });
+      this.setState({ selectedCondominio: undefined, selectedChamado: undefined });
       const jwt = localStorage.getItem('jwt');
       const chamadoRes = await axios.get(`${url}/chamados?condominio=${id}`, {
         headers: { Authorization: `Bearer ${jwt}` }
@@ -295,8 +295,8 @@ class ChamadosList extends Component {
         console.log(chamado);
 
         this.setState({
-          selectedCondominio: null,
-          selectedChamado: null,
+          selectedCondominio: undefined,
+          selectedChamado: undefined,
           problema_repetido: false,
           fileList: [],
           fotos: chamado.fotos,
@@ -469,6 +469,7 @@ class ChamadosList extends Component {
                     placeholder="Escolha o condomínio"
                     optionFilterProp="children"
                     style={{ width: 200 }}
+                    value={this.state.selectedCondominio}
                     onChange={this.condominioChange}
                     filterOption={(input, option) =>
                       option.props.children
@@ -477,8 +478,9 @@ class ChamadosList extends Component {
                     }
                   >
                     {this.state.condominios.map((condominio, i) => {
+                      console.log(condominio)
                       return (
-                        <Option value={condominio.id} key={condominio.id + i}>
+                        <Option value={condominio._id} key={condominio._id + i}>
                           {condominio.nome}
                         </Option>
                       );
@@ -493,6 +495,7 @@ class ChamadosList extends Component {
                     optionFilterProp="children"
                     style={{ width: 200 }}
                     disabled={!this.state.selectedCondominio}
+                    value={this.state.selectedChamado}
                     onChange={this.chamadoChange}
                     filterOption={(input, option) =>
                       option.props.children
@@ -889,14 +892,14 @@ class ChamadosList extends Component {
                         return (
                           <div className="foto" key={foto._id}>
                             <img
-                              src={'http://localhost:1337' + foto.url}
+                              src={'http://191.252.59.98:7100' + foto.url}
                               alt=""
                             />
                             <div className="foto-options">
                               <Button
                                 onClick={() =>
                                   this.seeFoto(
-                                    'http://localhost:1337' + foto.url
+                                    'http://191.252.59.98:7100' + foto.url
                                   )
                                 }
                                 ghost
