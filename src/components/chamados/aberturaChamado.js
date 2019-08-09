@@ -59,6 +59,8 @@ class AberturaChamadoForm extends React.Component {
   componentDidMount = () => {
     this.props.dispatch(getMe());
     this.props.dispatch(selectChamado());
+
+    console.log(this.props)
   };
 
   onChangeData = (date, dateString) => {
