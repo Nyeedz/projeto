@@ -140,9 +140,9 @@ class Admin extends React.Component {
               </Menu.Item>
             ) : null}
 
-            <Menu.Item key="13">
+            {/* <Menu.Item key="13">
               <Link to="/admin/teste">Custos</Link>
-            </Menu.Item>
+            </Menu.Item> */}
             <Menu.Item key="14">
               <Link to="/admin/graficos">Gráficos</Link>
             </Menu.Item>
