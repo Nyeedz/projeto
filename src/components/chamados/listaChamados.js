@@ -173,7 +173,7 @@ class ListaChamadosClientes extends React.Component {
         title: 'Status',
         dataIndex: 'status',
         id: 'status' + '_id',
-        render: (text, i) => <p key={text + i}>{status[text]}</p>
+        render: (text, i) => <p key={text + i}>{status[i]}</p>
       },
       {
         title: 'Opções',

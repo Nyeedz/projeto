@@ -12,16 +12,20 @@ import {
   Spin,
   DatePicker,
   Checkbox,
+  Radio,
   notification
 } from 'antd';
 import * as axios from 'axios';
 import * as moment from 'moment';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { ChamadosAdminTable } from './table';
 import { url } from '../../../utilities/constants';
 import { getCodePath } from '../../../utilities/functions';
 import Permissao from '../permissoes/permissoes';
 import './style.css';
+
+import { Header, ChamadosWrapper, TableWrapper } from './components';
 
 const { Content } = Layout;
 const FormItem = Form.Item;
@@ -49,8 +53,14 @@ class ChamadosList extends Component {
     fileList: [],
     fotos: [],
     fotosToRemove: [],
-    loading: false
+    fileListTecnico: [],
+    fotosTecnico: [],
+    fotosToRemoveTecnico: [],
+    loading: false,
+    procedente: true
   };
+
+  procedenciaRef = React.createRef();
 
   componentDidMount = () => {
     const path = this.props.history.location.pathname;
@@ -89,6 +99,7 @@ class ChamadosList extends Component {
       const { selectedCondominio } = this.state;
       this.loading(true);
       console.log(chamado);
+
       const tipologias = await this.fetchTipologias(selectedCondominio);
       const unidades = await this.fetchUnidades(chamado.tipologia._id);
       const garantias = await this.fetchGarantias(chamado.tipologia._id);
@@ -107,7 +118,11 @@ class ChamadosList extends Component {
         problema_repetido: chamado.problema_repetido,
         fotos: chamado.fotos,
         fileList: [],
-        fotosToRemove: []
+        fotosToRemove: [],
+        fotosTecnico: chamado.fotosTecnicas,
+        fileListTecnico: [],
+        fotosToRemoveTecnico: [],
+        procedente: chamado.procedente
       });
 
       console.log({
@@ -203,15 +218,20 @@ class ChamadosList extends Component {
     this.loadChamado(chamado);
   };
 
+  selectChamado = chamado => {
+    this.loadChamado(chamado);
+    console.log(chamado);
+  };
+
   condominioChange = async id => {
     try {
       this.props.form.resetFields();
-      this.setState({ selectedCondominio: undefined, selectedChamado: undefined });
+      this.setState({
+        selectedCondominio: undefined,
+        selectedChamado: undefined
+      });
       const jwt = localStorage.getItem('jwt');
       const chamadoRes = await axios.get(`${url}/chamados?condominio=${id}`, {
-        headers: { Authorization: `Bearer ${jwt}` }
-      });
-      const condominioRes = await axios.get(`${url}/condominios/${id}`, {
         headers: { Authorization: `Bearer ${jwt}` }
       });
       const areasgerais = await this.fetchAreasGerais(id);
@@ -274,6 +294,18 @@ class ChamadosList extends Component {
     });
   };
 
+  removeFotoTecnica = id => {
+    const { fotosTecnico, fotosToRemoveTecnico } = this.state;
+    const fotoIndex = fotosTecnico.findIndex(foto => foto._id === id);
+    const newFotoArray = fotosTecnico.filter(foto => foto._id !== id);
+    const remove = [...fotosToRemoveTecnico, fotosTecnico[fotoIndex]];
+
+    this.setState({
+      fotosTecnico: newFotoArray,
+      fotosToRemoveTecnico: remove
+    });
+  };
+
   saveChamado = async e => {
     e.preventDefault();
 
@@ -283,32 +315,57 @@ class ChamadosList extends Component {
           return console.log(err);
         }
 
+        this.setState({ enviando: true });
+
         const chamado = await this.updateChamado(values);
         const exclusao = await Promise.all(
           this.state.fotosToRemove.map(foto => this.excluirFoto(foto._id))
+        );
+
+        const exclusaoTecnica = await Promise.all(
+          this.state.fotosToRemoveTecnico.map(foto =>
+            this.excluirFoto(foto._id)
+          )
         );
 
         if (this.state.fileList.length > 0) {
           const adicao = await this.adicionarFotos();
         }
 
-        console.log(chamado);
+        if (this.state.fileListTecnico.length > 0) {
+          const adicao = await this.adicionarFotosTecnicas();
+        }
+
+        notification.success({
+          message: 'Sucesso!',
+          description: this.state.procedente
+            ? `Status do chamado alterado para 'Parecer Técnico'. Você pode visualizar o status do chamado no seu perfil. Aguarde enquanto o laudo é gerado`
+            : 'Chamado encerrado devido a improcedência'
+        });
 
         this.setState({
-          selectedCondominio: undefined,
           selectedChamado: undefined,
           problema_repetido: false,
           fileList: [],
           fotos: chamado.fotos,
-          fotosToRemove: []
+          fotosToRemove: [],
+          fileListTecnico: [],
+          fotos: chamado.fotosTecnicas,
+          fotosToRemoveTecnico: [],
+          enviando: false
         });
 
-        notification.success({
-          message: 'Sucesso!',
-          description: `Status do chamado alterado para 'Parecer Técnico'. Você pode visualizar o status do chamado no seu perfil. Aguarde enquanto o laudo é gerado`
-        });
+        this.condominioChange(this.state.selectedCondominio);
+
       });
-    } catch (err) {}
+    } catch (err) {
+      notification.error({
+        message: 'Ops!',
+        description:
+          'Houve um erro ao finalizar a ação. Tente novamente ou entre em contato com um administrador'
+      });
+      this.setState({ enviando: false });
+    }
   };
 
   updateChamado = values => {
@@ -326,7 +383,10 @@ class ChamadosList extends Component {
           tipologia: values.tipologia,
           unidade: values.unidade || null,
           data_visita: values.data_visita.format('YYYY-MM-DD HH:mm:ss'),
-          status: 3
+          status: 3,
+          procedente: this.state.procedente,
+          motivo_improcedencia: values.improcedencia,
+          encerrado: !this.state.procedente
         },
         {
           headers: { Authorization: `Bearer ${jwt}` }
@@ -387,6 +447,28 @@ class ChamadosList extends Component {
     return axios.post(`${url}/upload`, fotosChamado, configUpload);
   };
 
+  adicionarFotosTecnicas = () => {
+    const { fileListTecnico, selectedChamado } = this.state;
+    const jwt = localStorage.getItem('jwt');
+    const fotosChamado = new FormData();
+
+    fotosChamado.append('ref', 'chamados');
+    fotosChamado.append('refId', selectedChamado);
+    fotosChamado.append('field', 'fotosTecnicas');
+    fileListTecnico.forEach(file => {
+      fotosChamado.append('files', file, file.name);
+    });
+
+    const configUpload = {
+      headers: {
+        Accept: 'multipart/form-data',
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${jwt}`
+      }
+    };
+    return axios.post(`${url}/upload`, fotosChamado, configUpload);
+  };
+
   render() {
     const {
       getFieldDecorator,
@@ -417,6 +499,28 @@ class ChamadosList extends Component {
       fileList: this.state.fileList
     };
 
+    const uploadPropsTecnico = {
+      multiple: true,
+      onRemove: file => {
+        this.setState(({ fileListTecnico }) => {
+          const index = fileListTecnico.indexOf(file);
+          const newFileListTecnico = fileListTecnico.slice();
+          newFileListTecnico.splice(index, 1);
+          return {
+            fileList: newFileListTecnico
+          };
+        });
+      },
+      beforeUpload: file => {
+        console.log(file);
+        this.setState(({ fileListTecnico }) => ({
+          fileListTecnico: [...fileListTecnico, file]
+        }));
+        return false;
+      },
+      fileList: this.state.fileListTecnico
+    };
+
     const clienteError = isFieldTouched('cliente') && getFieldError('cliente');
     const contatoError = isFieldTouched('contato') && getFieldError('contato');
     const tipologiaError =
@@ -434,17 +538,7 @@ class ChamadosList extends Component {
 
     return (
       <Permissao codTela={this.state.codTela} permissaoNecessaria={[1, 2]}>
-        <div style={{ background: '#fff', borderRadius: '4px' }}>
-          <div
-            style={{
-              display: 'flex',
-              borderBottom: '1px solid rgba(0, 0, 0, .1)',
-              padding: '5px 1rem'
-            }}
-          >
-            <h2>Chamados</h2>
-          </div>
-          {/* fim do header */}
+        <ChamadosWrapper>
           <div
             style={{
               padding: '1rem',
@@ -478,35 +572,10 @@ class ChamadosList extends Component {
                     }
                   >
                     {this.state.condominios.map((condominio, i) => {
-                      console.log(condominio)
+                      console.log(condominio);
                       return (
                         <Option value={condominio._id} key={condominio._id + i}>
                           {condominio.nome}
-                        </Option>
-                      );
-                    })}
-                  </Select>
-                </div>
-                <div style={{ marginLeft: 10 }}>
-                  <p>Chamado: </p>
-                  <Select
-                    showSearch
-                    placeholder="Escolha o chamado"
-                    optionFilterProp="children"
-                    style={{ width: 200 }}
-                    disabled={!this.state.selectedCondominio}
-                    value={this.state.selectedChamado}
-                    onChange={this.chamadoChange}
-                    filterOption={(input, option) =>
-                      option.props.children
-                        .toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    }
-                  >
-                    {this.state.chamados.map((chamado, i) => {
-                      return (
-                        <Option value={chamado.id} key={chamado.id + i}>
-                          {chamado.user.username}
                         </Option>
                       );
                     })}
@@ -521,15 +590,33 @@ class ChamadosList extends Component {
             )}
           </div>
 
-          <div
-            className="chamado-form"
-            style={{
-              display:
-                this.state.selectedChamado && !this.state.loading
-                  ? 'block'
-                  : 'none'
-            }}
-          >
+          {this.state.selectedCondominio && (
+            <TableWrapper>
+              <ChamadosAdminTable
+                chamados={this.state.chamados}
+                selectChamado={this.selectChamado}
+              />
+            </TableWrapper>
+          )}
+
+          {this.state.loading && (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: '2em'
+              }}
+            >
+              <Spin />
+            </div>
+          )}
+        </ChamadosWrapper>
+        <ChamadosWrapper hidden={!this.state.selectedChamado}>
+          <Header>
+            <h2 style={{ margin: 0 }}>Chamado</h2>
+          </Header>
+          <div className="chamado-form">
             <Form onSubmit={this.saveChamado} style={{ padding: '1rem' }}>
               <Row gutter={16}>
                 <Col span={12}>
@@ -875,14 +962,15 @@ class ChamadosList extends Component {
                 </Row>
               )}
               <Row gutter={16}>
-                <Col span={9}>
+                <Col span={12}>
+                  <h3>Fotos:</h3>
                   <Upload {...uploadProps}>
-                    {this.state.fileList.length + this.state.fotos.length ==
+                    {this.state.fileList.length + this.state.fotos.length >=
                     4 ? (
                       'Máximo 4 fotos'
                     ) : (
                       <Button>
-                        <Icon type="upload" /> Você pode carregar até 4 fotos
+                        <Icon type="upload" /> Você pode enviar até 4 fotos
                       </Button>
                     )}
                   </Upload>
@@ -919,6 +1007,91 @@ class ChamadosList extends Component {
                     </div>
                   )}
                 </Col>
+                <Col span={12}>
+                  <h3>Fotos técnicas:</h3>
+                  <Upload {...uploadPropsTecnico}>
+                    {this.state.fileListTecnico.length +
+                      this.state.fotosTecnico.length >=
+                    4 ? (
+                      'Máximo 4 fotos'
+                    ) : (
+                      <Button>
+                        <Icon type="upload" /> Você pode enviar até 4 fotos
+                        técnicas
+                      </Button>
+                    )}
+                  </Upload>
+                  {this.state.fotosTecnico.length > 0 && (
+                    <div className="fotosGrid">
+                      {this.state.fotosTecnico.map(foto => {
+                        return (
+                          <div className="foto" key={foto._id}>
+                            <img
+                              src={'http://191.252.59.98:7100' + foto.url}
+                              alt=""
+                            />
+                            <div className="foto-options">
+                              <Button
+                                onClick={() =>
+                                  this.seeFoto(
+                                    'http://191.252.59.98:7100' + foto.url
+                                  )
+                                }
+                                ghost
+                                shape="circle"
+                                icon="eye"
+                              />
+                              <Button
+                                onClick={() => this.removeFotoTecnica(foto._id)}
+                                ghost
+                                shape="circle"
+                                icon="delete"
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </Col>
+              </Row>
+              <Row gutter={16} style={{ marginTop: '1rem' }}>
+                <Col span={9}>
+                  <h3>Situação da procedência</h3>
+                  <Radio.Group
+                    name="procedencia"
+                    value={this.state.procedente}
+                    onChange={event =>
+                      this.setState({
+                        procedente: event.target.value
+                      })
+                    }
+                  >
+                    <Radio value={true}>Procedente</Radio>
+                    <Radio value={false}>Improcedente</Radio>
+                  </Radio.Group>
+                  {!this.state.procedente && (
+                    <React.Fragment>
+                      <h3 style={{ marginTop: '1rem' }}>
+                        Motivo da improcedência
+                      </h3>
+                      <FormItem
+                        validateStatus={comentarioError ? 'error' : ''}
+                        help={comentarioError || ''}
+                        label="Motivo da improcedência"
+                      >
+                        {getFieldDecorator('improcedencia', {
+                          rules: [
+                            {
+                              required: !this.state.procedente,
+                              message: 'O motivo da improcedência é obrigatório'
+                            }
+                          ]
+                        })(<TextArea rows={4} />)}
+                      </FormItem>
+                    </React.Fragment>
+                  )}
+                </Col>
               </Row>
               <Button
                 type="primary"
@@ -926,28 +1099,18 @@ class ChamadosList extends Component {
                 style={{
                   marginTop: '2rem'
                 }}
+                loading={this.state.enviando}
                 disabled={
                   this.state.fileList.length + this.state.fotos.length === 0 ||
                   hasErrors(getFieldsError()) ||
                   this.state.enviando
                 }
               >
-                Salvar
+                {this.state.procedente ? 'Finalizar' : 'Encerrar chamado'}
               </Button>
             </Form>
           </div>
-
-          {this.state.loading && (
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              padding: '2em'
-            }}>
-              <Spin />
-            </div>
-          )}
-        </div>
+        </ChamadosWrapper>
       </Permissao>
     );
   }
