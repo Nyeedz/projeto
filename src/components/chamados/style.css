@@ -25,6 +25,9 @@
   display: flex;
   margin-top: 1rem;
 }
+.block-info:last-of-type {
+  margin-bottom: 1rem;
+}
 .block-info div {
   flex: 1;
 }

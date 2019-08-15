@@ -53,7 +53,9 @@ export default class VisitaTecnica extends React.Component {
           )}
           <div className="tempo-visita">
             <span className="label">Melhor dia para visita: </span>
-            <span className="value">{moment(chamado.data_visita).format('DD/MM/YYYY HH:mm:ss')}</span>
+            <span className="value">
+              {moment(chamado.data_visita).format('DD/MM/YYYY HH:mm:ss')}
+            </span>
           </div>
           <div className="block-info">
             <div>

@@ -11,6 +11,7 @@
     "macaddress": "^0.2.9",
     "moment": "^2.20.1",
     "npm": "^6.4.1",
+    "pdfmake-wrapper": "^1.0.7",
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
     "react-avatar-editor": "^10.3.0",
