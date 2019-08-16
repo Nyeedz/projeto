@@ -20,7 +20,7 @@ import * as moment from 'moment';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { ChamadosAdminTable } from './table';
-import { url } from '../../../utilities/constants';
+import { url, PARECER_TECNICO } from '../../../utilities/constants';
 import { getCodePath } from '../../../utilities/functions';
 import Permissao from '../permissoes/permissoes';
 import './style.css';
@@ -356,7 +356,6 @@ class ChamadosList extends Component {
         });
 
         this.condominioChange(this.state.selectedCondominio);
-
       });
     } catch (err) {
       notification.error({
@@ -383,7 +382,7 @@ class ChamadosList extends Component {
           tipologia: values.tipologia,
           unidade: values.unidade || null,
           data_visita: values.data_visita.format('YYYY-MM-DD HH:mm:ss'),
-          status: 3,
+          status: PARECER_TECNICO,
           procedente: this.state.procedente,
           motivo_improcedencia: values.improcedencia,
           encerrado: !this.state.procedente

@@ -16,9 +16,7 @@ class Chamados extends React.Component {
     {
       title: 'Abertura',
       description: 'de chamado',
-      content: (
-        <AberturaChamado history={this.props.history} next={this.next} />
-      ),
+      content: null,
       status: 0
     },
     {
@@ -51,7 +49,8 @@ class Chamados extends React.Component {
     super(props);
     this.state = {
       current: 0,
-      chamado: null
+      chamado: null,
+      idChamado: ''
     };
 
     if (props.match.params.id) {
@@ -60,10 +59,16 @@ class Chamados extends React.Component {
   }
 
   componentDidMount = () => {
+    this.steps[0].content = (
+      <AberturaChamado
+        history={this.props.history}
+        idChamado={this.props.match.params.id}
+        next={this.next}
+      />
+    );
     this.setState({
       current: 0
     });
-    // this.getChamadosUser();
   };
 
   loadChamado = async id => {

@@ -12,7 +12,8 @@ import {
   Radio,
   Icon,
   Spin,
-  message
+  message,
+  Checkbox
 } from 'antd';
 import * as axios from 'axios';
 import { url, CODE_EDITAR } from '../../../utilities/constants';
@@ -38,6 +39,7 @@ class ConstrutoraForm extends React.Component {
     enviando: false,
     imagem: null,
     ativo: 1,
+    administradora: 0,
     statusPermissoes: [
       { status: 0 },
       { status: 0 },
@@ -61,6 +63,12 @@ class ConstrutoraForm extends React.Component {
     });
   };
 
+  onChangeAdministradora = e => {
+    this.setState({
+      administradora: e.target.checked
+    });
+  };
+
   saveImage = img => {
     this.setState({ imagem: img });
   };
@@ -79,6 +87,7 @@ class ConstrutoraForm extends React.Component {
   };
 
   setFieldValue = dados => {
+    console.log(dados);
     this.setState({ enviando: true });
     this.props.form.setFieldsValue({
       nome: dados.nome,
@@ -97,6 +106,7 @@ class ConstrutoraForm extends React.Component {
     this.setState({
       imagem: dados.logo,
       ativo: dados.ativo ? 1 : 0,
+      administradora: dados.administradora ? 1 : 0,
       editar: true,
       id: dados.id,
       enviando: false
@@ -108,7 +118,8 @@ class ConstrutoraForm extends React.Component {
     this.setState({
       editar: false,
       imagem: false,
-      id: null
+      id: null,
+      administradora: false
     });
   };
 
@@ -129,6 +140,7 @@ class ConstrutoraForm extends React.Component {
               logo: this.state.imagem,
               nome: values.nome,
               ativo: this.state.ativo,
+              administradora: this.state.administradora,
               razao_social: values.razao_social,
               cnpj: values.cnpj,
               cep: values.cep,
@@ -149,6 +161,7 @@ class ConstrutoraForm extends React.Component {
                 logo: this.state.imagem,
                 nome: values.nome,
                 ativo: this.state.ativo,
+                administradora: this.state.administradora,
                 razao_social: values.razao_social,
                 cnpj: values.cnpj,
                 cep: values.cep,
@@ -226,6 +239,7 @@ class ConstrutoraForm extends React.Component {
               cidade: values.cidade,
               telefone: values.telefone,
               ativo: this.state.ativo,
+              administradora: this.state.administradora,
               numero: values.numero,
               email: values.email
             },
@@ -611,6 +625,20 @@ class ConstrutoraForm extends React.Component {
                             />
                           )}
                         </FormItem>
+                      </Col>
+                    </Row>
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <Checkbox
+                          checked={this.state.administradora}
+                          onChange={() => {
+                            this.setState({
+                              administradora: !this.state.administradora
+                            });
+                          }}
+                        >
+                          Administradora
+                        </Checkbox>
                       </Col>
                     </Row>
                   </Col>

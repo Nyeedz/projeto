@@ -175,7 +175,8 @@ class GarantiaForm extends React.Component {
                   tempo_garantia: subitem.tempo_garantia,
                   unidade_garantia: subitem.unidade_garantia,
                   data_inicio: subitem.data_inicio,
-                  garantia: res.data._id
+                  garantia: res.data._id,
+                  data_criacao: moment().format('DD/MM/YYYY')
                 },
                 config
               );
@@ -292,7 +293,8 @@ class GarantiaForm extends React.Component {
                 {
                   nome: subitem.nome,
                   tempo_garantia: subitem.tempo_garantia,
-                  unidade_garantia: subitem.unidade_garantia
+                  unidade_garantia: subitem.unidade_garantia,
+                  data_criacao: moment().format('DD/MM/YYYY')
                 },
                 config
               );
@@ -306,7 +308,8 @@ class GarantiaForm extends React.Component {
                   tempo_garantia: subitem.tempo_garantia,
                   unidade_garantia: subitem.unidade_garantia,
                   data_inicio: subitem.data_inicio,
-                  garantia: res.data._id
+                  garantia: res.data._id,
+                  data_criacao: moment().format('DD/MM/YYYY')
                 },
                 config
               );

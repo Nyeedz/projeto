@@ -101,7 +101,7 @@ class ListaChamadosClientes extends React.Component {
     });
   };
 
-  updateChamados = async chamado => {
+  updateChamados = chamado => {
     this.props.history.push(`/chamado/${chamado._id}`);
   };
 
@@ -155,14 +155,6 @@ class ListaChamadosClientes extends React.Component {
         key: 'data_abertura' + '_id',
         render: text => <p key={text}>{moment(text).format('LLLL')}</p>
       },
-      // {
-      //   title: 'Condomínio',
-      //   dataIndex: 'condominio',
-      //   key: 'condominio',
-      //   render: condominio => {
-      //     console.log(condominio, 'adasdasd');
-      //   }
-      // },
       {
         title: 'Criado em',
         dataIndex: 'createdAt',
@@ -173,7 +165,16 @@ class ListaChamadosClientes extends React.Component {
         title: 'Status',
         dataIndex: 'status',
         id: 'status' + '_id',
-        render: (text, i) => <p key={text + i}>{status[i]}</p>
+        render: (text, i) => {
+          switch (text) {
+            case 0:
+              return <p key={text + i}>Abertura Chamado</p>;
+            case 1:
+              return <p key={text + i}>Visita para análise técnica</p>;
+            case 2:
+              return <p key={text + i}>Parecer técnico</p>;
+          }
+        }
       },
       {
         title: 'Opções',

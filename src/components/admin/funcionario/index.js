@@ -163,7 +163,7 @@ class FuncionarioForm extends React.Component {
     if (dados.file === null) {
       this.setState({ fileName: 'Assinatura digital' });
     } else {
-      this.setState({ fileName: dados.file.name });
+      this.setState({ fileName: dados.file.name, file: null });
     }
 
     // this.props.form.validateFields();
@@ -239,7 +239,8 @@ class FuncionarioForm extends React.Component {
                 editar: false,
                 fileName: 'Assinatura Digital',
                 id: null,
-                download: true
+                download: true,
+                downloadArquivo: false
               });
               return false;
             } else {
@@ -248,7 +249,7 @@ class FuncionarioForm extends React.Component {
               contrato.append('refId', res.data._id);
               contrato.append('field', 'file');
               contrato.append('source', 'users-permissions');
-              contrato.append('files', this.state.file);
+              contrato.append('file', this.state.file);
 
               axios
                 .post(`${url}/upload`, contrato, config)
@@ -265,7 +266,11 @@ class FuncionarioForm extends React.Component {
                     imagem: null,
                     editar: false,
                     id: null,
-                    download: true
+                    file: '',
+                    download: true,
+                    fileName: '',
+                    downloadArquivo: false,
+                    assinatura: null
                   });
                 })
                 .catch(error => console.log(error));
@@ -336,6 +341,13 @@ class FuncionarioForm extends React.Component {
                     .post(`${url}/upload`, contrato, config)
                     .then(() => {
                       this.props.dispatch(fetchFuncionarios());
+                      this.setState({
+                        file: '',
+                        download: true,
+                        fileName: '',
+                        downloadArquivo: false,
+                        assinatura: null
+                      });
                     })
                     .catch(error => console.log(error));
                 }
@@ -365,7 +377,8 @@ class FuncionarioForm extends React.Component {
                 { status: 0 },
                 { status: 0 },
                 { status: 0 }
-              ]
+              ],
+              downloadArquivo: false
             });
           })
           .catch(error => {
@@ -377,6 +390,11 @@ class FuncionarioForm extends React.Component {
             this.setState({
               enviando: false,
               imagem: null,
+              file: '',
+              download: true,
+              fileName: '',
+              downloadArquivo: false,
+              assinatura: null,
               statusPermissoes: [
                 { status: 0 },
                 { status: 0 },
@@ -399,7 +417,7 @@ class FuncionarioForm extends React.Component {
           description: 'Por favor, preencha todos os campos',
           icon: <Icon type="warning" style={{ color: 'yellow' }} />
         });
-        this.setState({ enviando: false });
+        this.setState({ enviando: false, downloadArquivo: false });
       }
       this.props.dispatch(fetchFuncionarios());
     });

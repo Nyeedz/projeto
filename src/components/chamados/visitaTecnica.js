@@ -14,7 +14,7 @@ export default class VisitaTecnica extends React.Component {
 
     this.setState({
       chamado,
-      currentImage: chamado.files.length > 0 ? chamado.files[0]._id : null
+      currentImage: chamado.fotos.length > 0 ? chamado.fotos[0]._id : null
     });
 
     console.log(this.props.chamado);
@@ -22,22 +22,22 @@ export default class VisitaTecnica extends React.Component {
 
   previousPicture = () => {
     const { chamado, currentImage } = this.state;
-    const index = chamado.files.findIndex(file => file._id === currentImage);
+    const index = chamado.fotos.findIndex(file => file._id === currentImage);
 
     if (index > 0) {
       this.setState({
-        currentImage: chamado.files[index - 1]._id
+        currentImage: chamado.fotos[index - 1]._id
       });
     }
   };
 
   nextPicture = () => {
     const { chamado, currentImage } = this.state;
-    const index = chamado.files.findIndex(file => file._id === currentImage);
+    const index = chamado.fotos.findIndex(file => file._id === currentImage);
 
-    if (chamado.files.length > index + 1) {
+    if (chamado.fotos.length > index + 1) {
       this.setState({
-        currentImage: chamado.files[index + 1]._id
+        currentImage: chamado.fotos[index + 1]._id
       });
     }
   };
@@ -90,7 +90,7 @@ export default class VisitaTecnica extends React.Component {
         </div>
         <div className="right-panel">
           <div className="carousel">
-            {chamado.files.map(file => {
+            {chamado.fotos.map(file => {
               return (
                 <img
                   key={file._id}
