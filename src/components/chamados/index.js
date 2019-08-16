@@ -8,6 +8,7 @@ import VisitaTecnica from './visitaTecnica';
 import PesquisaSatisfacao from './pesquisaSatisfacao';
 import { ABERTURA_CHAMADO, url } from '../../utilities/constants';
 import { runInThisContext } from 'vm';
+import ParecerTecnico from './parecerTecnico';
 
 const { Content } = Layout;
 const Step = Steps.Step;
@@ -79,6 +80,7 @@ class Chamados extends React.Component {
         headers: { Authorization: `Bearer ${auth}` }
       };
       const res = await axios.get(`${url}/chamados/${id}`, config);
+      console.log(res)
       this.selectStep(res.data);
     } catch (err) {
       console.log(err);
@@ -91,6 +93,12 @@ class Chamados extends React.Component {
         this.steps[1].content = <VisitaTecnica chamado={chamado} />;
         this.setState({
           current: 1
+        });
+        break;
+      case 2:
+        this.steps[2].content = <ParecerTecnico chamado={chamado} />;
+        this.setState({
+          current: 2
         });
         break;
       default:
