@@ -1,22 +1,17 @@
-import { Button, Input } from 'antd';
+import { Button, Input, Upload, Icon, Divider } from 'antd';
 import * as moment from 'moment';
-import {
-  PdfMakeWrapper,
-  Columns,
-  Txt,
-  Stack,
-  Table,
-  Cell,
-  Img
-} from 'pdfmake-wrapper';
+import * as axios from 'axios';
 import React from 'react';
+import { url } from '../../utilities/constants';
 const { TextArea } = Input;
 
-export default class ParecerTecnico extends React.Component {
+export default class ExecucaoChamado extends React.Component {
   state = {
     chamado: null,
+    comment: '',
     currentImage: '',
     currentImageTecnica: '',
+    fileList: [],
     enviando: false
   };
 
@@ -33,194 +28,56 @@ export default class ParecerTecnico extends React.Component {
     console.log(this.props.chamado);
   };
 
-  downloadDocument = async () => {
-    const { chamado } = this.props;
-    const pdf = new PdfMakeWrapper();
-
-    this.setState({ enviando: true });
-    const data_encerramento = moment(
-      chamado.data_encerramento.substring(0, 10) +
-        '' +
-        chamado.data_encerramento.substring(11, 19),
-      'YYYY-MM-DD HH:mm:ss'
-    ).format('DD/MM/YYYY HH:mm:ss');
-    const data_abertura = moment(
-      chamado.data_abertura.substring(0, 10) +
-        '' +
-        chamado.data_abertura.substring(11, 19),
-      'YYYY-MM-DD HH:mm:ss'
-    ).format('DD/MM/YYYY HH:mm:ss');
-    const data_visita = moment(
-      chamado.data_visita.substring(0, 10) +
-        '' +
-        chamado.data_visita.substring(11, 19),
-      'YYYY-MM-DD HH:mm:ss'
-    ).format('DD/MM/YYYY HH:mm:ss');
-
-    console.log(chamado);
-
-    pdf.add(
-      new Txt('Informações do chamado')
-        .bold()
-        .fontSize(24)
-        .alignment('center').end
-    );
-
-    pdf.add(pdf.ln(1));
-    pdf.add(
-      new Txt(chamado.procedente ? 'Procedente' : 'Improcedente')
-        .bold()
-        .fontSize(18)
-        .color(chamado.procedente ? 'green' : 'red')
-        .alignment('center').end
-    );
-
-    if (chamado.problema_repetido) {
-      pdf.add(pdf.ln(1));
-      pdf.add(
-        new Txt('Problema repetido')
-          .bold()
-          .fontSize(16)
-          .color('red')
-          .alignment('center').end
+  finalizarChamado = async () => {
+    try {
+      const { chamado } = this.props;
+      const jwt = localStorage.getItem('jwt');
+      const config = {
+        headers: {
+          Authorization: `Bearer ${jwt}`
+        }
+      };
+      const res = await axios.put(
+        `${url}/chamados/${chamado._id}`,
+        {
+          status: 4,
+          comentarioExecucao: this.state.comment
+        },
+        config
       );
-    }
 
-    pdf.add(pdf.ln(5));
-    pdf.add(new Txt('Cliente: ').bold().fontSize(16).end);
-    pdf.add(pdf.ln(1));
-    pdf.add(
-      new Txt(chamado.user.tipo_morador ? 'Sindico' : 'Morador').bold().end
-    );
-    pdf.add(pdf.ln(2));
-    pdf.add(
-      new Columns([
-        `Nome: ${chamado.user.nome} ${chamado.user.sobrenome}`,
-        new Txt('Data de abertura do chamado: ').bold().alignment('right').end
-      ]).end
-    );
-    pdf.add(
-      new Columns([
-        'Email: ' + chamado.user.email,
-        new Txt(data_abertura).alignment('right').end
-      ]).end
-    );
-    pdf.add(
-      new Columns([
-        '',
-        new Txt('Data de visita: ').bold().alignment('right').end
-      ]).end
-    );
-    pdf.add(
-      new Columns([
-        'Telefone: ' + chamado.user.telefone,
-        new Txt(data_visita).alignment('right').end
-      ]).end
-    );
-    pdf.add(
-      new Columns([
-        '',
-        new Txt('Data de encerramento do chamado: ').bold().alignment('right')
-          .end
-      ]).end
-    );
-    pdf.add(
-      new Columns(['', new Txt(data_encerramento).alignment('right').end]).end
-    );
-    new Columns();
-    pdf.add(pdf.ln(3));
-    pdf.add(
-      new Table([
-        [
-          '',
-          new Txt('Condominio').bold().end,
-          new Txt('Tipologia').bold().end,
-          new Txt(this.getRightColumnTipologiaTitle(chamado)).bold().end,
-          new Txt('Garantia').bold().end,
-          new Txt('Subitem garantia').bold().end
-        ],
-        [
-          new Txt('Nome:').bold().end,
-          chamado.condominio.nome,
-          chamado.tipologia.nome,
-          this.getRightColumnTipologiaData(chamado),
-          chamado.garantia.nome,
-          chamado.subitem.nome
-        ]
-      ]).alignment('center').end
-    );
-    pdf.add(pdf.ln(2));
-    pdf.add(new Txt('Comentário: ').bold().fontSize(16).end);
-    pdf.add(pdf.ln(1));
-    pdf.add(chamado.comentario);
-    pdf.add(pdf.ln(8));
+      if (this.state.fileList.length > 0) {
+        const adicao = await this.adicionarFotos();
+        console.log(adicao);
+      }
 
-    pdf.add(new Txt('Fotos do cliente: ').bold().fontSize(16).end);
-    pdf.add(pdf.ln(1));
+      this.props.loadChamado(chamado._id);
 
-    const fotos = await Promise.all(
-      chamado.fotos.map(foto => {
-        return new Img(`http://191.252.59.98:7100${foto.url}`)
-          .width(510)
-          .margin([0, 0, 0, 10])
-          .build();
-      })
-    );
-
-    fotos.map(item => {
-      pdf.add(item);
-    });
-
-    pdf.add(new Txt('Fotos técnicas: ').bold().fontSize(16).end);
-    pdf.add(pdf.ln(1));
-
-    const fotosTecnicas = await Promise.all(
-      chamado.fotosTecnicas.map(foto => {
-        return new Img(`http://191.252.59.98:7100${foto.url}`)
-          .width(510)
-          .margin([0, 0, 0, 10])
-          .build();
-      })
-    );
-
-    fotosTecnicas.map(item => {
-      pdf.add(item);
-    });
-
-    pdf.pageMargins([40, 60, 40, 60]);
-    pdf.header(moment().format('LLLL'));
-
-    pdf.create().download();
-
-    this.setState({ enviando: false });
+      console.log(res);
+    } catch (err) {}
   };
 
-  getRightColumnTipologiaTitle = chamado => {
-    if (chamado.unidade) {
-      return 'Unidade';
-    }
+  adicionarFotos = () => {
+    const { fileList, selectedChamado } = this.state;
+    const { chamado } = this.props;
+    const jwt = localStorage.getItem('jwt');
+    const fotosChamado = new FormData();
 
-    if (chamado.areacomumgeral) {
-      return 'Área comum geral';
-    }
+    fotosChamado.append('ref', 'chamados');
+    fotosChamado.append('refId', chamado._id);
+    fotosChamado.append('field', 'fotos');
+    fileList.forEach(file => {
+      fotosChamado.append('files', file, file.name);
+    });
 
-    if (chamado.areatipologia) {
-      return 'Área comum tipologia';
-    }
-  };
-
-  getRightColumnTipologiaData = chamado => {
-    if (chamado.unidade) {
-      return chamado.unidade.nome;
-    }
-
-    if (chamado.areacomumgeral) {
-      return chamado.areacomumgeral.nome;
-    }
-
-    if (chamado.areatipologia) {
-      return chamado.areatipologia.nome;
-    }
+    const configUpload = {
+      headers: {
+        Accept: 'multipart/form-data',
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${jwt}`
+      }
+    };
+    return axios.post(`${url}/upload`, fotosChamado, configUpload);
   };
 
   previousPicture = () => {
@@ -273,6 +130,27 @@ export default class ParecerTecnico extends React.Component {
 
   render() {
     const { chamado } = this.state;
+    const uploadProps = {
+      multiple: true,
+      onRemove: file => {
+        this.setState(({ fileList }) => {
+          const index = fileList.indexOf(file);
+          const newFileList = fileList.slice();
+          newFileList.splice(index, 1);
+          return {
+            fileList: newFileList
+          };
+        });
+      },
+      beforeUpload: file => {
+        console.log(file);
+        this.setState(({ fileList }) => ({
+          fileList: [...fileList, file]
+        }));
+        return false;
+      },
+      fileList: this.state.fileList
+    };
 
     return (
       <div className="analise-box">
@@ -316,13 +194,35 @@ export default class ParecerTecnico extends React.Component {
               <p>{chamado.subitem ? chamado.subitem.nome : 'n disponível'}</p>
             </div>
           </div>
+          <Divider />
+          <div className="comentario" style={{ marginBottom: '1rem' }}>
+            <h2>Informações opcionais da execução</h2>
+            <p>Comentário de execução</p>
+            <TextArea
+              rows={4}
+              value={this.state.comment}
+              onChange={event => {
+                this.setState({
+                  comment: event.target.value
+                });
+              }}
+            />
+          </div>
+          <Upload {...uploadProps}>
+            {this.state.fileList.length >= 4 ? (
+              'Máximo 4 fotos'
+            ) : (
+              <Button>
+                <Icon type="upload" /> Enviar fotos de execução (máximo 4)
+              </Button>
+            )}
+          </Upload>
           <Button
             type="primary"
-            icon="download"
-            loading={this.state.enviando}
-            onClick={this.downloadDocument}
+            style={{ marginTop: '2rem' }}
+            onClick={this.finalizarChamado}
           >
-            Baixar documento
+            Finalizar execução do chamado
           </Button>
         </div>
         <div className="right-panel">

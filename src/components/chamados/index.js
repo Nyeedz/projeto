@@ -1,14 +1,12 @@
-import React from 'react';
-import { Row, Col, Layout, Steps, Popover, Button, message } from 'antd';
-import './style.css';
+import { Layout, Popover, Steps } from 'antd';
 import axios from 'axios';
-
+import React from 'react';
+import { url } from '../../utilities/constants';
 import AberturaChamado from './aberturaChamado';
-import VisitaTecnica from './visitaTecnica';
-import PesquisaSatisfacao from './pesquisaSatisfacao';
-import { ABERTURA_CHAMADO, url } from '../../utilities/constants';
-import { runInThisContext } from 'vm';
+import ExecucaoChamado from './execucaoChamado';
 import ParecerTecnico from './parecerTecnico';
+import './style.css';
+import VisitaTecnica from './visitaTecnica';
 
 const { Content } = Layout;
 const Step = Steps.Step;
@@ -37,7 +35,7 @@ class Chamados extends React.Component {
     },
     {
       title: 'Execução',
-      content: 'do chamado',
+      content: null,
       description: 'do chamado',
       status: 3
     },
@@ -75,7 +73,7 @@ class Chamados extends React.Component {
         headers: { Authorization: `Bearer ${auth}` }
       };
       const res = await axios.get(`${url}/chamados/${id}`, config);
-      console.log(res)
+      console.log(res);
       this.selectStep(res.data);
     } catch (err) {
       console.log(err);
@@ -94,6 +92,19 @@ class Chamados extends React.Component {
         this.steps[2].content = <ParecerTecnico chamado={chamado} />;
         this.setState({
           current: 2
+        });
+        break;
+      case 3:
+        this.steps[3].content = (
+          <ExecucaoChamado chamado={chamado} loadChamado={this.loadChamado} />
+        );
+        this.setState({
+          current: 3
+        });
+        break;
+      case 4:
+        this.setState({
+          current: 4
         });
         break;
       default:
