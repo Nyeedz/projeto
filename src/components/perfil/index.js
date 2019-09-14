@@ -179,7 +179,7 @@ class Perfil extends React.Component {
       isFieldTouched('password') && getFieldError('password');
 
     return (
-      <Content style={{ padding: '0 50px', marginTop: '2rem' }}>
+      <Content style={{ padding: '64px 64px 0 64px', marginTop: '2rem' }}>
         <div style={{ background: '#fff' }}>
           <Row>
             <Col span={8} style={styles.centralizado}>

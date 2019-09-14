@@ -155,22 +155,6 @@ export default class ParecerTecnico extends React.Component {
     pdf.add(chamado.comentario);
     pdf.add(pdf.ln(8));
 
-    pdf.add(new Txt('Fotos do cliente: ').bold().fontSize(16).end);
-    pdf.add(pdf.ln(1));
-
-    const fotos = await Promise.all(
-      chamado.fotos.map(foto => {
-        return new Img(`http://191.252.59.98:7100${foto.url}`)
-          .width(510)
-          .margin([0, 0, 0, 10])
-          .build();
-      })
-    );
-
-    fotos.map(item => {
-      pdf.add(item);
-    });
-
     pdf.add(new Txt('Fotos técnicas: ').bold().fontSize(16).end);
     pdf.add(pdf.ln(1));
 
@@ -326,40 +310,6 @@ export default class ParecerTecnico extends React.Component {
           </Button>
         </div>
         <div className="right-panel">
-          <h3>Fotos do cliente</h3>
-          <div className="carousel">
-            {chamado.fotos.map(file => {
-              return (
-                <img
-                  key={file._id}
-                  className="carousel-image"
-                  onClick={() => {
-                    window.open(
-                      `http://191.252.59.98:7100${file.url}`,
-                      '_blank'
-                    );
-                  }}
-                  style={{
-                    display:
-                      this.state.currentImage == file._id ? 'block' : 'none'
-                  }}
-                  src={`http://191.252.59.98:7100${file.url}`}
-                />
-              );
-            })}
-            <button
-              className="carousel-button left"
-              onClick={this.previousPicture}
-            >
-              {'<'}
-            </button>
-            <button
-              className="carousel-button right"
-              onClick={this.nextPicture}
-            >
-              {'>'}
-            </button>
-          </div>
           <h3>Fotos do técnico</h3>
           <div className="carousel">
             {chamado.fotosTecnicas.map(file => {

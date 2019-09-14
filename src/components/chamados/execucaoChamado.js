@@ -226,40 +226,6 @@ export default class ExecucaoChamado extends React.Component {
           </Button>
         </div>
         <div className="right-panel">
-          <h3>Fotos do cliente</h3>
-          <div className="carousel">
-            {chamado.fotos.map(file => {
-              return (
-                <img
-                  key={file._id}
-                  className="carousel-image"
-                  onClick={() => {
-                    window.open(
-                      `http://191.252.59.98:7100${file.url}`,
-                      '_blank'
-                    );
-                  }}
-                  style={{
-                    display:
-                      this.state.currentImage == file._id ? 'block' : 'none'
-                  }}
-                  src={`http://191.252.59.98:7100${file.url}`}
-                />
-              );
-            })}
-            <button
-              className="carousel-button left"
-              onClick={this.previousPicture}
-            >
-              {'<'}
-            </button>
-            <button
-              className="carousel-button right"
-              onClick={this.nextPicture}
-            >
-              {'>'}
-            </button>
-          </div>
           <h3>Fotos do técnico</h3>
           <div className="carousel">
             {chamado.fotosTecnicas.map(file => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, Link } from 'react-router-dom';
-import { Menu, Layout } from 'antd';
+import { Menu, Layout, Icon } from 'antd';
 import { connect } from 'react-redux';
 import Construtora from './construtoras/';
 import Condominios from './condominios/';
@@ -25,6 +25,14 @@ const SubMenu = Menu.SubMenu;
 const MenuItemGroup = Menu.ItemGroup;
 
 class Admin extends React.Component {
+  state = {
+    collapsed: true
+  };
+
+  onCollapse = collapsed => {
+    this.setState({ collapsed });
+  };
+
   isPermitido = (codTela, permissaoNecessaria = [1, 2]) => {
     const permissoes = this.props.permissoes;
 
@@ -51,18 +59,23 @@ class Admin extends React.Component {
 
   render() {
     return (
-      <Layout>
+      <Layout style={{ paddingTop: '64px' }}>
         <Sider
-          breakpoint="lg"
-          collapsedWidth="0"
-          onCollapse={(collapsed, type) => {
-            console.log(collapsed, type);
-          }}
+          collapsible
+          collapsed={this.state.collapsed}
+          onCollapse={this.onCollapse}
           width={300}
         >
-          <div className="logo" />
           <Menu theme="dark" mode="inline" defaultOpenKeys={['sub1']}>
-            <SubMenu key="sub1" title={<span>Cadastro Geral</span>}>
+            <SubMenu
+              key="sub1"
+              title={
+                <span>
+                  <Icon type="form" />
+                  <span>Cadastro Geral</span>
+                </span>
+              }
+            >
               <MenuItemGroup key="g1">
                 {this.isPermitido(0) ? (
                   <Menu.Item key="1">
@@ -135,19 +148,38 @@ class Admin extends React.Component {
             </SubMenu>
 
             {this.isPermitido(10) ? (
-              <Menu.Item key="11">
-                <Link to="/admin/chamados">Chamados</Link>
+              <Menu.Item
+                key="11"
+                onClick={() => {
+                  this.props.history.push('/admin/chamados');
+                }}
+              >
+                <Icon type="database" />
+                <span>Chamados</span>
               </Menu.Item>
             ) : null}
 
             {/* <Menu.Item key="13">
               <Link to="/admin/teste">Custos</Link>
             </Menu.Item> */}
-            <Menu.Item key="14">
-              <Link to="/admin/graficos">Gráficos</Link>
+            <Menu.Item
+              key="14"
+              onClick={() => {
+                this.props.history.push('/admin/biblioteca');
+              }}
+            >
+              <Icon type="bar-chart" />
+
+              <span>Gráficos</span>
             </Menu.Item>
-            <Menu.Item key="15">
-              <Link to="/admin/biblioteca">biblioteca</Link>
+            <Menu.Item
+              key="15"
+              onClick={() => {
+                this.props.history.push('/admin/biblioteca');
+              }}
+            >
+              <Icon type="book" />
+              <span>Biblioteca</span>
             </Menu.Item>
           </Menu>
         </Sider>
@@ -179,8 +211,8 @@ class Admin extends React.Component {
   }
 }
 
-export default (Admin = connect(store => {
+export default Admin = connect(store => {
   return {
     permissoes: store.user.permissoes
   };
-})(Admin));
+})(Admin);

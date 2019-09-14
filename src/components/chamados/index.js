@@ -165,7 +165,7 @@ class Chamados extends React.Component {
     );
 
     return (
-      <Content className="content">
+      <Content className="content" style={{ paddingTop: '34px' }}>
         <Steps current={current}>
           {this.steps.map(item => (
             <Step

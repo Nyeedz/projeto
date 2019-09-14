@@ -1187,7 +1187,7 @@ class AberturaChamadoForm extends React.Component {
                   type="primary"
                   htmlType="submit"
                   loading={uploading}
-                  disabled={hasErrors(getFieldsError()) || this.state.enviando}
+                  disabled={hasErrors(getFieldsError()) || this.state.enviando || this.state.fileList.length === 0}
                 >
                   {this.state.editar ? 'Editar chamado' : 'Finalizar Abertura'}
                 </Button>

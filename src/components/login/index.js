@@ -46,6 +46,7 @@ class LoginForm extends React.Component {
             password: values.password
           })
           .then(res => {
+            console.log(res.data)
             localStorage.setItem('id', res.data.user._id);
             localStorage.setItem('jwt', res.data.jwt);
             localStorage.setItem('tipo_morador', res.data.user.tipo_morador);
@@ -105,6 +106,7 @@ class LoginForm extends React.Component {
       isFieldTouched
     } = this.props.form;
     const { user } = this.props;
+    
     if (
       (user.jwt && user.role === 'administrator') ||
       user.role === 'funcionarios'

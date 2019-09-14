@@ -19,9 +19,9 @@ export class ChamadosAdminTable extends React.Component {
           render={text => <span key={text}>{moment(text).format('LLL')}</span>}
         />
         <Column
-          title="Criado em"
-          dataIndex="createdAt"
-          key={'createdAt' + '_id'}
+          title="Data de visita"
+          dataIndex="data_visita"
+          key={'data_visita' + '_id'}
           render={text => <span key={text}>{moment(text).format('LLL')}</span>}
         />
         <Column

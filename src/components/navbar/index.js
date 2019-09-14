@@ -29,16 +29,15 @@ class Navbar extends React.Component {
 
     return localStorage.getItem('jwt') || user.jwt ? (
       // <Layout>
-      <Header className="header" style={{ zIndex: 2 }}>
-        {/* <img
-            src={require('../../images/logo_branco.png')}
+      <Header className="header" style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
+        <img
+            src={require('../../images/small_logo.png')}
             style={{
               float: 'left',
-              width: '226px',
-              height: '42px',
-              margin: '11px 33px 0px -9px'
+              height: '50%',
+              margin: '15px 81px 0px 15px'
             }}
-          /> */}
+          />
         <Menu
           theme="dark"
           mode="horizontal"
