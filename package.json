@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "antd": "^3.16.5",
-    "axios": "^0.17.1",
+    "axios": "^0.21.1",
     "cep-promise": "^3.0.6",
     "chart.js": "^2.7.2",
     "hoek": "^5.0.4",
